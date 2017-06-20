@@ -108,14 +108,16 @@ export function createStoreCreator<
         },
 
         get() {
-          if (lastSeenVersion === stateInfo.version) {
+          return () => {
+            if (lastSeenVersion === stateInfo.version) {
+              return cached;
+            }
+
+            cached = (computedGetters as any)[key]();
+            lastSeenVersion = stateInfo.version;
+
             return cached;
-          }
-
-          cached = (computedGetters as any)[key]();
-          lastSeenVersion = stateInfo.version;
-
-          return cached;
+          };
         },
         enumerable: true,
       });

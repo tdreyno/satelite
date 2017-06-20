@@ -1,6 +1,8 @@
 import { createStoreCreator } from "../Store";
 
-const sideEffect = (v: any) => v;
+function sideEffect<T>(v: T): T {
+  return v;
+}
 
 const createStore = createStoreCreator(
   // State
@@ -31,8 +33,8 @@ const createStore = createStoreCreator(
       state.value = state.value + 1;
     },
 
-    sendDoubleValue(): void {
-      return sideEffect(computed.doubleValue);
+    sendDoubleValue(): number {
+      return sideEffect(computed.doubleValue());
     },
   }),
 );
@@ -78,7 +80,7 @@ describe("Store", () => {
     expect(store.state.value).toEqual(2);
   });
 
-  it("should have computed state", () => {
+  it("should have memoized computed state", () => {
     let callCount = 0;
     const createComputedStore = createStoreCreator(
       {
@@ -100,26 +102,26 @@ describe("Store", () => {
     );
 
     const store = createComputedStore();
-    expect(store.computed.doubleValue).toEqual(0);
+    expect(store.computed.doubleValue()).toEqual(0);
     expect(callCount).toEqual(1);
 
     store.incrementValue();
-    expect(store.computed.doubleValue).toEqual(2);
+    expect(store.computed.doubleValue()).toEqual(2);
 
     store.incrementValue();
-    expect(store.computed.doubleValue).toEqual(4);
+    expect(store.computed.doubleValue()).toEqual(4);
 
     // Extra check, shouldn't recompute.
-    expect(store.computed.doubleValue).toEqual(4);
+    expect(store.computed.doubleValue()).toEqual(4);
     expect(callCount).toEqual(3);
   });
 
   it("should have computed state", () => {
     const store = createStore();
-    expect(store.computed.doubleValue).toEqual(0);
+    expect(store.computed.doubleValue()).toEqual(0);
     store.incrementValue();
-    expect(store.computed.doubleValue).toEqual(2);
-    expect(store.computed.doubleDoubleValue).toEqual(4);
+    expect(store.computed.doubleValue()).toEqual(2);
+    expect(store.computed.doubleDoubleValue()).toEqual(4);
 
     expect(store.sendDoubleValue()).toEqual(2);
   });
