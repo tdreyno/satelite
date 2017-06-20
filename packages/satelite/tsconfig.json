@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "lib": ["es6"]
+  },
+  "exclude": [
+    "node_modules",
+    "dist-es5",
+    "dist-es6"
+  ]
+}

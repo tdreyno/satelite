@@ -1,0 +1,50 @@
+{
+  "name": "satelite",
+  "description": "Satelite State Management",
+  "version": "0.0.0",
+  "main": "dist-es5/index.js",
+  "esnext": "dist-es6/index.js",
+  "types": "./dist-es5/index.d.ts",
+  "scripts": {
+    "prepublish": "yarn run compile",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "tslint -c ../../tslint.json src/**/*.ts",
+    "lint:fix": "tslint -c ../../tslint.json src/**/*.ts --fix",
+    "compile": "yarn run compile:es5 && yarn run compile:es6",
+    "compile:es6": "rm -rf dist-es6 && tsc --sourceMap --outDir dist-es6 --declaration --target esnext",
+    "compile:es5": "rm -rf dist-es5 && tsc --sourceMap --outDir dist-es5 --declaration --target es5",
+    "compile:watch": "tsc --sourceMap --outDir dist --declaration --watch"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": "6.10.3"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "<rootDir>/preprocessor.js"
+    },
+    "testMatch": [
+      "**/*.spec.(ts|js)"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist-es5/",
+      "/dist/"
+    ]
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/jest": "^19.2.4",
+    "jest": "^20.0.3",
+    "jest-cli": "^20.0.3",
+    "tslint": "^5.3.2",
+    "tslint-immutable": "^3.4.2",
+    "typescript": "^2.3.4"
+  }
+}
