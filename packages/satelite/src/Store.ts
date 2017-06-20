@@ -6,25 +6,25 @@ export interface IActions {
   [fn: string]: (...args: any[]) => void;
 }
 
-export type IMapStateToActions<S, A> = (state: S) => A;
+export type IMapStateToActions<S, C, A> = (state: S, computed: C) => A;
 export type IMapStateToComputed<S, C> = (state: S) => C;
 
-export interface ICreateStoreCreatorOptions<S, A, C> {
+export interface ICreateStoreCreatorOptions<S, C, A> {
   state: S;
-  actions?: IMapStateToActions<S, A>;
   computed?: IMapStateToComputed<Readonly<S>, C>;
+  actions?: IMapStateToActions<S, C, A>;
 }
 
 export type IChangeCallback<S, K = keyof S> = (state: S, key: K) => any;
 
-export type IStoreInstance<S, A, C> = {
+export type IStoreInstance<S, C, A> = {
   state: Readonly<S>;
   computed: Readonly<C>;
   onChange(cb: IChangeCallback<S>): void;
   offChange(cb: IChangeCallback<S>): void;
 } & A;
 
-export type IStoreCreator<S, A, C> = (initialState?: S) => IStoreInstance<S, A, C>;
+export type IStoreCreator<S, C, A> = (initialState?: S) => IStoreInstance<S, C, A>;
 
 function createStateProxy<
   T extends IState
@@ -66,12 +66,16 @@ function createReadonlyStateProxy<T extends IState>(state: T): Readonly<T> {
 
 export function createStoreCreator<
   S extends IState,
-  A,
-  C
->({ state, actions, computed }: ICreateStoreCreatorOptions<S, A, C>): IStoreCreator<S, A, C> {
+  C,
+  A
+>(
+  state: S,
+  computed?: IMapStateToComputed<Readonly<S>, C>,
+  actions?: IMapStateToActions<S, Readonly<C>, A>,
+): IStoreCreator<S, C, A> {
   let currentState: S;
 
-  return function createStore(initialState?: S): IStoreInstance<S, A, C> {
+  return function createStore(initialState?: S): IStoreInstance<S, C, A> {
     const callbacks = new Set();
 
     const stateInfo = {
@@ -108,7 +112,7 @@ export function createStoreCreator<
             return cached;
           }
 
-          cached = (computedGetters as any)[key];
+          cached = (computedGetters as any)[key]();
           lastSeenVersion = stateInfo.version;
 
           return cached;
@@ -133,7 +137,7 @@ export function createStoreCreator<
         },
       },
 
-      actions ? actions(currentState) : {},
+      actions ? actions(currentState, memoizedComputed) : {},
     );
   };
 }

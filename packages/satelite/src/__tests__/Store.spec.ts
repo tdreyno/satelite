@@ -1,11 +1,28 @@
 import { createStoreCreator } from "../Store";
 
-const createStore = createStoreCreator({
-  state: {
+const sideEffect = (v: any) => v;
+
+const createStore = createStoreCreator(
+  // State
+  {
     value: 0,
   },
 
-  actions: (state) => ({
+  // Computed
+  (state) => {
+    function doubleValue() {
+      return state.value * 2;
+    }
+
+    function doubleDoubleValue() {
+      return doubleValue() * 2;
+    }
+
+    return { doubleValue, doubleDoubleValue };
+  },
+
+  // Actions
+  (state, computed) => ({
     setValue(value: number): void {
       state.value = value;
     },
@@ -13,15 +30,12 @@ const createStore = createStoreCreator({
     incrementValue(): void {
       state.value = state.value + 1;
     },
-  }),
 
-  // Possibly rename to "derived"
-  computed: (state) => ({
-    get doubleValue() {
-      return state.value * 2;
+    sendDoubleValue(): void {
+      return sideEffect(computed.doubleValue);
     },
   }),
-});
+);
 
 describe("Store", () => {
   it("should be distinct from each other", () => {
@@ -66,25 +80,24 @@ describe("Store", () => {
 
   it("should have computed state", () => {
     let callCount = 0;
-    const createComputedStore = createStoreCreator({
-      state: {
+    const createComputedStore = createStoreCreator(
+      {
         value: 0,
       },
 
-      // Possibly rename to "derived"
-      computed: (state) => ({
-        get doubleValue() {
+      (state) => ({
+        doubleValue() {
           callCount += 1;
           return state.value * 2;
         },
       }),
 
-      actions: (state) => ({
+      (state) => ({
         incrementValue(): void {
           state.value = state.value + 1;
         },
       }),
-    });
+    );
 
     const store = createComputedStore();
     expect(store.computed.doubleValue).toEqual(0);
@@ -99,6 +112,16 @@ describe("Store", () => {
     // Extra check, shouldn't recompute.
     expect(store.computed.doubleValue).toEqual(4);
     expect(callCount).toEqual(3);
+  });
+
+  it("should have computed state", () => {
+    const store = createStore();
+    expect(store.computed.doubleValue).toEqual(0);
+    store.incrementValue();
+    expect(store.computed.doubleValue).toEqual(2);
+    expect(store.computed.doubleDoubleValue).toEqual(4);
+
+    expect(store.sendDoubleValue()).toEqual(2);
   });
 
   it("should have change events", () => {
