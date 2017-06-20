@@ -7,6 +7,7 @@ export interface IActions {
 }
 
 export type IMapStateToActions<S, C, A> = (state: S, computed: C) => A;
+export type IMapStateToBoundMethods<S, C, B> = (state: Readonly<S>, computed: C) => B;
 export type IMapStateToComputed<S, C> = (state: S) => C;
 
 export interface ICreateStoreCreatorOptions<S, C, A> {
@@ -17,14 +18,14 @@ export interface ICreateStoreCreatorOptions<S, C, A> {
 
 export type IChangeCallback<S, K = keyof S> = (state: S, key: K) => any;
 
-export type IStoreInstance<S, C, A> = {
+export type IStoreInstance<S, C, A, B> = {
   state: Readonly<S>;
   computed: Readonly<C>;
   onChange(cb: IChangeCallback<S>): void;
   offChange(cb: IChangeCallback<S>): void;
-} & A;
+} & A & B;
 
-export type IStoreCreator<S, C, A> = (initialState?: S) => IStoreInstance<S, C, A>;
+export type IStoreCreator<S, C, A, B> = (initialState?: S) => IStoreInstance<S, C, A, B>;
 
 function createStateProxy<
   T extends IState
@@ -67,15 +68,17 @@ function createReadonlyStateProxy<T extends IState>(state: T): Readonly<T> {
 export function createStoreCreator<
   S extends IState,
   C,
-  A
+  A,
+  B
 >(
   state: S,
   computed?: IMapStateToComputed<Readonly<S>, C>,
   actions?: IMapStateToActions<S, Readonly<C>, A>,
-): IStoreCreator<S, C, A> {
+  boundMethods?: IMapStateToBoundMethods<S, Readonly<C>, B>,
+): IStoreCreator<S, C, A, B> {
   let currentState: S;
 
-  return function createStore(initialState?: S): IStoreInstance<S, C, A> {
+  return function createStore(initialState?: S): IStoreInstance<S, C, A, B> {
     const callbacks = new Set();
 
     const stateInfo = {
@@ -140,6 +143,7 @@ export function createStoreCreator<
       },
 
       actions ? actions(currentState, memoizedComputed) : {},
+      boundMethods ? boundMethods(readOnlyState, memoizedComputed) : {},
     );
   };
 }

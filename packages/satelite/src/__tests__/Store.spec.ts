@@ -147,4 +147,35 @@ describe("Store", () => {
     store.incrementValue();
     expect(changes).toEqual(["value", "value"]);
   });
+
+  it("should bind methods", () => {
+    const createBoundStore = createStoreCreator(
+      {
+        value: 0,
+      },
+
+      (state) => ({
+        doubleValue() {
+          return state.value * 2;
+        },
+      }),
+
+      (state) => ({
+        incrementValue(): void {
+          state.value = state.value + 1;
+        },
+      }),
+
+      (state, computed) => ({
+        getCombo(): number {
+          return state.value / computed.doubleValue();
+        },
+      }),
+    );
+
+    const store = createBoundStore();
+    store.incrementValue();
+    expect(store.getCombo()).toEqual(0.5);
+  });
+
 });
