@@ -41,7 +41,6 @@
     "jest": "^20.0.3",
     "jest-cli": "^20.0.3",
     "tslint": "^5.3.2",
-    "tslint-immutable": "^3.4.2",
     "typescript": "^2.3.4"
   }
 }
