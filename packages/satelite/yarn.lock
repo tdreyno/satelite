@@ -1855,10 +1855,6 @@ tslib@^1.7.1:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.7.1.tgz#bc8004164691923a79fe8378bbeb3da2017538ec"
 
-tslint-immutable@^3.4.2:
-  version "3.4.2"
-  resolved "https://registry.yarnpkg.com/tslint-immutable/-/tslint-immutable-3.4.2.tgz#99a9ecd063322b3b1ec4e2d1f89b54072ffd16fc"
-
 tslint@^5.3.2:
   version "5.4.2"
   resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.4.2.tgz#609b6640cc0424f4a395a9adf68c375563c549c7"
@@ -1894,7 +1890,7 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
-typescript@^2.3.4:
+typescript@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.4.0.tgz#aef5a8d404beba36ad339abf079ddddfffba86dd"
 
