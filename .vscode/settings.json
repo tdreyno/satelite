@@ -5,6 +5,7 @@
     },
     "search.exclude": {
         "**/dist/**": true,
+        "**/dist-es6/**": true,
         "**/build/**": true,
         "**/.tmp/**": true,
         "**/tmp/**": true,
