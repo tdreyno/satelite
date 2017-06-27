@@ -1,1 +1,3 @@
 src/*.js
+dist/
+dist-es6/

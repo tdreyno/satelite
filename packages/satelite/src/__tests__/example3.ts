@@ -3,12 +3,12 @@ import { observable } from "../Store3";
 declare const window: any;
 declare const writeCookie: any;
 declare const AppStateStore: any;
-declare function axios(obj: any): Promise<any>;
+declare function axios(obj: any): Promise<any>
 
 export const state = observable({
   loggedIn: false,
   invalid: false,
-  showLogin: false,
+  showLogin: false
 });
 
 export function setLoggedIn() {
@@ -37,5 +37,5 @@ export function setHideLogin() {
 }
 
 export async function requestLogin(url: string, payload: any): Promise<any> {
-  return await axios({ url, method: "post", data: payload  });
+  return await axios({ url, method: "post", data: payload });
 }

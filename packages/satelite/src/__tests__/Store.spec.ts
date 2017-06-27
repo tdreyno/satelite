@@ -7,11 +7,10 @@ function sideEffect<T>(v: T): T {
 const createStore = createStoreCreator(
   // State
   {
-    value: 0,
+    value: 0
   },
-
   // Computed
-  (state) => {
+  state => {
     function doubleValue() {
       return state.value * 2;
     }
@@ -22,7 +21,6 @@ const createStore = createStoreCreator(
 
     return { doubleValue, doubleDoubleValue };
   },
-
   // Actions
   (state, computed) => ({
     setValue(value: number): void {
@@ -35,8 +33,8 @@ const createStore = createStoreCreator(
 
     sendDoubleValue(): number {
       return sideEffect(computed.doubleValue());
-    },
-  }),
+    }
+  })
 );
 
 describe("Store", () => {
@@ -84,21 +82,19 @@ describe("Store", () => {
     let callCount = 0;
     const createComputedStore = createStoreCreator(
       {
-        value: 0,
+        value: 0
       },
-
-      (state) => ({
+      state => ({
         doubleValue() {
           callCount += 1;
           return state.value * 2;
-        },
+        }
       }),
-
-      (state) => ({
+      state => ({
         incrementValue(): void {
           state.value = state.value + 1;
-        },
-      }),
+        }
+      })
     );
 
     const store = createComputedStore();
@@ -151,31 +147,27 @@ describe("Store", () => {
   it("should bind methods", () => {
     const createBoundStore = createStoreCreator(
       {
-        value: 0,
+        value: 0
       },
-
-      (state) => ({
+      state => ({
         doubleValue() {
           return state.value * 2;
-        },
+        }
       }),
-
-      (state) => ({
+      state => ({
         incrementValue(): void {
           state.value = state.value + 1;
-        },
+        }
       }),
-
       (state, computed) => ({
         getCombo(): number {
           return state.value / computed.doubleValue();
-        },
-      }),
+        }
+      })
     );
 
     const store = createBoundStore();
     store.incrementValue();
     expect(store.getCombo()).toEqual(0.5);
   });
-
 });

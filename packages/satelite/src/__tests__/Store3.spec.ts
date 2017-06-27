@@ -2,7 +2,7 @@ import { computed, initializeStore, observable } from "../Store3";
 
 const BaseStore = (() => {
   const state = observable({
-    value: 0,
+    value: 0
   });
 
   function setValue(v: number): void {
@@ -18,7 +18,10 @@ const BaseStore = (() => {
   }
 
   return {
-    state, setValue, doubleValue, incrementValue,
+    state,
+    setValue,
+    doubleValue,
+    incrementValue
   };
 })();
 
@@ -65,16 +68,17 @@ describe("Store", async () => {
 
     const { state, ...fns } = BaseStore;
 
-    const createComputedStore = () => initializeStore({
-      state,
+    const createComputedStore = () =>
+      initializeStore({
+        state,
 
-      ...fns,
+        ...fns,
 
-      doubleValue: computed(() => {
-        callCount += 1;
-        return state.value * 2;
-      }),
-    });
+        doubleValue: computed(() => {
+          callCount += 1;
+          return state.value * 2;
+        })
+      });
 
     const store = createComputedStore();
     expect(store.doubleValue()).toEqual(0);

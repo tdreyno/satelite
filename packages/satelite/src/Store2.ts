@@ -1,6 +1,4 @@
-type IObservableState<T> = {
-  [P in keyof T]: T[P];
-};
+type IObservableState<T> = { [P in keyof T]: T[P] };
 
 interface IState {
   [key: string]: any;
@@ -22,33 +20,29 @@ function observable<T extends IState>(state: T): IObservableState<T> {
     set(target, key, value) {
       target[key] = value;
       return true;
-    },
+    }
   });
 }
 
 const satelite = function makeStoreCreator<T, A>(
   initialState: T,
-  fn: (state: IObservableState<T>) => A,
+  fn: (state: IObservableState<T>) => A
 ): IObservableStore<T, A> {
   const state = observable(initialState);
 
-  return () => Object.assign(
-    {},
-    { state },
-    fn(state),
-    {
+  return () =>
+    Object.assign({}, { state }, fn(state), {
       onChange: (cb: () => void) => {
         cb();
-      },
-    },
-  );
+      }
+    });
 };
 
 export default satelite(
   {
-    value: 0,
+    value: 0
   },
-  (state) => {
+  state => {
     function doubleValue() {
       return state.value * 2;
     }
@@ -62,5 +56,5 @@ export default satelite(
     }
 
     return { doubleValue, incrementValue, getCombo };
-  },
+  }
 );

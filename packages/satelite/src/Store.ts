@@ -7,7 +7,10 @@ export interface IActions {
 }
 
 export type IMapStateToActions<S, C, A> = (state: S, computed: C) => A;
-export type IMapStateToBoundMethods<S, C, B> = (state: Readonly<S>, computed: C) => B;
+export type IMapStateToBoundMethods<S, C, B> = (
+  state: Readonly<S>,
+  computed: C
+) => B;
 export type IMapStateToComputed<S, C> = (state: S) => C;
 
 export interface ICreateStoreCreatorOptions<S, C, A> {
@@ -23,15 +26,16 @@ export type IStoreInstance<S, C, A, B> = {
   computed: Readonly<C>;
   onChange(cb: IChangeCallback<S>): void;
   offChange(cb: IChangeCallback<S>): void;
-} & A & B;
+} & A &
+  B;
 
-export type IStoreCreator<S, C, A, B> = (initialState?: S) => IStoreInstance<S, C, A, B>;
+export type IStoreCreator<S, C, A, B> = (
+  initialState?: S
+) => IStoreInstance<S, C, A, B>;
 
-function createStateProxy<
-  T extends IState
->(
+function createStateProxy<T extends IState>(
   state: T,
-  onChange: (key: PropertyKey) => void,
+  onChange: (key: PropertyKey) => void
 ): T {
   return new Proxy(state, {
     get(target, key) {
@@ -45,7 +49,7 @@ function createStateProxy<
       }
 
       return true;
-    },
+    }
   });
 }
 
@@ -61,20 +65,15 @@ function createReadonlyStateProxy<T extends IState>(state: T): Readonly<T> {
       }
 
       return false;
-    },
+    }
   });
 }
 
-export function createStoreCreator<
-  S extends IState,
-  C,
-  A,
-  B
->(
+export function createStoreCreator<S extends IState, C, A, B>(
   state: S,
   computed?: IMapStateToComputed<Readonly<S>, C>,
   actions?: IMapStateToActions<S, Readonly<C>, A>,
-  boundMethods?: IMapStateToBoundMethods<S, Readonly<C>, B>,
+  boundMethods?: IMapStateToBoundMethods<S, Readonly<C>, B>
 ): IStoreCreator<S, C, A, B> {
   let currentState: S;
 
@@ -83,25 +82,24 @@ export function createStoreCreator<
 
     const stateInfo = {
       ref: Object.assign({}, state, initialState || {}),
-      version: 0,
+      version: 0
     };
 
-    currentState = createStateProxy(
-      stateInfo.ref,
-      (key) => {
-        stateInfo.version += 1;
+    currentState = createStateProxy(stateInfo.ref, key => {
+      stateInfo.version += 1;
 
-        callbacks.forEach((cb) => {
-          cb(currentState, key);
-        });
-      },
-    );
+      callbacks.forEach(cb => {
+        cb(currentState, key);
+      });
+    });
 
     const readOnlyState = createReadonlyStateProxy(stateInfo.ref);
 
     const computedGetters = computed ? computed(readOnlyState) : {};
 
-    const memoizedComputed: C = Object.keys(computedGetters).reduce((sum: any, key: string) => {
+    const memoizedComputed: C = Object.keys(
+      computedGetters
+    ).reduce((sum: any, key: string) => {
       let lastSeenVersion = -1;
       let cached: any;
 
@@ -122,7 +120,7 @@ export function createStoreCreator<
             return cached;
           };
         },
-        enumerable: true,
+        enumerable: true
       });
 
       return sum;
@@ -139,11 +137,10 @@ export function createStoreCreator<
 
         offChange(cb: IChangeCallback<S>): void {
           callbacks.delete(cb);
-        },
+        }
       },
-
       actions ? actions(currentState, memoizedComputed) : {},
-      boundMethods ? boundMethods(readOnlyState, memoizedComputed) : {},
+      boundMethods ? boundMethods(readOnlyState, memoizedComputed) : {}
     );
   };
 }

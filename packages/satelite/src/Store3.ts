@@ -42,18 +42,24 @@ function swappable<T extends object>(initialState: T): T {
       currentState[key] = value;
 
       return true;
-    },
+    }
   });
 }
 
 let counter = 0;
 
 // tslint:disable-next-line:ban-types
-function _observable(state: object, callbacks: Set<Function>): {
-  writable: IObservableState,
-  readonly: IObservableState,
+function _observable(
+  state: object,
+  callbacks: Set<Function>
+): {
+  writable: IObservableState;
+  readonly: IObservableState;
 } {
-  const internalState: IObservableState = Object.assign({}, state, { __id: counter++, __version: 0 });
+  const internalState: IObservableState = Object.assign({}, state, {
+    __id: counter++,
+    __version: 0
+  });
 
   const writable = new Proxy(state, {
     get(_, key) {
@@ -64,12 +70,12 @@ function _observable(state: object, callbacks: Set<Function>): {
       internalState[key] = value;
       internalState.__version += 1;
 
-      callbacks.forEach((cb) => {
+      callbacks.forEach(cb => {
         cb(internalState, key);
       });
 
       return true;
-    },
+    }
   }) as IObservableState;
 
   const readonly = new Proxy(state, {
@@ -83,7 +89,7 @@ function _observable(state: object, callbacks: Set<Function>): {
       }
 
       return false;
-    },
+    }
   }) as IObservableState;
 
   return { writable, readonly };
@@ -96,14 +102,17 @@ export function computed<T extends Function>(fn: T): T {
   return fn;
 }
 
-export function observable<T extends object>(
-  initialState: T,
-): T {
+export function observable<T extends object>(initialState: T): T {
   return swappable(initialState);
 }
 
 // tslint:disable-next-line:ban-types
-function wrapFunction(fn: Function, store: IObservableState, swappable: any, isComputed: boolean) {
+function wrapFunction(
+  fn: Function,
+  store: IObservableState,
+  swappable: any,
+  isComputed: boolean
+) {
   let lastSeenVersion = -1;
   let cached: any;
 
@@ -138,19 +147,22 @@ export type IFinalStore<T> = T & IStore;
 export function initializeStore<T>(mod: T): IFinalStore<T> {
   const { state, ...fns } = mod as any;
 
-  const { actions, computed } = Object.keys(fns).reduce((sum, fnName) => {
-    const fn = fns[fnName];
+  const { actions, computed } = Object.keys(fns).reduce(
+    (sum, fnName) => {
+      const fn = fns[fnName];
 
-    if (fn.__computed) {
-      sum.computed[fnName] = fn;
-    } else {
-      sum.actions[fnName] = fn;
-    }
+      if (fn.__computed) {
+        sum.computed[fnName] = fn;
+      } else {
+        sum.actions[fnName] = fn;
+      }
 
-    return sum;
+      return sum;
 
-    // tslint:disable-next-line:no-object-literal-type-assertion
-  }, { actions: {} as typeof fns, computed: {} as typeof fns });
+      // tslint:disable-next-line:no-object-literal-type-assertion
+    },
+    { actions: {} as typeof fns, computed: {} as typeof fns }
+  );
 
   // tslint:disable-next-line:ban-types
   const callbacks = new Set<Function>();
@@ -186,6 +198,6 @@ export function initializeStore<T>(mod: T): IFinalStore<T> {
     // tslint:disable-next-line:ban-types
     offChange(cb: Function): void {
       callbacks.delete(cb);
-    },
+    }
   };
 }
