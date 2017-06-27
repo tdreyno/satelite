@@ -2,12 +2,22 @@
   "name": "satelite",
   "license": "Apache-2.0",
   "scripts": {
+    "precommit": "lint-staged",
     "test": "lerna run test",
     "lint": "lerna run lint",
     "canary": "lerna publish --canary --exact --yes --npm-tag dev --force-publish=\"*\""
   },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
   "devDependencies": {
+    "husky": "^0.14.1",
     "lerna": "^2.0.0-rc.5",
+    "lint-staged": "^4.0.0",
+    "prettier": "^1.5.0",
     "tslint": "^5.3.2",
     "typescript": "^2.4.0"
   }
