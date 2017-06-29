@@ -12,5 +12,6 @@
         "**/typings/**": true
     },
     "typescript.tsdk": "./node_modules/typescript/lib",
-    "prettier.trailingComma": "all"
+    "prettier.trailingComma": "all",
+    "prettier.jsonEnable": []
 }

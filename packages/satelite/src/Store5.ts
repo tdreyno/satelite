@@ -5,13 +5,11 @@ export type IIdentifierWithPlaceholder = IIdentifier | IPlaceholder;
 export const placeholder = "__secret__placeholder__";
 export type IPlaceholder = typeof placeholder;
 
-export type IDescriptor<V = any> = [IIdentifier, string, V];
+export type IDescriptor<V = any> = [IIdentifier, string, V] | string[];
 
-export type IDescriptorWithPlaceholders<V = any> = [
-  IIdentifierWithPlaceholder,
-  string,
-  V | IPlaceholder
-];
+export type IDescriptorWithPlaceholders<V = any> =
+  | [IIdentifierWithPlaceholder, string, V | IPlaceholder]
+  | string[];
 
 export const t = {
   Number<T>(s: T): boolean {
@@ -24,25 +22,25 @@ export const t = {
 
   Boolean<T>(s: T): boolean {
     return typeof s === "boolean";
-  }
+  },
 };
 
-interface ISchema {
+export interface ISchema {
   type: typeof t.String | typeof t.Boolean;
   isMultiple?: boolean;
 }
 
-interface ISchemaSet {
+export interface ISchemaSet {
   [namespace: string]: ISchema;
 }
 
-type IDatum = Map<any, any>;
+export type IDatum = Map<any, any>;
 
-interface IDataSet {
+export interface IDataSet {
   [key: string]: IDatum;
 }
 
-interface IWorld {
+export interface IWorld {
   getState: () => IDataSet;
   assert: IAssertFn;
   find: IFindFn;
@@ -52,7 +50,7 @@ interface IWorld {
 export const descriptor = <V = any>(
   identifier: IIdentifierWithPlaceholder,
   namespace: string,
-  value: V | IPlaceholder
+  value: V | IPlaceholder,
 ): IDescriptor | IDescriptorWithPlaceholders => {
   if (identifier === placeholder || value === placeholder) {
     return [identifier, namespace, value] as IDescriptorWithPlaceholders;
@@ -61,33 +59,18 @@ export const descriptor = <V = any>(
   }
 };
 
-type IScopeValueFn<T, V> = (
-  value: V | IPlaceholder
-) => IDescriptor | IDescriptorWithPlaceholders;
-
-export function scope<V, T = any>(
-  identifier: IIdentifier,
-  namespace: string
-): IScopeValueFn<T, V> {
-  return function scopeValue(
-    value: V | IPlaceholder
-  ): IDescriptor | IDescriptorWithPlaceholders {
-    return descriptor(identifier, namespace, value);
-  };
-}
-
 export const ident = <T = string>(namespace: string) => (
-  value: T
+  value: T,
 ): IIdentifierTuple => [namespace, value];
 
-type IFindResult = IDescriptor[];
-type IFindFn = (query: IDescriptorWithPlaceholders) => IFindResult;
+export type IFindResult = IDescriptor[];
+export type IFindFn = (query: IDescriptorWithPlaceholders) => IFindResult;
 
 function find(data: IDataSet): IFindFn;
 function find(data: IDataSet, query: IDescriptorWithPlaceholders): IFindResult;
 function find(
   data: IDataSet,
-  query?: IDescriptorWithPlaceholders
+  query?: IDescriptorWithPlaceholders,
 ): IFindFn | IFindResult {
   if (query) {
     return query ? [] : [];
@@ -96,13 +79,13 @@ function find(
   }
 }
 
-type IAssertFn = (ds: IDescriptor | IDescriptor[]) => void;
+export type IAssertFn = (ds: IDescriptor | IDescriptor[]) => void;
 
 function assert(data: IDataSet): IAssertFn;
 function assert(data: IDataSet, ds: IDescriptor | IDescriptor[]): void;
 function assert(
   data: IDataSet,
-  ds?: IDescriptor | IDescriptor[]
+  ds?: IDescriptor | IDescriptor[],
 ): IAssertFn | void {
   if (ds) {
     return;
@@ -111,13 +94,13 @@ function assert(
   }
 }
 
-type IRetractFn = (ds: IDescriptor | IDescriptor[]) => void;
+export type IRetractFn = (ds: IDescriptor | IDescriptor[]) => void;
 
 function retract(data: IDataSet): IRetractFn;
 function retract(data: IDataSet, ds: IDescriptor | IDescriptor[]): void;
 function retract(
   data: IDataSet,
-  ds?: IDescriptor | IDescriptor[]
+  ds?: IDescriptor | IDescriptor[],
 ): IRetractFn | void {
   if (ds) {
     return;
@@ -126,23 +109,23 @@ function retract(
   }
 }
 
-type IMergeSchemaFn = (previousSchema: ISchemaSet) => ISchemaSet;
+export type IMergeSchemaFn = (previousSchema: ISchemaSet) => ISchemaSet;
 
 export function schema(namespace: string, options: ISchema): IMergeSchemaFn;
 export function schema(
   namespace: string,
   options: ISchema,
-  previousSchema?: ISchemaSet
+  previousSchema?: ISchemaSet,
 ): ISchemaSet;
 export function schema(
   namespace: string,
   options: ISchema,
-  previousSchema?: ISchemaSet
+  previousSchema?: ISchemaSet,
 ): ISchemaSet | IMergeSchemaFn {
   if (previousSchema) {
     return {
       ...previousSchema,
-      [namespace]: options
+      [namespace]: options,
     };
   } else {
     return s => schema(namespace, options, s);
@@ -159,7 +142,7 @@ function createWorld(schema: ISchemaSet): IWorld {
     getState: () => data,
     assert: assert(data),
     find: find(data),
-    retract: retract(data)
+    retract: retract(data),
   };
 }
 
@@ -171,4 +154,19 @@ export function defineState(...schemas: IMergeSchemaFn[]): IWorld {
   }
 
   return createWorld(output);
+}
+
+// tslint:disable-next-line:variable-name
+export function entity(d: IDescriptor): IIdentifier {
+  return d[0];
+}
+
+// tslint:disable-next-line:variable-name
+export function namespace(d: IDescriptor): string {
+  return d[1];
+}
+
+// tslint:disable-next-line:variable-name
+export function value(d: IDescriptor) {
+  return d[2];
 }

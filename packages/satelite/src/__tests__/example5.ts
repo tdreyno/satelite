@@ -4,7 +4,7 @@ import {
   placeholder as _,
   schema,
   scope,
-  t
+  t,
 } from "../Store5";
 
 declare const fetch: (path: string) => Promise<any>;
@@ -12,7 +12,7 @@ declare const fetch: (path: string) => Promise<any>;
 const { assert, retract, find } = defineState(
   schema("loader/hasData", { type: t.Boolean }),
   schema("loader/isFetching", { type: t.Boolean }),
-  schema("article/moderators", { type: t.String, isMultiple: true })
+  schema("article/moderators", { type: t.String, isMultiple: true }),
 );
 
 const articleModeratorLoader = ident("loader/id")("articleModerators");
@@ -25,7 +25,7 @@ export async function load() {
   assert(isFetching(true));
 
   const json: { [articleId: string]: string[] } = await fetch(
-    "/api/articleModerators"
+    "/api/articleModerators",
   );
 
   assert(isFetching(true));
@@ -35,7 +35,7 @@ export async function load() {
 
     const articleModeratorsScope = scope(
       articleIdent(articleId),
-      "article/moderators"
+      "article/moderators",
     );
 
     assert(userIds.map(articleModeratorsScope));
@@ -47,7 +47,7 @@ export async function load() {
 export function updateArticleModerators(articleId: string, userIds: string[]) {
   const articleModeratorsScope = scope(
     articleIdent(articleId),
-    "article/moderators"
+    "article/moderators",
   );
 
   // Find all moderators for this article (`_` is the wildcard character)

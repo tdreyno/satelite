@@ -9,7 +9,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "prettier --write",
+      "prettier --trailing-comma all --write",
       "git add"
     ]
   },
