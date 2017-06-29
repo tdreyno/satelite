@@ -68,10 +68,13 @@ export type IFindResult = IDescriptor[];
 export type IFindFn = (query: IDescriptorWithPlaceholders) => IFindResult;
 
 function find(data: IDataSet): IFindFn;
-function find(data: IDataSet, query: IDescriptorWithPlaceholders): IFindResult;
 function find(
   data: IDataSet,
-  query?: IDescriptorWithPlaceholders,
+  query: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+): IFindResult;
+function find(
+  data: IDataSet,
+  query?: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
 ): IFindFn | IFindResult {
   if (query) {
     return query ? [] : [];
@@ -127,10 +130,9 @@ function rule(
   outcome?: (variables: { [key: string]: any }) => any,
 ): IRuleFn | void {
   if (rules && outcome) {
-    // TODO, multiple rules
-    find(data, rules[0]);
+    const results = find(data, rules);
 
-    outcome({});
+    results.forEach(outcome);
   } else {
     return (finalRules, finalOutcome) => rule(data, finalRules, finalOutcome);
   }
