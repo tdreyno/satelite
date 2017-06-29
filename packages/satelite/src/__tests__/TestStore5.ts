@@ -1,12 +1,6 @@
 import { generate as uuid } from "uuid";
 
-import {
-  defineState,
-  descriptor,
-  placeholder as _,
-  schema,
-  t,
-} from "../Store5";
+import { defineState, placeholder as _, schema, t } from "../Store5";
 
 const { assert, retract, find } = defineState(
   schema("todo/visible", { type: t.Boolean }),
@@ -54,7 +48,7 @@ export function completeTodo(id: string) {
 
 export function completeAll() {
   const all = find([...todosList, _]);
-  const updated = all.map(d => descriptor(d[2], "todo/completed", true));
+  const updated = all.map(d => [d[2], "todo/completed", true]);
   assert(updated);
 }
 
