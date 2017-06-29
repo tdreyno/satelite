@@ -42,6 +42,7 @@ export function addTodo(text: string) {
 
 export function deleteTodo(id: string) {
   retract([...todosList, id]);
+  retract(find([id, _, _]));
 }
 
 export function editTodo(id: string, text: string) {
