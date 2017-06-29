@@ -5,9 +5,9 @@ export type IIdentifierWithPlaceholder = IIdentifier | IPlaceholder;
 export const placeholder = "__secret__placeholder__";
 export type IPlaceholder = typeof placeholder;
 
-export type IDescriptor<V = any> = [IIdentifier, string, V] | string[];
+export type IFact<V = any> = [IIdentifier, string, V] | string[];
 
-export type IDescriptorWithPlaceholders<V = any> =
+export type IFactWithPlaceholders<V = any> =
   | [IIdentifierWithPlaceholder, string, V | IPlaceholder]
   | string[];
 
@@ -48,15 +48,15 @@ export interface IWorld {
   rule: IRuleFn;
 }
 
-export const descriptor = <V = any>(
+export const fact = <V = any>(
   identifier: IIdentifierWithPlaceholder,
   namespace: string,
   value: V | IPlaceholder,
-): IDescriptor | IDescriptorWithPlaceholders => {
+): IFact | IFactWithPlaceholders => {
   if (identifier === placeholder || value === placeholder) {
-    return [identifier, namespace, value] as IDescriptorWithPlaceholders;
+    return [identifier, namespace, value] as IFactWithPlaceholders;
   } else {
-    return [identifier, namespace, value] as IDescriptor;
+    return [identifier, namespace, value] as IFact;
   }
 };
 
@@ -64,17 +64,17 @@ export const ident = <T = string>(namespace: string) => (
   value: T,
 ): IIdentifierTuple => [namespace, value];
 
-export type IFindResult = IDescriptor[];
-export type IFindFn = (query: IDescriptorWithPlaceholders) => IFindResult;
+export type IFindResult = IFact[];
+export type IFindFn = (query: IFactWithPlaceholders) => IFindResult;
 
 function find(data: IDataSet): IFindFn;
 function find(
   data: IDataSet,
-  query: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  query: IFactWithPlaceholders | IFactWithPlaceholders[],
 ): IFindResult;
 function find(
   data: IDataSet,
-  query?: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  query?: IFactWithPlaceholders | IFactWithPlaceholders[],
 ): IFindFn | IFindResult {
   if (query) {
     return query ? [] : [];
@@ -83,14 +83,11 @@ function find(
   }
 }
 
-export type IAssertFn = (ds: IDescriptor | IDescriptor[]) => void;
+export type IAssertFn = (ds: IFact | IFact[]) => void;
 
 function assert(data: IDataSet): IAssertFn;
-function assert(data: IDataSet, ds: IDescriptor | IDescriptor[]): void;
-function assert(
-  data: IDataSet,
-  ds?: IDescriptor | IDescriptor[],
-): IAssertFn | void {
+function assert(data: IDataSet, ds: IFact | IFact[]): void;
+function assert(data: IDataSet, ds?: IFact | IFact[]): IAssertFn | void {
   if (ds) {
     return;
   } else {
@@ -98,14 +95,11 @@ function assert(
   }
 }
 
-export type IRetractFn = (ds: IDescriptor | IDescriptor[]) => void;
+export type IRetractFn = (ds: IFact | IFact[]) => void;
 
 function retract(data: IDataSet): IRetractFn;
-function retract(data: IDataSet, ds: IDescriptor | IDescriptor[]): void;
-function retract(
-  data: IDataSet,
-  ds?: IDescriptor | IDescriptor[],
-): IRetractFn | void {
+function retract(data: IDataSet, ds: IFact | IFact[]): void;
+function retract(data: IDataSet, ds?: IFact | IFact[]): IRetractFn | void {
   if (ds) {
     return;
   } else {
@@ -114,19 +108,19 @@ function retract(
 }
 
 export type IRuleFn = (
-  rules: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  rules: IFactWithPlaceholders | IFactWithPlaceholders[],
   outcome: (variables: { [key: string]: any }) => any,
 ) => void;
 
 function rule(data: IDataSet): IRuleFn;
 function rule(
   data: IDataSet,
-  rules: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  rules: IFactWithPlaceholders | IFactWithPlaceholders[],
   outcome: (variables: { [key: string]: any }) => any,
 ): void;
 function rule(
   data: IDataSet,
-  rules?: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  rules?: IFactWithPlaceholders | IFactWithPlaceholders[],
   outcome?: (variables: { [key: string]: any }) => any,
 ): IRuleFn | void {
   if (rules && outcome) {
@@ -187,16 +181,16 @@ export function defineState(...schemas: IMergeSchemaFn[]): IWorld {
 }
 
 // tslint:disable-next-line:variable-name
-export function entity(d: IDescriptor): IIdentifier {
+export function entity(d: IFact): IIdentifier {
   return d[0];
 }
 
 // tslint:disable-next-line:variable-name
-export function namespace(d: IDescriptor): string {
+export function namespace(d: IFact): string {
   return d[1];
 }
 
 // tslint:disable-next-line:variable-name
-export function value(d: IDescriptor) {
+export function value(d: IFact) {
   return d[2];
 }
