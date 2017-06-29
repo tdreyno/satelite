@@ -13,5 +13,6 @@
     },
     "typescript.tsdk": "./node_modules/typescript/lib",
     "prettier.trailingComma": "all",
-    "prettier.jsonEnable": []
+    "prettier.jsonEnable": [],
+    "editor.formatOnSave": true
 }
