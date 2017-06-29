@@ -101,6 +101,6 @@ export function setFilter(filterName: IFilterState) {
 }
 
 // Bind rules
-rule([...filter, "show_all"], () => showAll());
-rule([...filter, "show_completed"], () => showCompleted());
-rule([...filter, "show_active"], () => showActive());
+rule([...filter, "show_all"], showAll);
+rule([...filter, "show_completed"], showCompleted);
+rule([...filter, "show_active"], showActive);
