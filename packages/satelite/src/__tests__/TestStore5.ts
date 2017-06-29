@@ -1,6 +1,6 @@
 import { generate as uuid } from "uuid";
 
-import { defineState, placeholder as _, schema, t } from "../Store5";
+import { defineState, placeholder as _, schema, t, value } from "../Store5";
 
 const { assert, retract, find, rule } = defineState(
   schema("todo/visible", { type: t.Boolean }),
@@ -31,6 +31,12 @@ export function addTodo(text: string) {
   const guid = uuid();
 
   assert([guid, "todo/text", text]);
+  assert([guid, "todo/completed", false]);
+
+  const currentFilter = value(find(["global", "app/filter", _])[0]);
+  const isVisible = currentFilter !== "show_completed";
+  assert([guid, "todo/visible", isVisible]);
+
   assert([...todosList, guid]);
 }
 
