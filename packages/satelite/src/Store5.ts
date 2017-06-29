@@ -45,6 +45,7 @@ export interface IWorld {
   assert: IAssertFn;
   find: IFindFn;
   retract: IRetractFn;
+  rule: IRuleFn;
 }
 
 export const descriptor = <V = any>(
@@ -109,6 +110,32 @@ function retract(
   }
 }
 
+export type IRuleFn = (
+  rules: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  outcome: (variables: { [key: string]: any }) => any,
+) => void;
+
+function rule(data: IDataSet): IRuleFn;
+function rule(
+  data: IDataSet,
+  rules: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  outcome: (variables: { [key: string]: any }) => any,
+): void;
+function rule(
+  data: IDataSet,
+  rules?: IDescriptorWithPlaceholders | IDescriptorWithPlaceholders[],
+  outcome?: (variables: { [key: string]: any }) => any,
+): IRuleFn | void {
+  if (rules && outcome) {
+    // TODO, multiple rules
+    find(data, rules[0]);
+
+    outcome({});
+  } else {
+    return (finalRules, finalOutcome) => rule(data, finalRules, finalOutcome);
+  }
+}
+
 export type IMergeSchemaFn = (previousSchema: ISchemaSet) => ISchemaSet;
 
 export function schema(namespace: string, options: ISchema): IMergeSchemaFn;
@@ -143,6 +170,7 @@ function createWorld(schema: ISchemaSet): IWorld {
     assert: assert(data),
     find: find(data),
     retract: retract(data),
+    rule: rule(data),
   };
 }
 

@@ -2,7 +2,7 @@ import { generate as uuid } from "uuid";
 
 import { defineState, placeholder as _, schema, t } from "../Store5";
 
-const { assert, retract, find } = defineState(
+const { assert, retract, find, rule } = defineState(
   schema("todo/visible", { type: t.Boolean }),
   schema("todo/completed", { type: t.Boolean }),
   schema("todo/text", { type: t.String }),
@@ -46,9 +46,49 @@ export function completeTodo(id: string) {
   assert([id, "todo/completed", true]);
 }
 
+export function findAll() {
+  return find([...todosList, _]);
+}
+
+export function findCompleted() {
+  return find([_, "todo/completed", true]);
+}
+
+export function findActive() {
+  return find([_, "todo/completed", false]);
+}
+
 export function completeAll() {
-  const all = find([...todosList, _]);
+  const all = findAll();
   const updated = all.map(d => [d[2], "todo/completed", true]);
+  assert(updated);
+}
+
+export function hideAll() {
+  const all = findAll();
+  const updated = all.map(d => [d[2], "todo/visible", false]);
+  assert(updated);
+}
+
+export function showAll() {
+  const all = findAll();
+  const updated = all.map(d => [d[2], "todo/visible", true]);
+  assert(updated);
+}
+
+export function showCompleted() {
+  hideAll();
+
+  const all = findCompleted();
+  const updated = all.map(d => [d[2], "todo/visible", true]);
+  assert(updated);
+}
+
+export function showActive() {
+  hideAll();
+
+  const all = findActive();
+  const updated = all.map(d => [d[2], "todo/visible", true]);
   assert(updated);
 }
 
@@ -59,3 +99,8 @@ export function clearCompleted() {
 export function setFilter(filterName: IFilterState) {
   assert([...filter, filterName]);
 }
+
+// Bind rules
+rule([...filter, "show_all"], () => showAll());
+rule([...filter, "show_completed"], () => showCompleted());
+rule([...filter, "show_active"], () => showActive());
