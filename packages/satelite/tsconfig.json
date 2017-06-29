@@ -7,7 +7,9 @@
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "experimentalDecorators": true,
-    "lib": ["es6"]
+    "lib": [
+      "es6"
+    ]
   },
   "exclude": [
     "node_modules",
