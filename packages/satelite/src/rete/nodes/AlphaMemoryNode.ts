@@ -1,5 +1,17 @@
-import { IFact } from "../Fact";
-import { addToListHead, IList, runRightActivationOnNode } from "../util";
+import { IFact, IFactFields } from "../Fact";
+import { IRete } from "../Rete";
+import { ICondition } from "../Rule";
+import {
+  addToListHead,
+  getFactField,
+  IList,
+  runRightActivationOnNode,
+} from "../util";
+import {
+  buildOrShareConstantTestNode,
+  IConstantTestNode,
+  isConstantTest,
+} from "./ConstantTestNode";
 import { IReteNode } from "./ReteNode";
 
 export interface IAlphaMemoryNode {
@@ -49,4 +61,49 @@ export function alphaMemoryNodeActivation(
       runRightActivationOnNode(node, f);
     }
   }
+}
+
+export function buildOrShareAlphaMemoryNode(
+  r: IRete,
+  c: ICondition,
+): IAlphaMemoryNode {
+  let currentNode: IConstantTestNode = r.root;
+
+  const isConstant: {
+    [key: string]: boolean;
+  } = {
+    identifier: isConstantTest(c.identifier),
+    attribute: isConstantTest(c.attribute),
+    value: isConstantTest(c.value),
+  };
+
+  for (const key in isConstant) {
+    if (isConstant[key]) {
+      const sym = getFactField(c, key as IFactFields);
+      currentNode = buildOrShareConstantTestNode(
+        currentNode,
+        key as IFactFields,
+        sym,
+      );
+    }
+  }
+
+  if (currentNode.outputMemory) {
+    return currentNode.outputMemory;
+  }
+
+  const alphaMemory = makeAlphaMemoryNode();
+  currentNode.outputMemory = alphaMemory;
+
+  if (r.workingMemory) {
+    for (const fact of r.workingMemory) {
+      for (const key in isConstant) {
+        if (isConstant[key]) {
+          alphaMemoryNodeActivation(alphaMemory, fact);
+        }
+      }
+    }
+  }
+
+  return alphaMemory;
 }

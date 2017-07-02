@@ -27,19 +27,6 @@
 //   tests: ITestAtJoinNode[],
 // ) => IReteNode;
 
-// // result = []
-// // for each variable in `c` (the current condition)
-// //   find the last condition in `earlierConditions` where the variable exists:
-// //     Create new test:
-// //       fieldOfArg1: position of variable in c.
-// //       conditionNumberOfArg2: the index of the condition where the var was discovered
-// //       fieldOfArg2: position of variable in discovered condition.
-// // return the collected tests
-// type joinTestsFromCondition = (
-//   c: ICondition,
-//   earlierConditions: ICondition[],
-// ) => ITestAtJoinNode[];
-
 // // if node is a join:
 // //   remove node from node.alphaMemory.successors
 // //   if node.alphaMemory.successors is now empty, clean it up.

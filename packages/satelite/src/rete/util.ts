@@ -22,7 +22,6 @@ import {
   negativeNodeRightActivation,
 } from "./nodes/NegativeNode";
 import { IReteNode } from "./nodes/ReteNode";
-import { ICondition } from "./Rule";
 import { IToken } from "./Token";
 
 export type IList<T> = T[] | null;
@@ -83,7 +82,10 @@ export function runRightActivationOnNode(node: IReteNode, f: IFact) {
   }
 }
 
-export function getFactField(f: IFact | ICondition, field: IFactFields): any {
+export function getFactField<T extends { [P in IFactFields]?: any }>(
+  f: T,
+  field: IFactFields,
+): any {
   switch (field) {
     case "identifier":
       return f.identifier;
@@ -94,14 +96,21 @@ export function getFactField(f: IFact | ICondition, field: IFactFields): any {
   }
 }
 
-export function setFactField(f: IFact, field: IFactFields, v: any): IFact {
+export function setFactField<T extends { [P in IFactFields]?: any }>(
+  f: T,
+  field: IFactFields,
+  v: any,
+): T {
   switch (field) {
     case "identifier":
       f.identifier = v;
+      break;
     case "attribute":
       f.attribute = v;
+      break;
     case "value":
       f.value = v;
+      break;
   }
 
   return f;

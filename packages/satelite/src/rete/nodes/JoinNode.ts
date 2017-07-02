@@ -12,6 +12,20 @@ export interface ITestAtJoinNode {
   fieldArg2: IFactFields;
 }
 
+export function makeTestAtJoinNode(
+  fieldArg1: IFactFields,
+  conditionNumberOfArg2: number,
+  fieldArg2: IFactFields,
+): ITestAtJoinNode {
+  const tajn: ITestAtJoinNode = Object.create(null);
+
+  tajn.fieldArg1 = fieldArg1;
+  tajn.conditionNumberOfArg2 = conditionNumberOfArg2;
+  tajn.fieldArg2 = fieldArg2;
+
+  return tajn;
+}
+
 function eq(a: any, b: any): boolean {
   return a === b;
 }
