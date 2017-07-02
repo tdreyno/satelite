@@ -74,7 +74,7 @@ export function parseCondition(c: ICondition): IParsedCondition {
 
 export function getJoinTestsFromCondition(
   c: ICondition,
-  earlierConditions: IParsedCondition[],
+  earlierConditions: ICondition[],
 ): ITestAtJoinNode[] {
   const { variableNames } = parseCondition(c);
 
@@ -91,7 +91,9 @@ export function getJoinTestsFromCondition(
     if (earlierConditionIndex !== -1) {
       const fieldArg1 = variableNames[variableName];
 
-      const earlierCondition = earlierConditions[earlierConditionIndex];
+      const earlierCondition = parseCondition(
+        earlierConditions[earlierConditionIndex],
+      );
       const fieldArg2 = earlierCondition.variableNames[variableName];
 
       results.push(
@@ -105,9 +107,9 @@ export function getJoinTestsFromCondition(
 
 export function findVariableInEarlierConditions(
   variableName: string,
-  earlierConditions: IParsedCondition[],
+  earlierConditions: ICondition[],
 ): number {
-  return earlierConditions.findIndex(
-    ({ variableNames }) => !!variableNames[variableName],
-  );
+  return earlierConditions
+    .map(parseCondition)
+    .findIndex(({ variableNames }) => !!variableNames[variableName]);
 }

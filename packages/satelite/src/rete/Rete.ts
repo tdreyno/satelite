@@ -1,9 +1,19 @@
+import { getJoinTestsFromCondition, ICondition } from "./Condition";
 import { IFact } from "./Fact";
+import { buildOrShareAlphaMemoryNode } from "./nodes/AlphaMemoryNode";
+import {
+  buildOrShareBetaMemoryNode,
+  IBetaMemoryNode,
+} from "./nodes/BetaMemoryNode";
 import {
   constantTestNodeActivation,
   IRootConstantTestNode,
   makeRootConstantTestNode,
 } from "./nodes/ConstantTestNode";
+import { buildOrShareJoinNode } from "./nodes/JoinNode";
+import { makeProductionNode } from "./nodes/ProductionNode";
+import { IReteNode } from "./nodes/ReteNode";
+import { makeProduction } from "./Production";
 // import { IBetaMemoryNode, makeBetaMemoryNode } from "./nodes/BetaMemoryNode";
 // import { IReteNode } from "./nodes/ReteNode";
 import { deleteTokenAndDescendents } from "./Token";
@@ -12,6 +22,7 @@ import {
   IList,
   removeFromList,
   runLeftActivationOnNode,
+  updateNewNodeWithMatchesFromAbove,
 } from "./util";
 
 export interface IRete {
@@ -67,26 +78,54 @@ export function removeFact(r: IRete, f: IFact): IRete {
   return r;
 }
 
-// For each parent.children, if child is a BetaMemoryNode, return it.
-//
-// Otherwise, create a BetaMemoryNode:
-//   newNode.parent = parent
-//   Add `newNode` to `parent.children`.
-//   Call `updateNewNodeWithMatchesFromAbove(newNode)`.
-// export function buildOrShareBetaMemoryNode(parent: IReteNode): IBetaMemoryNode {
-//   if (parent.children) {
-//     for (const child of parent.children) {
-//       if (child.type === "beta-memory") {
-//         return child as IBetaMemoryNode;
-//       }
-//     }
-//   }
+export function buildOrShareNetworkForConditions(
+  r: IRete,
+  parent: IReteNode,
+  conditions: ICondition[],
+  earlierConditions: ICondition[],
+): IReteNode {
+  let currentNode = parent;
+  const conditionsHigherUp = earlierConditions;
 
-//   const bm = makeBetaMemoryNode();
-//   bm.parent = parent;
-//   parent.children = addToListHead(parent.children, bm);
+  for (const c of conditions) {
+    // if c is positive
+    currentNode = buildOrShareBetaMemoryNode(currentNode);
+    const tests = getJoinTestsFromCondition(c, conditionsHigherUp);
+    const alphaMemory = buildOrShareAlphaMemoryNode(r, c);
+    currentNode = buildOrShareJoinNode(
+      currentNode as IBetaMemoryNode,
+      alphaMemory,
+      tests,
+    );
+    // if c is negative, but not ncc
+    // if c is ncc
 
-//   updateNewNodeWithMatchesFromAbove(bm);
+    conditionsHigherUp.push(c);
+  }
 
-//   return bm;
-// }
+  return currentNode;
+}
+
+export function addProduction(
+  r: IRete,
+  conditions: ICondition[],
+  callback: () => any,
+): IRete {
+  const currentNode = buildOrShareNetworkForConditions(
+    r,
+    r.root,
+    conditions,
+    [],
+  );
+
+  const production = makeProduction(callback);
+  production.productionNode = makeProductionNode(production);
+  currentNode.children = addToListHead(
+    currentNode.children,
+    production.productionNode,
+  );
+
+  updateNewNodeWithMatchesFromAbove(production.productionNode);
+
+  return r;
+}

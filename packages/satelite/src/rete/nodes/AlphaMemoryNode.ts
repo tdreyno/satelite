@@ -1,16 +1,15 @@
+import { ICondition, isConstant } from "../Condition";
 import { IFact, IFactFields } from "../Fact";
 import { IRete } from "../Rete";
-import { ICondition } from "../Rule";
 import {
   addToListHead,
-  getFactField,
+  getConditionField,
   IList,
   runRightActivationOnNode,
 } from "../util";
 import {
   buildOrShareConstantTestNode,
   IConstantTestNode,
-  isConstantTest,
 } from "./ConstantTestNode";
 import { IReteNode } from "./ReteNode";
 
@@ -48,17 +47,17 @@ export function makeAlphaMemoryItem(
 }
 
 export function alphaMemoryNodeActivation(
-  am: IAlphaMemoryNode,
+  node: IAlphaMemoryNode,
   f: IFact,
 ): void {
-  const i = makeAlphaMemoryItem(am, f);
+  const i = makeAlphaMemoryItem(node, f);
 
-  am.items = addToListHead(am.items, i);
+  node.items = addToListHead(node.items, i);
   f.alphaMemoryItems = addToListHead(f.alphaMemoryItems, i);
 
-  if (am.successors) {
-    for (const node of am.successors) {
-      runRightActivationOnNode(node, f);
+  if (node.successors) {
+    for (const successor of node.successors) {
+      runRightActivationOnNode(successor, f);
     }
   }
 }
@@ -69,17 +68,17 @@ export function buildOrShareAlphaMemoryNode(
 ): IAlphaMemoryNode {
   let currentNode: IConstantTestNode = r.root;
 
-  const isConstant: {
+  const constants: {
     [key: string]: boolean;
   } = {
-    identifier: isConstantTest(c.identifier),
-    attribute: isConstantTest(c.attribute),
-    value: isConstantTest(c.value),
+    identifier: isConstant(c[0]),
+    attribute: isConstant(c[1]),
+    value: isConstant(c[2]),
   };
 
-  for (const key in isConstant) {
-    if (isConstant[key]) {
-      const sym = getFactField(c, key as IFactFields);
+  for (const key in constants) {
+    if (constants[key]) {
+      const sym = getConditionField(c, key as IFactFields);
       currentNode = buildOrShareConstantTestNode(
         currentNode,
         key as IFactFields,
@@ -97,8 +96,8 @@ export function buildOrShareAlphaMemoryNode(
 
   if (r.workingMemory) {
     for (const fact of r.workingMemory) {
-      for (const key in isConstant) {
-        if (isConstant[key]) {
+      for (const key in constants) {
+        if (constants[key]) {
           alphaMemoryNodeActivation(alphaMemory, fact);
         }
       }

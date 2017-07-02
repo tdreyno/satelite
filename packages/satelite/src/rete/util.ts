@@ -1,4 +1,6 @@
+import { ICondition } from "./Condition";
 import { IFact, IFactFields } from "./Fact";
+import { IAlphaMemoryNode } from "./nodes/AlphaMemoryNode";
 import {
   betaMemoryNodeLeftActivation,
   IBetaMemoryNode,
@@ -26,10 +28,43 @@ import { IToken } from "./Token";
 
 export type IList<T> = T[] | null;
 
-export function addToListHead<T>(list: T[] | null, item: T): T[] {
+export function addToListHead<T>(list: IList<T> | null, item: T): T[] {
   list = list || [];
   list.unshift(item);
   return list;
+}
+
+export function findList<T>(
+  fn: (item: T) => boolean,
+  list: IList<T>,
+): T | undefined {
+  if (!list) {
+    return undefined;
+  }
+
+  return list.find(fn);
+}
+
+export function mapList<T, V>(
+  fn: (item: T, i: number) => V,
+  list: IList<T>,
+): IList<V> {
+  if (!list) {
+    return null;
+  }
+
+  return list.map(fn);
+}
+
+export function forEachList<T>(
+  fn: (item: T, i: number) => any,
+  list: IList<T>,
+): void {
+  if (!list) {
+    return;
+  }
+
+  return list.forEach(fn);
 }
 
 export function removeFromList<T>(list: T[] | null, item: T): T[] | null {
@@ -82,6 +117,53 @@ export function runRightActivationOnNode(node: IReteNode, f: IFact) {
   }
 }
 
+export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
+  const parent = newNode.parent;
+
+  if (!parent) {
+    return;
+  }
+
+  switch (parent.type) {
+    case "beta-memory":
+      forEachList(
+        t => runLeftActivationOnNode(newNode, t, null),
+        (parent as IBetaMemoryNode).items,
+      );
+
+      break;
+
+    case "join":
+      const savedListOfChildren = parent.children;
+      parent.children = [newNode];
+
+      forEachList(
+        i => runRightActivationOnNode(parent, i.fact),
+        (parent as IJoinNode).alphaMemory.items,
+      );
+
+      parent.children = savedListOfChildren;
+
+      break;
+
+    case "negative":
+      forEachList(
+        t => t.joinResults && runLeftActivationOnNode(newNode, t, null),
+        (parent as INegativeNode).items,
+      );
+
+      break;
+
+    case "ncc":
+      forEachList(
+        t => t.nccResults && runLeftActivationOnNode(newNode, t, null),
+        (parent as INegatedConjunctiveConditionsNode).items,
+      );
+
+      break;
+  }
+}
+
 export function getFactField<T extends { [P in IFactFields]?: any }>(
   f: T,
   field: IFactFields,
@@ -93,6 +175,17 @@ export function getFactField<T extends { [P in IFactFields]?: any }>(
       return f.attribute;
     case "value":
       return f.value;
+  }
+}
+
+export function getConditionField(f: ICondition, field: IFactFields): any {
+  switch (field) {
+    case "identifier":
+      return f[0];
+    case "attribute":
+      return f[1];
+    case "value":
+      return f[2];
   }
 }
 
@@ -114,4 +207,39 @@ export function setFactField<T extends { [P in IFactFields]?: any }>(
   }
 
   return f;
+}
+
+export function findNearestAncestorWithSameAlphaMemory(
+  node: IReteNode,
+  alphaMemory: IAlphaMemoryNode,
+): IReteNode | undefined {
+  switch (node.type) {
+    case "dummy":
+      return;
+
+    case "join":
+      if ((node as IJoinNode).alphaMemory === alphaMemory) {
+        return node;
+      }
+      break;
+
+    case "negative":
+      if ((node as INegativeNode).alphaMemory === alphaMemory) {
+        return node;
+      }
+      break;
+
+    case "ncc":
+      const nccParent = (node as INegatedConjunctiveConditionsNode).partner
+        .parent;
+      return nccParent
+        ? findNearestAncestorWithSameAlphaMemory(nccParent, alphaMemory)
+        : undefined;
+
+    default:
+      const parent = node.parent;
+      return parent
+        ? findNearestAncestorWithSameAlphaMemory(parent, alphaMemory)
+        : undefined;
+  }
 }

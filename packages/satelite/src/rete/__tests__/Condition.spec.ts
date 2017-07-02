@@ -1,6 +1,7 @@
 import {
   findVariableInEarlierConditions,
   getJoinTestsFromCondition,
+  ICondition,
   parseCondition,
 } from "../Condition";
 
@@ -69,29 +70,31 @@ describe("Condition", () => {
 
   describe("findVariableInEarlierConditions", () => {
     it("should find previous condition", () => {
-      const conditions = [["?e", "age", 34]].map(parseCondition);
+      const conditions: ICondition[] = [["?e", "age", 34]];
       expect(findVariableInEarlierConditions("?e", conditions)).toBeTruthy();
     });
 
     it("should find multiple previous conditions", () => {
-      const conditions = [["?e", "age", 34], ["?e", "name", "?v"]].map(
-        parseCondition,
-      );
+      const conditions: ICondition[] = [
+        ["?e", "age", 34],
+        ["?e", "name", "?v"],
+      ];
       expect(findVariableInEarlierConditions("?e", conditions)).toBeTruthy();
       expect(findVariableInEarlierConditions("?v", conditions)).toBeTruthy();
     });
 
     it("should not find previous condition", () => {
-      const conditions = [[1, "age", 34]].map(parseCondition);
+      const conditions: ICondition[] = [[1, "age", 34]];
       expect(findVariableInEarlierConditions("?e", conditions)).toBeFalsy();
     });
   });
 
   describe.only("getJoinTestsFromCondition", () => {
     it("should create a join test for the known variable ?e, but not ?v", () => {
-      const conditions = [[1, "name", "Thomas"], ["?e", "age", 34]].map(
-        parseCondition,
-      );
+      const conditions: ICondition[] = [
+        [1, "name", "Thomas"],
+        ["?e", "age", 34],
+      ];
 
       const tests = getJoinTestsFromCondition(
         ["?v", "relation", "?e"],
@@ -107,9 +110,10 @@ describe("Condition", () => {
     });
 
     it("should create a join test for the known variables ?e and ?v", () => {
-      const conditions = [["?e", "age", 34], ["?e", "status", "?v"]].map(
-        parseCondition,
-      );
+      const conditions: ICondition[] = [
+        ["?e", "age", 34],
+        ["?e", "status", "?v"],
+      ];
 
       const tests = getJoinTestsFromCondition(["?e", "name", "?v"], conditions);
 

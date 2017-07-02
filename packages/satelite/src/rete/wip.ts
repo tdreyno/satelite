@@ -1,32 +1,3 @@
-// // parent = newNode.parent
-// // if parent.type is `beta-memory`:
-// //   for each token in `parent.items`, run `leftActivation(newNode, token)
-// // if parent.type is `join`:
-// //   oldChildren = parent.children
-// //   parent.children = [newNode]
-// //   for each item in `parent.alphaMemory`, run `rightActivation(parent, item.fact)`
-// //   parent.children = oldChildren
-// type updateNewNodeWithMatchesFromAbove = (newNode: IReteNode) => void;
-
-// // For each parent.children,
-// //   if child is a JoinNode,
-// //   and `child.alphaMemory` == `alphaMemory`
-// //   and `child.tests` == `tests`,
-// //     return it.
-// //
-// // Otherwie, create a JoinNode.
-// //   newNode.parent = parent
-// //   Add `newNode` to `parent.children`.
-// //   newNode.tests = tests
-// //   newNode.alphaMemory = alphaMemory
-// //
-// //   Add `newNode` to `alphaMemory.successors`.
-// type buildOrShareJoinNode = (
-//   parent: IReteNode,
-//   alphaMemory: IAlphaMemoryNode,
-//   tests: ITestAtJoinNode[],
-// ) => IReteNode;
-
 // // if node is a join:
 // //   remove node from node.alphaMemory.successors
 // //   if node.alphaMemory.successors is now empty, clean it up.

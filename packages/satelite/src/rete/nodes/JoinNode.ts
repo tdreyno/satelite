@@ -1,6 +1,14 @@
 import { IFact, IFactFields } from "../Fact";
 import { IToken } from "../Token";
-import { getFactField, IList, runLeftActivationOnNode } from "../util";
+import {
+  addToListHead,
+  findList,
+  findNearestAncestorWithSameAlphaMemory,
+  getFactField,
+  IList,
+  removeFromList,
+  runLeftActivationOnNode,
+} from "../util";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
 import { IBetaMemoryNode } from "./BetaMemoryNode";
 import { IDummyNode } from "./DummyNode";
@@ -61,7 +69,24 @@ export interface IJoinNode extends IReteNode {
   parent: IBetaMemoryNode | IDummyNode;
   alphaMemory: IAlphaMemoryNode;
   tests: IList<ITestAtJoinNode>;
-  nearestAncestorWithSameAlphaMemory: IReteNode;
+  nearestAncestorWithSameAlphaMemory: IReteNode | null;
+}
+
+export function makeJoinNode(
+  parent: IBetaMemoryNode | IDummyNode,
+  alphaMemory: IAlphaMemoryNode,
+  tests: IList<ITestAtJoinNode>,
+): IJoinNode {
+  const node: IJoinNode = Object.create(null);
+
+  node.type = "join";
+  node.parent = parent;
+  node.alphaMemory = alphaMemory;
+  node.tests = tests;
+
+  node.children = null;
+
+  return node;
 }
 
 export function joinNodeLeftActivation(node: IJoinNode, t: IToken): void {
@@ -90,4 +115,50 @@ export function joinNodeRightActivation(node: IJoinNode, f: IFact): void {
       }
     }
   }
+}
+
+// For each parent.children,
+//   if child is a JoinNode,
+//   and `child.alphaMemory` == `alphaMemory`
+//   and `child.tests` == `tests`,
+//     return it.
+//
+// Otherwie, create a JoinNode.
+//   newNode.parent = parent
+//   Add `newNode` to `parent.children`.
+//   newNode.tests = tests
+//   newNode.alphaMemory = alphaMemory
+//
+//   Add `newNode` to `alphaMemory.successors`.
+export function buildOrShareJoinNode(
+  parent: IBetaMemoryNode,
+  alphaMemory: IAlphaMemoryNode,
+  tests: IList<ITestAtJoinNode>,
+): IJoinNode {
+  const foundChild = findList(
+    c =>
+      c.type === "join" &&
+      (c as IJoinNode).alphaMemory === alphaMemory &&
+      (c as IJoinNode).tests === tests,
+    parent.allChildren,
+  );
+
+  if (foundChild) {
+    return foundChild as IJoinNode;
+  }
+
+  const node = makeJoinNode(parent, alphaMemory, tests);
+  parent.children = addToListHead(parent.children, node);
+  alphaMemory.successors = addToListHead(alphaMemory.successors, node);
+  alphaMemory.referenceCount += 1;
+  node.nearestAncestorWithSameAlphaMemory =
+    findNearestAncestorWithSameAlphaMemory(parent, alphaMemory) || null;
+
+  if (!parent.items) {
+    alphaMemory.successors = removeFromList(alphaMemory.successors, node);
+  } else if (!alphaMemory.items) {
+    parent.children = removeFromList(parent.children, node);
+  }
+
+  return node;
 }

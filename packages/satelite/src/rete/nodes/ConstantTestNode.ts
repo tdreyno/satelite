@@ -1,8 +1,9 @@
 import { IFact, IFactFields } from "../Fact";
 import { getFactField, IList } from "../util";
 import { alphaMemoryNodeActivation, IAlphaMemoryNode } from "./AlphaMemoryNode";
+import { IReteNode } from "./ReteNode";
 
-export interface IConstantTestNode {
+export interface IConstantTestNode extends IReteNode {
   fieldToTest: IFactFields | "no-test";
   fieldMustEqual: any;
   outputMemory: IAlphaMemoryNode | null;
