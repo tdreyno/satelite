@@ -14,16 +14,10 @@ export function isConstant(v: any): boolean {
   return !isVariable(v);
 }
 
-export interface IConditionTuple extends Array<any> {
+export interface ICondition extends Array<any> {
   [0]: IPrimitive | IIdentifier | IConstantTest;
   [1]: string | IConstantTest;
   [2]: IValue | IConstantTest;
-}
-
-export interface IConditionObject {
-  identifier: IPrimitive | IIdentifier | IConstantTest;
-  attribute: string | IConstantTest;
-  value: IValue | IConstantTest;
 }
 
 export interface IParsedCondition {
@@ -42,35 +36,44 @@ function keyForIndex(index: number): IFactFields {
   }
 }
 
-function baseParseCondition(c: IConditionTuple): IParsedCondition {
+function baseParseCondition(
+  identifier: IPrimitive | IIdentifier | IConstantTest,
+  attribute: string | IConstantTest,
+  value: IValue | IConstantTest,
+): IParsedCondition {
   const result: IParsedCondition = Object.create(null);
   result.constantFields = Object.create(null);
   result.variableFields = Object.create(null);
   result.variableNames = Object.create(null);
 
-  return c.reduce(
-    (sum: IParsedCondition, value: IFactFields, index: number) => {
-      const key = keyForIndex(index);
+  return [
+    identifier,
+    attribute,
+    value,
+  ].reduce((sum: IParsedCondition, v: IFactFields, index: number) => {
+    const key = keyForIndex(index);
 
-      if (isVariable(value)) {
-        sum.variableNames[value] = key;
-        setFactField(sum.variableFields, key, value);
-      } else {
-        setFactField(sum.constantFields, key, value);
-      }
+    if (isVariable(v)) {
+      sum.variableNames[v] = key;
+      setFactField(sum.variableFields, key, v);
+    } else {
+      setFactField(sum.constantFields, key, v);
+    }
 
-      return sum;
-    },
-    result,
-  );
+    return sum;
+  }, result);
 }
 
 // Memoize so conditions are be compared later.
 // Converts condition `toJSON` for caching. Might not be worth the memory.
-export const parseCondition = memoize(baseParseCondition);
+const memoizedParseCondition = memoize(baseParseCondition);
+
+export function parseCondition(c: ICondition): IParsedCondition {
+  return memoizedParseCondition(c[0], c[1], c[2]);
+}
 
 export function getJoinTestsFromCondition(
-  c: IConditionTuple,
+  c: ICondition,
   earlierConditions: IParsedCondition[],
 ): ITestAtJoinNode[] {
   const { variableNames } = parseCondition(c);
@@ -101,7 +104,7 @@ export function getJoinTestsFromCondition(
 }
 
 export function findVariableInEarlierConditions(
-  variableName: IFactFields,
+  variableName: string,
   earlierConditions: IParsedCondition[],
 ): number {
   return earlierConditions.findIndex(
