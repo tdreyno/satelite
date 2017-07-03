@@ -11,10 +11,10 @@ import {
   buildOrShareBetaMemoryNode,
   IBetaMemoryNode,
 } from "./nodes/BetaMemoryNode";
-import { IDummyNode, makeDummyNode } from "./nodes/DummyNode";
+import { makeDummyNode } from "./nodes/DummyNode";
 import { buildOrShareJoinNode } from "./nodes/JoinNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
-import { IReteNode } from "./nodes/ReteNode";
+import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
 import { makeProduction } from "./Production";
 import { deleteTokenAndDescendents, IToken } from "./Token";
 import {
@@ -22,12 +22,11 @@ import {
   IList,
   removeFromList,
   runLeftActivationOnNode,
-  runRightActivationOnNode,
   updateNewNodeWithMatchesFromAbove,
 } from "./util";
 
 export interface IRete {
-  root: IDummyNode;
+  root: IRootNode;
   workingMemory: IList<IFact>;
   hashTable: IExhaustiveHashTable;
 }
@@ -35,7 +34,7 @@ export interface IRete {
 export function makeRete(): IRete {
   const r: IRete = Object.create(null);
 
-  r.root = makeDummyNode();
+  r.root = makeRootNode();
   r.workingMemory = null;
   r.hashTable = createExhaustiveHashTable();
 
@@ -88,8 +87,6 @@ export function addFact(r: IRete, factTuple: IFactTuple): IRete {
     alphaMemoryNodeActivation(am, f);
   }
 
-  runRightActivationOnNode(r.root, f);
-
   return r;
 }
 
@@ -135,7 +132,11 @@ export function buildOrShareNetworkForConditions(
 
   for (const c of conditions) {
     // if c is positive
-    currentNode = buildOrShareBetaMemoryNode(currentNode);
+    currentNode =
+      currentNode === r.root
+        ? makeDummyNode(r.root)
+        : buildOrShareBetaMemoryNode(currentNode);
+
     const tests = getJoinTestsFromCondition(c, conditionsHigherUp);
     const alphaMemory = buildOrShareAlphaMemoryNode(r, c);
 

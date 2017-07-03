@@ -1,5 +1,6 @@
 import { IFact } from "./Fact";
 import { IBetaMemoryNode } from "./nodes/BetaMemoryNode";
+import { IDummyNode } from "./nodes/DummyNode";
 import { INegatedConjunctiveConditionsNode } from "./nodes/NegatedConjunctiveConditionsNode";
 import { INegatedConjunctiveConditionsPartnerNode } from "./nodes/NegatedConjunctiveConditionsPartnerNode";
 import { INegativeJoinResult, INegativeNode } from "./nodes/NegativeNode";
@@ -30,6 +31,7 @@ export interface IToken {
 
 export function makeToken(
   node:
+    | IDummyNode
     | IBetaMemoryNode
     | INegatedConjunctiveConditionsNode
     | INegatedConjunctiveConditionsPartnerNode

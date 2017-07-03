@@ -1,5 +1,5 @@
 import { IFact, IFactFields } from "../Fact";
-import { IToken } from "../Token";
+import { IToken, makeToken } from "../Token";
 import {
   addToListHead,
   findNearestAncestorWithSameAlphaMemory,
@@ -99,13 +99,20 @@ export function joinNodeLeftActivation(node: IJoinNode, t: IToken): void {
 }
 
 export function joinNodeRightActivation(node: IJoinNode, f: IFact): void {
-  forEachList(t => {
+  function executeTests(t: IToken) {
     if (performJoinTests(node.tests, t, f)) {
       forEachList(child => {
         runLeftActivationOnNode(child, t, f);
       }, node.children);
     }
-  }, node.parent.items);
+  }
+
+  if (node.parent.type === "dummy") {
+    const t = makeToken(node.parent, null, f);
+    executeTests(t);
+  } else {
+    forEachList(executeTests, node.parent.items);
+  }
 }
 
 function findSharableChildJoinNode(
@@ -146,10 +153,12 @@ export function buildOrShareJoinNode(
   }
 
   const node = makeJoinNode(parent, alphaMemory, tests);
-
   parent.children = addToListHead(parent.children, node);
+  parent.allChildren = addToListHead(parent.allChildren, node);
+
   alphaMemory.successors = addToListHead(alphaMemory.successors, node);
   alphaMemory.referenceCount += 1;
+
   node.nearestAncestorWithSameAlphaMemory =
     findNearestAncestorWithSameAlphaMemory(parent, alphaMemory) || null;
 

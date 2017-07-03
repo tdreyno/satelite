@@ -21,7 +21,7 @@ const rete = makeRete();
 
 console.time("Generating Data");
 const fakePeople = [];
-for (let i = 0; i < 2000; i++) {
+for (let i = 0; i < 10000; i++) {
   fakePeople.push(makeFakePerson());
 }
 console.timeEnd("Generating Data");
@@ -38,9 +38,9 @@ console.time("Adding production");
 addProduction(
   rete,
   [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
-  () => {
+  f => {
     // expect(f[2]).toBe("Grace");
-    // console.log(f[2]);
+    console.log(f[2]);
   },
 );
 console.timeEnd("Adding production");

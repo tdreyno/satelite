@@ -5,7 +5,6 @@ import {
   betaMemoryNodeLeftActivation,
   IBetaMemoryNode,
 } from "./nodes/BetaMemoryNode";
-import { dummyNodeRightActivation, IDummyNode } from "./nodes/DummyNode";
 import {
   IJoinNode,
   joinNodeLeftActivation,
@@ -101,8 +100,6 @@ export function runLeftActivationOnNode(
 
 export function runRightActivationOnNode(node: IReteNode, f: IFact) {
   switch (node.type) {
-    case "dummy":
-      return dummyNodeRightActivation(node as IDummyNode, f);
     case "join":
       return joinNodeRightActivation(node as IJoinNode, f);
     case "negative":
@@ -118,14 +115,6 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
   }
 
   switch (parent.type) {
-    case "dummy":
-      // This is weird. Probably don't need
-      forEachList(
-        t => runLeftActivationOnNode(newNode, t, t.fact),
-        (parent as IDummyNode).items,
-      );
-
-      break;
     case "beta-memory":
       forEachList(
         t => runLeftActivationOnNode(newNode, t, t.fact),
