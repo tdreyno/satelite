@@ -1,16 +1,14 @@
+import { memoize } from "interstelar/dist-es5";
 import { ICondition, isConstant } from "../Condition";
-import { IFact, IFactFields } from "../Fact";
+import { IFact, IValue } from "../Fact";
+import { IIdentifier, IPrimitive } from "../Identifier";
 import { IRete } from "../Rete";
 import {
   addToListHead,
-  getConditionField,
+  forEachList,
   IList,
   runRightActivationOnNode,
 } from "../util";
-import {
-  buildOrShareConstantTestNode,
-  IConstantTestNode,
-} from "./ConstantTestNode";
 import { IReteNode } from "./ReteNode";
 
 export interface IAlphaMemoryNode {
@@ -33,6 +31,54 @@ export function makeAlphaMemoryNode(): IAlphaMemoryNode {
 
   return am;
 }
+
+export type IExhaustiveHashTable = Map<number, IAlphaMemoryNode>;
+
+let hashCode = 0;
+// tslint:disable:variable-name
+export const getHashCode = memoize(
+  (
+    _identifier: IPrimitive | IIdentifier | null,
+    _attribute: string | null,
+    _value: IValue | null,
+  ): number => hashCode++,
+);
+// tslint:enable:variable-name
+
+export function lookupInHashTable(
+  hashTable: IExhaustiveHashTable,
+  identifier: IPrimitive | IIdentifier | null,
+  attribute: string | null,
+  value: IValue | null,
+): IAlphaMemoryNode | undefined {
+  return hashTable.get(getHashCode(identifier, attribute, value));
+}
+
+export function addToHashTable(
+  hashTable: IExhaustiveHashTable,
+  identifier: IPrimitive | IIdentifier | null,
+  attribute: string | null,
+  value: IValue | null,
+): IAlphaMemoryNode {
+  const node = makeAlphaMemoryNode();
+
+  hashTable.set(getHashCode(identifier, attribute, value), node);
+
+  return node;
+}
+
+export function createExhaustiveHashTable(): IExhaustiveHashTable {
+  return new Map();
+}
+
+export const alphaMemoryForCondition = memoize((
+  // tslint:disable-next-line:variable-name
+  _identifier: IPrimitive | IIdentifier | null,
+  // tslint:disable-next-line:variable-name
+  _attribute: string | null,
+  // tslint:disable-next-line:variable-name
+  _value: IValue | null,
+) => makeAlphaMemoryNode());
 
 export function makeAlphaMemoryItem(
   am: IAlphaMemoryNode,
@@ -66,43 +112,32 @@ export function buildOrShareAlphaMemoryNode(
   r: IRete,
   c: ICondition,
 ): IAlphaMemoryNode {
-  let currentNode: IConstantTestNode = r.root;
+  const identifierTest = isConstant(c[0]) ? c[0] : null;
+  const attributeTest = isConstant(c[1]) ? c[1] : null;
+  const valueTest = isConstant(c[2]) ? c[2] : null;
 
-  const constants: {
-    [key: string]: boolean;
-  } = {
-    identifier: isConstant(c[0]),
-    attribute: isConstant(c[1]),
-    value: isConstant(c[2]),
-  };
+  let alphaMemory = lookupInHashTable(
+    r.hashTable,
+    identifierTest,
+    attributeTest,
+    valueTest,
+  );
 
-  for (const key in constants) {
-    if (constants[key]) {
-      const sym = getConditionField(c, key as IFactFields);
-      currentNode = buildOrShareConstantTestNode(
-        currentNode,
-        key as IFactFields,
-        sym,
-      );
-    }
+  if (alphaMemory) {
+    return alphaMemory;
   }
 
-  if (currentNode.outputMemory) {
-    return currentNode.outputMemory;
-  }
+  alphaMemory = addToHashTable(
+    r.hashTable,
+    identifierTest,
+    attributeTest,
+    valueTest,
+  );
 
-  const alphaMemory = makeAlphaMemoryNode();
-  currentNode.outputMemory = alphaMemory;
-
-  if (r.workingMemory) {
-    for (const fact of r.workingMemory) {
-      for (const key in constants) {
-        if (constants[key]) {
-          alphaMemoryNodeActivation(alphaMemory, fact);
-        }
-      }
-    }
-  }
+  forEachList(
+    f => alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f),
+    r.workingMemory,
+  );
 
   return alphaMemory;
 }

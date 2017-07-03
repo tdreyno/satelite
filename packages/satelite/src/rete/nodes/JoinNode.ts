@@ -4,6 +4,7 @@ import {
   addToListHead,
   findList,
   findNearestAncestorWithSameAlphaMemory,
+  forEachList,
   getFactField,
   IList,
   removeFromList,
@@ -90,46 +91,25 @@ export function makeJoinNode(
 }
 
 export function joinNodeLeftActivation(node: IJoinNode, t: IToken): void {
-  if (node.alphaMemory.items) {
-    for (const item of node.alphaMemory.items) {
-      if (performJoinTests(node.tests, t, item.fact)) {
-        if (node.children) {
-          for (const child of node.children) {
-            runLeftActivationOnNode(child, t, item.fact);
-          }
-        }
-      }
+  forEachList(item => {
+    if (performJoinTests(node.tests, t, item.fact)) {
+      forEachList(child => {
+        runLeftActivationOnNode(child, t, item.fact);
+      }, node.children);
     }
-  }
+  }, node.alphaMemory.items);
 }
 
 export function joinNodeRightActivation(node: IJoinNode, f: IFact): void {
-  if (node.parent.items) {
-    for (const t of node.parent.items) {
-      if (performJoinTests(node.tests, t, f)) {
-        if (node.children) {
-          for (const child of node.children) {
-            runLeftActivationOnNode(child, t, f);
-          }
-        }
-      }
+  forEachList(t => {
+    if (performJoinTests(node.tests, t, f)) {
+      forEachList(child => {
+        runLeftActivationOnNode(child, t, f);
+      }, node.children);
     }
-  }
+  }, node.parent.items);
 }
 
-// For each parent.children,
-//   if child is a JoinNode,
-//   and `child.alphaMemory` == `alphaMemory`
-//   and `child.tests` == `tests`,
-//     return it.
-//
-// Otherwie, create a JoinNode.
-//   newNode.parent = parent
-//   Add `newNode` to `parent.children`.
-//   newNode.tests = tests
-//   newNode.alphaMemory = alphaMemory
-//
-//   Add `newNode` to `alphaMemory.successors`.
 export function buildOrShareJoinNode(
   parent: IBetaMemoryNode,
   alphaMemory: IAlphaMemoryNode,

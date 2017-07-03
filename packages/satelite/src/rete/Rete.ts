@@ -1,21 +1,21 @@
 import { getJoinTestsFromCondition, ICondition } from "./Condition";
 import { IFact } from "./Fact";
-import { buildOrShareAlphaMemoryNode } from "./nodes/AlphaMemoryNode";
+import {
+  alphaMemoryNodeActivation,
+  buildOrShareAlphaMemoryNode,
+  createExhaustiveHashTable,
+  IExhaustiveHashTable,
+  lookupInHashTable,
+} from "./nodes/AlphaMemoryNode";
 import {
   buildOrShareBetaMemoryNode,
   IBetaMemoryNode,
 } from "./nodes/BetaMemoryNode";
-import {
-  constantTestNodeActivation,
-  IRootConstantTestNode,
-  makeRootConstantTestNode,
-} from "./nodes/ConstantTestNode";
+import { IDummyNode, makeDummyNode } from "./nodes/DummyNode";
 import { buildOrShareJoinNode } from "./nodes/JoinNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
 import { IReteNode } from "./nodes/ReteNode";
 import { makeProduction } from "./Production";
-// import { IBetaMemoryNode, makeBetaMemoryNode } from "./nodes/BetaMemoryNode";
-// import { IReteNode } from "./nodes/ReteNode";
 import { deleteTokenAndDescendents } from "./Token";
 import {
   addToListHead,
@@ -26,22 +26,65 @@ import {
 } from "./util";
 
 export interface IRete {
-  root: IRootConstantTestNode;
+  root: IDummyNode;
   workingMemory: IList<IFact>;
+  hashTable: IExhaustiveHashTable;
 }
 
 export function makeRete(): IRete {
   const r: IRete = Object.create(null);
 
-  r.root = makeRootConstantTestNode();
+  r.root = makeDummyNode();
   r.workingMemory = null;
+  r.hashTable = createExhaustiveHashTable();
 
   return r;
 }
 
 export function addFact(r: IRete, f: IFact): IRete {
   r.workingMemory = addToListHead(r.workingMemory, f);
-  constantTestNodeActivation(r.root, f);
+
+  let am;
+
+  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, f.value);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, null);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, f.attribute, f.value);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, f.identifier, null, f.value);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, null, f.value);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, f.attribute, null);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, f.identifier, null, null);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, null, null);
+  if (am) {
+    alphaMemoryNodeActivation(am, f);
+  }
 
   return r;
 }
@@ -80,16 +123,19 @@ export function removeFact(r: IRete, f: IFact): IRete {
 
 export function buildOrShareNetworkForConditions(
   r: IRete,
-  parent: IReteNode,
   conditions: ICondition[],
   earlierConditions: ICondition[],
 ): IReteNode {
-  let currentNode = parent;
+  let currentNode = null;
   const conditionsHigherUp = earlierConditions;
 
   for (const c of conditions) {
     // if c is positive
+
     currentNode = buildOrShareBetaMemoryNode(currentNode);
+
+    debugger;
+
     const tests = getJoinTestsFromCondition(c, conditionsHigherUp);
     const alphaMemory = buildOrShareAlphaMemoryNode(r, c);
     currentNode = buildOrShareJoinNode(
@@ -103,7 +149,7 @@ export function buildOrShareNetworkForConditions(
     conditionsHigherUp.push(c);
   }
 
-  return currentNode;
+  return currentNode || r.root;
 }
 
 export function addProduction(
@@ -111,12 +157,7 @@ export function addProduction(
   conditions: ICondition[],
   callback: () => any,
 ): IRete {
-  const currentNode = buildOrShareNetworkForConditions(
-    r,
-    r.root,
-    conditions,
-    [],
-  );
+  const currentNode = buildOrShareNetworkForConditions(r, conditions, []);
 
   const production = makeProduction(callback);
   production.productionNode = makeProductionNode(production);

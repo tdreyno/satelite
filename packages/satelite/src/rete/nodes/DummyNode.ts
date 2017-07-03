@@ -1,9 +1,17 @@
-import { IReteNode } from "./ReteNode";
+import { IBetaMemoryNode } from "./BetaMemoryNode";
 
-export interface IDummyNode extends IReteNode {
+export interface IDummyNode extends IBetaMemoryNode {
   type: "dummy";
-  parent: null;
-
-  // Will be empty, so validation checks always pass.
   items: null;
+  parent: null;
+}
+
+export function makeDummyNode(): IDummyNode {
+  const node: IDummyNode = Object.create(null);
+
+  node.type = "dummy";
+  node.items = null;
+  node.parent = null;
+
+  return node;
 }

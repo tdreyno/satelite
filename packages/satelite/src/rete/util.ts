@@ -86,6 +86,7 @@ export function runLeftActivationOnNode(
   t: IToken,
   f: IFact | null,
 ): void {
+  console.log("left activate", node.type);
   switch (node.type) {
     case "beta-memory":
       return betaMemoryNodeLeftActivation(node as IBetaMemoryNode, t, f);
@@ -109,8 +110,10 @@ export function runLeftActivationOnNode(
 }
 
 export function runRightActivationOnNode(node: IReteNode, f: IFact) {
+  console.log("right activate", node.type);
   switch (node.type) {
     case "join":
+      // debugger;
       return joinNodeRightActivation(node as IJoinNode, f);
     case "negative":
       return negativeNodeRightActivation(node as INegativeNode, f);
