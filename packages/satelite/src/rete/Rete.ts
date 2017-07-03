@@ -1,5 +1,5 @@
 import { getJoinTestsFromCondition, ICondition } from "./Condition";
-import { IFact } from "./Fact";
+import { IFact, IFactTuple, makeFact } from "./Fact";
 import {
   alphaMemoryNodeActivation,
   buildOrShareAlphaMemoryNode,
@@ -16,12 +16,13 @@ import { buildOrShareJoinNode } from "./nodes/JoinNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
 import { IReteNode } from "./nodes/ReteNode";
 import { makeProduction } from "./Production";
-import { deleteTokenAndDescendents } from "./Token";
+import { deleteTokenAndDescendents, IToken } from "./Token";
 import {
   addToListHead,
   IList,
   removeFromList,
   runLeftActivationOnNode,
+  runRightActivationOnNode,
   updateNewNodeWithMatchesFromAbove,
 } from "./util";
 
@@ -41,7 +42,8 @@ export function makeRete(): IRete {
   return r;
 }
 
-export function addFact(r: IRete, f: IFact): IRete {
+export function addFact(r: IRete, factTuple: IFactTuple): IRete {
+  const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
   r.workingMemory = addToListHead(r.workingMemory, f);
 
   let am;
@@ -86,6 +88,8 @@ export function addFact(r: IRete, f: IFact): IRete {
     alphaMemoryNodeActivation(am, f);
   }
 
+  runRightActivationOnNode(r.root, f);
+
   return r;
 }
 
@@ -126,18 +130,15 @@ export function buildOrShareNetworkForConditions(
   conditions: ICondition[],
   earlierConditions: ICondition[],
 ): IReteNode {
-  let currentNode = null;
+  let currentNode: IReteNode = r.root;
   const conditionsHigherUp = earlierConditions;
 
   for (const c of conditions) {
     // if c is positive
-
     currentNode = buildOrShareBetaMemoryNode(currentNode);
-
-    debugger;
-
     const tests = getJoinTestsFromCondition(c, conditionsHigherUp);
     const alphaMemory = buildOrShareAlphaMemoryNode(r, c);
+
     currentNode = buildOrShareJoinNode(
       currentNode as IBetaMemoryNode,
       alphaMemory,
@@ -149,13 +150,13 @@ export function buildOrShareNetworkForConditions(
     conditionsHigherUp.push(c);
   }
 
-  return currentNode || r.root;
+  return currentNode;
 }
 
 export function addProduction(
   r: IRete,
   conditions: ICondition[],
-  callback: () => any,
+  callback: (f: IFactTuple, t: IToken) => any,
 ): IRete {
   const currentNode = buildOrShareNetworkForConditions(r, conditions, []);
 
@@ -165,6 +166,8 @@ export function addProduction(
     currentNode.children,
     production.productionNode,
   );
+
+  production.productionNode.parent = currentNode;
 
   updateNewNodeWithMatchesFromAbove(production.productionNode);
 

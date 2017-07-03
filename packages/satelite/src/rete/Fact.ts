@@ -8,6 +8,8 @@ export type IValue = any;
 
 export type IFactFields = "identifier" | "attribute" | "value";
 
+export type IFactTuple = [IIdentifier, string, IValue];
+
 export interface IFact {
   identifier: IIdentifier;
   attribute: string;
@@ -43,4 +45,8 @@ export function compareFacts(f1: IFact, f2: IFact): boolean {
     f1.attribute === f2.attribute &&
     f1.value === f2.value
   );
+}
+
+export function makeFactTuple(f: IFact): IFactTuple {
+  return [f.identifier, f.attribute, f.value];
 }

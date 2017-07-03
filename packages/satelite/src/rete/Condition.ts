@@ -2,7 +2,7 @@ import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
-import { setFactField } from "./util";
+import { addToListHead, IList, setFactField } from "./util";
 
 export type IConstantTest = string;
 
@@ -75,14 +75,14 @@ export function parseCondition(c: ICondition): IParsedCondition {
 export function getJoinTestsFromCondition(
   c: ICondition,
   earlierConditions: ICondition[],
-): ITestAtJoinNode[] {
+): IList<ITestAtJoinNode> {
   const { variableNames } = parseCondition(c);
 
-  const output: ITestAtJoinNode[] = [];
+  const output: IList<ITestAtJoinNode> = null;
 
   return Object.keys(
     variableNames,
-  ).reduce((results, variableName: IFactFields) => {
+  ).reduce((results: IList<ITestAtJoinNode>, variableName: IFactFields) => {
     const earlierConditionIndex = findVariableInEarlierConditions(
       variableName,
       earlierConditions,
@@ -96,7 +96,8 @@ export function getJoinTestsFromCondition(
       );
       const fieldArg2 = earlierCondition.variableNames[variableName];
 
-      results.push(
+      results = addToListHead(
+        results,
         makeTestAtJoinNode(fieldArg1, earlierConditionIndex, fieldArg2),
       );
     }

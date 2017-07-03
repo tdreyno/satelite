@@ -102,11 +102,11 @@ describe("Condition", () => {
       );
 
       expect(tests).toHaveLength(1);
-      expect(tests[0]).toMatchObject({
-        fieldArg1: "value",
-        conditionNumberOfArg2: 1,
-        fieldArg2: "identifier",
-      });
+      if (tests) {
+        expect(tests[0].fieldArg1).toBe("value");
+        expect(tests[0].conditionNumberOfArg2).toBe(1);
+        expect(tests[0].fieldArg2).toBe("identifier");
+      }
     });
 
     it("should create a join test for the known variables ?e and ?v", () => {
@@ -118,16 +118,15 @@ describe("Condition", () => {
       const tests = getJoinTestsFromCondition(["?e", "name", "?v"], conditions);
 
       expect(tests).toHaveLength(2);
-      expect(tests[0]).toMatchObject({
-        fieldArg1: "identifier",
-        conditionNumberOfArg2: 0,
-        fieldArg2: "identifier",
-      });
-      expect(tests[1]).toMatchObject({
-        fieldArg1: "value",
-        conditionNumberOfArg2: 1,
-        fieldArg2: "value",
-      });
+
+      if (tests) {
+        expect(tests[0].fieldArg1).toBe("value");
+        expect(tests[0].conditionNumberOfArg2).toBe(1);
+        expect(tests[0].fieldArg2).toBe("value");
+        expect(tests[1].fieldArg1).toBe("identifier");
+        expect(tests[1].conditionNumberOfArg2).toBe(0);
+        expect(tests[1].fieldArg2).toBe("identifier");
+      }
     });
   });
 });

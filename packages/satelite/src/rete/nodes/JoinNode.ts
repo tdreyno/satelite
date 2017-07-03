@@ -7,7 +7,7 @@ import {
   forEachList,
   getFactField,
   IList,
-  removeFromList,
+  // removeFromList,
   runLeftActivationOnNode,
 } from "../util";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
@@ -52,8 +52,7 @@ export function performJoinTests(
     const arg1 = getFactField(f, test.fieldArg1);
 
     if (t.fact) {
-      const fact2 = getFactField(t.fact, test.fieldArg1);
-      const arg2 = getFactField(fact2, test.fieldArg2);
+      const arg2 = getFactField(t.fact, test.fieldArg2);
 
       // TODO: Make this comparison any predicate
       if (!eq(arg1, arg2)) {
@@ -128,17 +127,18 @@ export function buildOrShareJoinNode(
   }
 
   const node = makeJoinNode(parent, alphaMemory, tests);
+
   parent.children = addToListHead(parent.children, node);
   alphaMemory.successors = addToListHead(alphaMemory.successors, node);
   alphaMemory.referenceCount += 1;
   node.nearestAncestorWithSameAlphaMemory =
     findNearestAncestorWithSameAlphaMemory(parent, alphaMemory) || null;
 
-  if (!parent.items) {
-    alphaMemory.successors = removeFromList(alphaMemory.successors, node);
-  } else if (!alphaMemory.items) {
-    parent.children = removeFromList(parent.children, node);
-  }
+  // if (!parent.items) {
+  //   alphaMemory.successors = removeFromList(alphaMemory.successors, node);
+  // } else if (!alphaMemory.items) {
+  //   parent.children = removeFromList(parent.children, node);
+  // }
 
   return node;
 }

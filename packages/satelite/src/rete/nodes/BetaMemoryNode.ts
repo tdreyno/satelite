@@ -3,11 +3,11 @@ import { compareTokens, IToken, makeToken } from "../Token";
 import {
   addToListHead,
   findList,
+  forEachList,
   IList,
   runLeftActivationOnNode,
   updateNewNodeWithMatchesFromAbove,
 } from "../util";
-import { makeDummyNode } from "./DummyNode";
 import { IJoinNode } from "./JoinNode";
 import { IReteNode } from "./ReteNode";
 
@@ -34,26 +34,20 @@ export function betaMemoryNodeLeftActivation(
   t: IToken,
   f: IFact | null,
 ): void {
-  debugger;
   const newToken = makeToken(node, t, f);
 
   // Only insert unique.
   if (!node.items || node.items.every(i => !compareTokens(i, newToken))) {
     node.items = addToListHead(node.items, newToken);
 
-    if (node.children) {
-      for (const child of node.children) {
-        runLeftActivationOnNode(child, newToken, f);
-      }
-    }
+    forEachList(
+      child => runLeftActivationOnNode(child, newToken, f),
+      node.children,
+    );
   }
 }
 
-export function buildOrShareBetaMemoryNode(parent: IReteNode | null): IBetaMemoryNode {
-  if (!parent) {
-    return makeDummyNode();
-  }
-
+export function buildOrShareBetaMemoryNode(parent: IReteNode): IBetaMemoryNode {
   const foundChild = findList(c => c.type === "beta-memory", parent.children);
   if (foundChild) {
     return foundChild as IBetaMemoryNode;
@@ -61,6 +55,7 @@ export function buildOrShareBetaMemoryNode(parent: IReteNode | null): IBetaMemor
 
   const bm = makeBetaMemoryNode();
   bm.parent = parent;
+
   parent.children = addToListHead(parent.children, bm);
 
   updateNewNodeWithMatchesFromAbove(bm);

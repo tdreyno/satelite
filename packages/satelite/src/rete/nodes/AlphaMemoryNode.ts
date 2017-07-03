@@ -134,10 +134,15 @@ export function buildOrShareAlphaMemoryNode(
     valueTest,
   );
 
-  forEachList(
-    f => alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f),
-    r.workingMemory,
-  );
+  forEachList(f => {
+    if (
+      (!identifierTest || f.identifier === identifierTest) &&
+      (!attributeTest || f.attribute === attributeTest) &&
+      (!valueTest || f.value === valueTest)
+    ) {
+      alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f);
+    }
+  }, r.workingMemory);
 
   return alphaMemory;
 }
