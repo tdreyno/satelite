@@ -105,6 +105,19 @@ export function removeFact(r: IRete, fact: IFactTuple): IRete {
     for (let i = 0; i < f.alphaMemoryItems.length; i++) {
       const item = f.alphaMemoryItems[i];
       item.alphaMemory.items = removeFromList(item.alphaMemory.items, item);
+
+      // Items just became empty.
+      if (!item.alphaMemory.items) {
+        if (item.alphaMemory.successors) {
+          for (let j = 0; j < item.alphaMemory.successors.length; j++) {
+            const node = item.alphaMemory.successors[j];
+
+            if (node.type === "join" && node.parent) {
+              node.parent.children = removeFromList(node.parent.children, node);
+            }
+          }
+        }
+      }
     }
   }
 
