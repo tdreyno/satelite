@@ -21,13 +21,13 @@ import {
   addToListHead,
   IList,
   removeFromList,
-  runLeftActivationOnNode,
+  // runLeftActivationOnNode,
   updateNewNodeWithMatchesFromAbove,
 } from "./util";
 
 export interface IRete {
   root: IRootNode;
-  workingMemory: IList<IFact>;
+  workingMemory: Set<IFact>;
   hashTable: IExhaustiveHashTable;
   productions: IList<IProduction>;
 }
@@ -36,7 +36,7 @@ export function makeRete(): IRete {
   const r: IRete = Object.create(null);
 
   r.root = makeRootNode();
-  r.workingMemory = null;
+  r.workingMemory = new Set();
   r.hashTable = createExhaustiveHashTable();
   r.productions = null;
 
@@ -46,9 +46,12 @@ export function makeRete(): IRete {
 export function addFact(r: IRete, factTuple: IFactTuple): IRete {
   const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
-  // TODO: Prevent duplicates
+  // Prevent duplicates
+  if (r.workingMemory.has(f)) {
+    return r;
+  }
 
-  r.workingMemory = addToListHead(r.workingMemory, f);
+  r.workingMemory.add(f);
 
   let am;
 
@@ -95,7 +98,9 @@ export function addFact(r: IRete, factTuple: IFactTuple): IRete {
   return r;
 }
 
-export function removeFact(r: IRete, f: IFact): IRete {
+export function removeFact(r: IRete, fact: IFactTuple): IRete {
+  const f = makeFact(fact[0], fact[1], fact[2]);
+
   if (f.alphaMemoryItems) {
     for (let i = 0; i < f.alphaMemoryItems.length; i++) {
       const item = f.alphaMemoryItems[i];
@@ -110,23 +115,23 @@ export function removeFact(r: IRete, f: IFact): IRete {
     }
   }
 
-  if (f.negativeJoinResults) {
-    for (let i = 0; i < f.negativeJoinResults.length; i++) {
-      const jr = f.negativeJoinResults[i];
-      jr.owner.joinResults = removeFromList(jr.owner.joinResults, jr);
+  // if (f.negativeJoinResults) {
+  //   for (let i = 0; i < f.negativeJoinResults.length; i++) {
+  //     const jr = f.negativeJoinResults[i];
+  //     jr.owner.joinResults = removeFromList(jr.owner.joinResults, jr);
 
-      if (!jr.owner.joinResults) {
-        if (jr.owner.node.children) {
-          for (let j = 0; j < jr.owner.node.children.length; j++) {
-            const child = jr.owner.node.children[j];
-            runLeftActivationOnNode(child, jr.owner, null);
-          }
-        }
-      }
-    }
-  }
+  //     if (!jr.owner.joinResults) {
+  //       if (jr.owner.node.children) {
+  //         for (let j = 0; j < jr.owner.node.children.length; j++) {
+  //           const child = jr.owner.node.children[j];
+  //           runLeftActivationOnNode(child, jr.owner, null);
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
-  r.workingMemory = removeFromList(r.workingMemory, f);
+  r.workingMemory.delete(f);
 
   return r;
 }

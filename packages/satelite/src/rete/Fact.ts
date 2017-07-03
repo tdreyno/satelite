@@ -1,3 +1,4 @@
+import { memoize } from "interstelar";
 import { IIdentifier } from "./Identifier";
 import { IAlphaMemoryItem } from "./nodes/AlphaMemoryNode";
 import { INegativeJoinResult } from "./nodes/NegativeNode";
@@ -21,7 +22,7 @@ export interface IFact {
   negativeJoinResults: IList<INegativeJoinResult>;
 }
 
-export function makeFact(
+function makeFactPure(
   identifier: IIdentifier,
   attribute: string,
   value: IValue,
@@ -38,6 +39,8 @@ export function makeFact(
 
   return f;
 }
+
+export const makeFact = memoize(makeFactPure);
 
 export function compareFacts(f1: IFact, f2: IFact): boolean {
   return (

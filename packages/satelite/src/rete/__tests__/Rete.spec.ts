@@ -1,5 +1,5 @@
 import { IFactTuple } from "../Fact";
-import { addFact, addProduction, makeRete } from "../Rete";
+import { addFact, addProduction, makeRete, removeFact } from "../Rete";
 
 const DATA_SET = [
   [1, "name", "Thomas"],
@@ -10,9 +10,9 @@ const DATA_SET = [
   [2, "gender", "F"],
   [2, "team", "Spirit"],
 
-  [3, "name", "Brian"],
+  [3, "name", "Marc"],
   [3, "gender", "M"],
-  [3, "team", "WW"],
+  [3, "team", "Content"],
 
   [4, "name", "Grace"],
   [4, "gender", "F"],
@@ -20,7 +20,9 @@ const DATA_SET = [
 ];
 
 describe("Rete", () => {
-  it("should add a production", done => {
+  it("should add a production", () => {
+    expect.assertions(2);
+
     const rete = makeRete();
 
     for (let i = 0; i < DATA_SET.length; i++) {
@@ -32,8 +34,31 @@ describe("Rete", () => {
       [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
       f => {
         expect(f[2]).toBe("Grace");
-        done();
       },
     );
+
+    addProduction(
+      rete,
+      [["?e", "gender", "M"], ["?e", "team", "WW"], ["?e", "name", "?v"]],
+      f => {
+        expect(f[2]).toBe("Thomas");
+      },
+    );
+  });
+
+  it("should be able to remove fact", () => {
+    expect.assertions(1);
+
+    const rete = makeRete();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      addFact(rete, DATA_SET[i] as IFactTuple);
+    }
+
+    removeFact(rete, DATA_SET[4] as any);
+
+    addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
+      expect(f[2]).toBe("Grace");
+    });
   });
 });

@@ -6,7 +6,6 @@ import { IReteNode } from "./ReteNode";
 export interface IProductionNode extends IReteNode {
   type: "production";
   production: IProduction;
-  fact: IFact | null;
 }
 
 export function makeProductionNode(production: IProduction): IProductionNode {
@@ -14,7 +13,6 @@ export function makeProductionNode(production: IProduction): IProductionNode {
 
   node.type = "production";
   node.production = production;
-  node.fact = null;
 
   return node;
 }
@@ -24,8 +22,5 @@ export function productionNodeLeftActivation(
   t: IToken,
   f: IFact,
 ): void {
-  if (node.fact !== f) {
-    node.fact = f;
-    node.production.onActivation(makeFactTuple(f), t);
-  }
+  node.production.onActivation(makeFactTuple(f), t);
 }

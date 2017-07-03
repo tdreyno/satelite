@@ -121,17 +121,13 @@ export function buildOrShareAlphaMemoryNode(
     valueTest,
   );
 
-  if (r.workingMemory) {
-    for (let i = 0; i < r.workingMemory.length; i++) {
-      const f = r.workingMemory[i];
-
-      if (
-        (!identifierTest || f.identifier === identifierTest) &&
-        (!attributeTest || f.attribute === attributeTest) &&
-        (!valueTest || f.value === valueTest)
-      ) {
-        alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f);
-      }
+  for (const f of r.workingMemory) {
+    if (
+      (!identifierTest || f.identifier === identifierTest) &&
+      (!attributeTest || f.attribute === attributeTest) &&
+      (!valueTest || f.value === valueTest)
+    ) {
+      alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f);
     }
   }
 
