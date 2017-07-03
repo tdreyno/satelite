@@ -8,6 +8,7 @@ import {
   addToListHead,
   IList,
   removeFromList,
+  runLeftActivationOnNode,
   // runLeftActivationOnNode,
 } from "./util";
 
@@ -67,7 +68,8 @@ export function compareTokens(t1: IToken, t2: IToken): boolean {
 
 export function deleteTokenAndDescendents(t: IToken): void {
   if (t.children) {
-    for (const child of t.children) {
+    for (let i = 0; i < t.children.length; i++) {
+      const child = t.children[i];
       deleteTokenAndDescendents(child);
     }
   }
@@ -85,41 +87,50 @@ export function deleteTokenAndDescendents(t: IToken): void {
     t.parent.children = removeFromList(t.parent.children, t);
   }
 
-  // if (t.node.type === "negative") {
-  //   if (t.joinResults) {
-  //     for (const jr of t.joinResults) {
-  //       jr.fact.negativeJoinResults = removeFromList(
-  //         jr.fact.negativeJoinResults,
-  //         jr,
-  //       );
-  //     }
-  //   }
-  // } else if (t.node.type === "ncc") {
-  //   if (t.nccResults) {
-  //     for (const result of t.nccResults) {
-  //       if (result.fact) {
-  //         result.fact.tokens = removeFromList(result.fact.tokens, result);
-  //       }
+  if (t.node.type === "negative") {
+    if (t.joinResults) {
+      for (let i = 0; i < t.joinResults.length; i++) {
+        const jr = t.joinResults[i];
+        jr.fact.negativeJoinResults = removeFromList(
+          jr.fact.negativeJoinResults,
+          jr,
+        );
+      }
+    }
+  } else if (t.node.type === "ncc") {
+    if (t.nccResults) {
+      for (let i = 0; i < t.nccResults.length; i++) {
+        const result = t.nccResults[i];
+        if (result.fact) {
+          result.fact.tokens = removeFromList(result.fact.tokens, result);
+        }
 
-  //       result.parent.children = removeFromList(result.parent.children, result);
-  //     }
-  //   }
-  // } else if (t.node.type === "ncc-partner") {
-  //   if (t.owner) {
-  //     t.owner.nccResults = removeFromList(t.owner.nccResults, t);
+        if (result.parent) {
+          result.parent.children = removeFromList(
+            result.parent.children,
+            result,
+          );
+        }
+      }
+    }
+  } else if (t.node.type === "ncc-partner") {
+    if (t.owner) {
+      t.owner.nccResults = removeFromList(t.owner.nccResults, t);
 
-  //     if (!t.owner.nccResults && t.node.nccNode.children) {
-  //       for (const child of t.node.nccNode.children) {
-  //         runLeftActivationOnNode(child, t.owner, null);
-  //       }
-  //     }
-  //   }
-  // }
+      if (!t.owner.nccResults && t.node.nccNode.children) {
+        for (let i = 0; i < t.node.nccNode.children.length; i++) {
+          const child = t.node.nccNode.children[i];
+          runLeftActivationOnNode(child, t.owner, null);
+        }
+      }
+    }
+  }
 }
 
 export function deleteDescendentsOfToken(t: IToken): void {
   if (t.children) {
-    for (const child of t.children) {
+    for (let i = 0; i < t.children.length; i++) {
+      const child = t.children[i];
       deleteTokenAndDescendents(child);
     }
   }

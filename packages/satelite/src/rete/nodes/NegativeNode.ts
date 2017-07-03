@@ -46,7 +46,8 @@ export function negativeNodeLeftActivation(
     node.items = addToListHead(node.items, newToken);
 
     if (f && node.alphaMemory.items) {
-      for (const item of node.alphaMemory.items) {
+      for (let i = 0; i < node.alphaMemory.items.length; i++) {
+        const item = node.alphaMemory.items[i];
         if (performJoinTests(node.tests, newToken, item.fact)) {
           const jr = makeNegativeJoinResult(newToken, f);
           newToken.joinResults = addToListHead(newToken.joinResults, jr);
@@ -56,7 +57,8 @@ export function negativeNodeLeftActivation(
     }
 
     if (!newToken.joinResults && node.children) {
-      for (const child of node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
         runLeftActivationOnNode(child, newToken, null);
       }
     }
@@ -68,7 +70,8 @@ export function negativeNodeRightActivation(
   f: IFact,
 ): void {
   if (node.items) {
-    for (const t of node.items) {
+    for (let i = 0; i < node.items.length; i++) {
+      const t = node.items[i];
       if (performJoinTests(node.tests, t, f)) {
         if (!t.joinResults) {
           deleteDescendentsOfToken(t);

@@ -26,7 +26,8 @@ export function negatedConjunctiveConditionsNodeLeftActivation(
 
   if (node.partner.newResultsBuffer) {
     const buffer = node.partner.newResultsBuffer;
-    for (const result of buffer) {
+    for (let i = 0; i < buffer.length; i++) {
+      const result = buffer[i];
       node.partner.newResultsBuffer = removeFromList(
         node.partner.newResultsBuffer,
         result,
@@ -38,7 +39,8 @@ export function negatedConjunctiveConditionsNodeLeftActivation(
 
   if (!newToken.nccResults) {
     if (node.children) {
-      for (const child of node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
         runLeftActivationOnNode(child, newToken, null);
       }
     }

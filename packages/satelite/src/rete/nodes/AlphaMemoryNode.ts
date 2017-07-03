@@ -3,12 +3,7 @@ import { ICondition, isConstant } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
 import { IRete } from "../Rete";
-import {
-  addToListHead,
-  forEachList,
-  IList,
-  runRightActivationOnNode,
-} from "../util";
+import { addToListHead, IList, runRightActivationOnNode } from "../util";
 import { IReteNode } from "./ReteNode";
 
 export interface IAlphaMemoryNode {
@@ -102,7 +97,8 @@ export function alphaMemoryNodeActivation(
   f.alphaMemoryItems = addToListHead(f.alphaMemoryItems, i);
 
   if (node.successors) {
-    for (const successor of node.successors) {
+    for (let j = 0; j < node.successors.length; j++) {
+      const successor = node.successors[j];
       runRightActivationOnNode(successor, f);
     }
   }
@@ -134,15 +130,19 @@ export function buildOrShareAlphaMemoryNode(
     valueTest,
   );
 
-  forEachList(f => {
-    if (
-      (!identifierTest || f.identifier === identifierTest) &&
-      (!attributeTest || f.attribute === attributeTest) &&
-      (!valueTest || f.value === valueTest)
-    ) {
-      alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f);
+  if (r.workingMemory) {
+    for (let i = 0; i < r.workingMemory.length; i++) {
+      const f = r.workingMemory[i];
+
+      if (
+        (!identifierTest || f.identifier === identifierTest) &&
+        (!attributeTest || f.attribute === attributeTest) &&
+        (!valueTest || f.value === valueTest)
+      ) {
+        alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f);
+      }
     }
-  }, r.workingMemory);
+  }
 
   return alphaMemory;
 }

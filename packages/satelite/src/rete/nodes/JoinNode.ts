@@ -3,8 +3,6 @@ import { IToken, makeToken } from "../Token";
 import {
   addToListHead,
   findNearestAncestorWithSameAlphaMemory,
-  forEachList,
-  getFactField,
   IList,
   removeFromList,
   runLeftActivationOnNode,
@@ -34,10 +32,6 @@ export function makeTestAtJoinNode(
   return tajn;
 }
 
-function eq(a: any, b: any): boolean {
-  return a === b;
-}
-
 export function performJoinTests(
   tests: IList<ITestAtJoinNode>,
   t: IToken,
@@ -47,14 +41,15 @@ export function performJoinTests(
     return true;
   }
 
-  for (const test of tests) {
-    const arg1 = getFactField(f, test.fieldArg1);
+  for (let i = 0; i < tests.length; i++) {
+    const test = tests[i];
+    const arg1 = f[test.fieldArg1];
 
     if (t.fact) {
-      const arg2 = getFactField(t.fact, test.fieldArg2);
+      const arg2 = t.fact[test.fieldArg2];
 
       // TODO: Make this comparison any predicate
-      if (!eq(arg1, arg2)) {
+      if (arg1 !== arg2) {
         return false;
       }
     }
@@ -89,21 +84,29 @@ export function makeJoinNode(
 }
 
 export function joinNodeLeftActivation(node: IJoinNode, t: IToken): void {
-  forEachList(item => {
-    if (performJoinTests(node.tests, t, item.fact)) {
-      forEachList(child => {
+  if (!node.alphaMemory.items) {
+    return;
+  }
+
+  for (let i = 0; i < node.alphaMemory.items.length; i++) {
+    const item = node.alphaMemory.items[i];
+
+    if (node.children && performJoinTests(node.tests, t, item.fact)) {
+      for (let j = 0; j < node.children.length; j++) {
+        const child = node.children[j];
         runLeftActivationOnNode(child, t, item.fact);
-      }, node.children);
+      }
     }
-  }, node.alphaMemory.items);
+  }
 }
 
 export function joinNodeRightActivation(node: IJoinNode, f: IFact): void {
   function executeTests(t: IToken) {
-    if (performJoinTests(node.tests, t, f)) {
-      forEachList(child => {
+    if (node.children && performJoinTests(node.tests, t, f)) {
+      for (let j = 0; j < node.children.length; j++) {
+        const child = node.children[j];
         runLeftActivationOnNode(child, t, f);
-      }, node.children);
+      }
     }
   }
 
@@ -111,7 +114,11 @@ export function joinNodeRightActivation(node: IJoinNode, f: IFact): void {
     const t = makeToken(node.parent, null, f);
     executeTests(t);
   } else {
-    forEachList(executeTests, node.parent.items);
+    if (node.parent.items) {
+      for (let i = 0; i < node.parent.items.length; i++) {
+        executeTests(node.parent.items[i]);
+      }
+    }
   }
 }
 

@@ -38,19 +38,6 @@ export function addToListHead<T>(list: IList<T> | null, item: T): T[] {
   return list;
 }
 
-export function forEachList<T>(
-  fn: (item: T, i: number) => any,
-  list: IList<T>,
-): void {
-  if (!list) {
-    return;
-  }
-
-  for (let i = 0; i < list.length; i++) {
-    fn(list[i], i);
-  }
-}
-
 export function removeFromList<T>(list: T[] | null, item: T): T[] | null {
   if (!list) {
     return null;
@@ -116,55 +103,61 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
 
   switch (parent.type) {
     case "beta-memory":
-      forEachList(
-        t => runLeftActivationOnNode(newNode, t, t.fact),
-        (parent as IBetaMemoryNode).items,
-      );
+      const betaMemoryItems = (parent as IBetaMemoryNode).items;
+
+      if (betaMemoryItems) {
+        for (let i = 0; i < betaMemoryItems.length; i++) {
+          const t = betaMemoryItems[i];
+          runLeftActivationOnNode(newNode, t, t.fact);
+        }
+      }
 
       break;
 
     case "join":
-      const savedListOfChildren = parent.children;
-      parent.children = [newNode];
+      const alphaMemoryItems = (parent as IJoinNode).alphaMemory.items;
 
-      forEachList(
-        i => runRightActivationOnNode(parent, i.fact),
-        (parent as IJoinNode).alphaMemory.items,
-      );
+      if (alphaMemoryItems) {
+        const savedListOfChildren = parent.children;
+        parent.children = [newNode];
 
-      parent.children = savedListOfChildren;
+        for (let i = 0; i < alphaMemoryItems.length; i++) {
+          const item = alphaMemoryItems[i];
+          runRightActivationOnNode(parent, item.fact);
+        }
+
+        parent.children = savedListOfChildren;
+      }
 
       break;
 
     case "negative":
-      forEachList(
-        t => t.joinResults && runLeftActivationOnNode(newNode, t, null),
-        (parent as INegativeNode).items,
-      );
+      const negativeNodeItems = (parent as INegativeNode).items;
+
+      if (negativeNodeItems) {
+        for (let i = 0; i < negativeNodeItems.length; i++) {
+          const t = negativeNodeItems[i];
+          if (t.joinResults) {
+            runLeftActivationOnNode(newNode, t, null);
+          }
+        }
+      }
 
       break;
 
     case "ncc":
-      forEachList(
-        t => t.nccResults && runLeftActivationOnNode(newNode, t, null),
-        (parent as INegatedConjunctiveConditionsNode).items,
-      );
+      const nccItems = (parent as INegatedConjunctiveConditionsNode).items;
+
+      if (nccItems) {
+        for (let i = 0; i < nccItems.length; i++) {
+          const t = nccItems[i];
+          if (t.nccResults) {
+            runLeftActivationOnNode(newNode, t, null);
+          }
+        }
+      }
 
       break;
-  }
-}
-
-export function getFactField<T extends { [P in IFactFields]?: any }>(
-  f: T,
-  field: IFactFields,
-): any {
-  switch (field) {
-    case "identifier":
-      return f.identifier;
-    case "attribute":
-      return f.attribute;
-    case "value":
-      return f.value;
   }
 }
 

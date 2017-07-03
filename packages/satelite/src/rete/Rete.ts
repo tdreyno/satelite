@@ -92,24 +92,28 @@ export function addFact(r: IRete, factTuple: IFactTuple): IRete {
 
 export function removeFact(r: IRete, f: IFact): IRete {
   if (f.alphaMemoryItems) {
-    for (const item of f.alphaMemoryItems) {
+    for (let i = 0; i < f.alphaMemoryItems.length; i++) {
+      const item = f.alphaMemoryItems[i];
       item.alphaMemory.items = removeFromList(item.alphaMemory.items, item);
     }
   }
 
   if (f.tokens) {
-    for (const t of f.tokens) {
+    for (let i = 0; i < f.tokens.length; i++) {
+      const t = f.tokens[i];
       deleteTokenAndDescendents(t);
     }
   }
 
   if (f.negativeJoinResults) {
-    for (const jr of f.negativeJoinResults) {
+    for (let i = 0; i < f.negativeJoinResults.length; i++) {
+      const jr = f.negativeJoinResults[i];
       jr.owner.joinResults = removeFromList(jr.owner.joinResults, jr);
 
       if (!jr.owner.joinResults) {
         if (jr.owner.node.children) {
-          for (const child of jr.owner.node.children) {
+          for (let j = 0; j < jr.owner.node.children.length; j++) {
+            const child = jr.owner.node.children[j];
             runLeftActivationOnNode(child, jr.owner, null);
           }
         }
@@ -130,7 +134,9 @@ export function buildOrShareNetworkForConditions(
   let currentNode: IReteNode = r.root;
   const conditionsHigherUp = earlierConditions;
 
-  for (const c of conditions) {
+  for (let i = 0; i < conditions.length; i++) {
+    const c = conditions[i];
+
     // if c is positive
     currentNode =
       currentNode === r.root

@@ -2,7 +2,6 @@ import { IFact } from "../Fact";
 import { compareTokens, IToken, makeToken } from "../Token";
 import {
   addToListHead,
-  forEachList,
   IList,
   runLeftActivationOnNode,
   updateNewNodeWithMatchesFromAbove,
@@ -46,10 +45,12 @@ export function betaMemoryNodeLeftActivation(
 
   node.items = addToListHead(node.items, newToken);
 
-  forEachList(
-    child => runLeftActivationOnNode(child, newToken, f),
-    node.children,
-  );
+  if (node.children) {
+    for (let i = 0; i < node.children.length; i++) {
+      const child = node.children[i];
+      runLeftActivationOnNode(child, newToken, f);
+    }
+  }
 }
 
 function findBetaMemoryChildren(
