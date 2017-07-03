@@ -39,28 +39,6 @@ export function addToListHead<T>(list: IList<T> | null, item: T): T[] {
   return list;
 }
 
-export function findList<T>(
-  fn: (item: T) => boolean,
-  list: IList<T>,
-): T | undefined {
-  if (!list) {
-    return undefined;
-  }
-
-  return list.find(fn);
-}
-
-export function mapList<T, V>(
-  fn: (item: T, i: number) => V,
-  list: IList<T>,
-): IList<V> {
-  if (!list) {
-    return null;
-  }
-
-  return list.map(fn);
-}
-
 export function forEachList<T>(
   fn: (item: T, i: number) => any,
   list: IList<T>,
@@ -69,7 +47,9 @@ export function forEachList<T>(
     return;
   }
 
-  return list.forEach(fn);
+  for (let i = 0; i < list.length; i++) {
+    fn(list[i], i);
+  }
 }
 
 export function removeFromList<T>(list: T[] | null, item: T): T[] | null {

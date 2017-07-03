@@ -4,6 +4,8 @@ npm-debug.*
 tmp/
 .tmp/
 dist/
+isolate*.log
+processed.txt
 .sw[a-z]
 .DS_Store
 build/

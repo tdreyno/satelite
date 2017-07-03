@@ -1,7 +1,7 @@
 import { IFact, makeFactTuple } from "../Fact";
 import { IProduction } from "../Production";
-import { IReteNode } from "./ReteNode";
 import { IToken } from "../Token";
+import { IReteNode } from "./ReteNode";
 
 export interface IProductionNode extends IReteNode {
   type: "production";

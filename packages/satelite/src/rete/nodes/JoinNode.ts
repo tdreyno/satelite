@@ -2,12 +2,11 @@ import { IFact, IFactFields } from "../Fact";
 import { IToken } from "../Token";
 import {
   addToListHead,
-  findList,
   findNearestAncestorWithSameAlphaMemory,
   forEachList,
   getFactField,
   IList,
-  // removeFromList,
+  removeFromList,
   runLeftActivationOnNode,
 } from "../util";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
@@ -109,17 +108,37 @@ export function joinNodeRightActivation(node: IJoinNode, f: IFact): void {
   }, node.parent.items);
 }
 
+function findSharableChildJoinNode(
+  children: IList<IReteNode>,
+  alphaMemory: IAlphaMemoryNode,
+  tests: IList<ITestAtJoinNode>,
+): IReteNode | undefined {
+  if (!children) {
+    return;
+  }
+
+  for (let i = 0; i < children.length; i++) {
+    const c = children[i];
+
+    if (
+      c.type === "join" &&
+      (c as IJoinNode).alphaMemory === alphaMemory &&
+      (c as IJoinNode).tests === tests
+    ) {
+      return c;
+    }
+  }
+}
+
 export function buildOrShareJoinNode(
   parent: IBetaMemoryNode,
   alphaMemory: IAlphaMemoryNode,
   tests: IList<ITestAtJoinNode>,
 ): IJoinNode {
-  const foundChild = findList(
-    c =>
-      c.type === "join" &&
-      (c as IJoinNode).alphaMemory === alphaMemory &&
-      (c as IJoinNode).tests === tests,
+  const foundChild = findSharableChildJoinNode(
     parent.allChildren,
+    alphaMemory,
+    tests,
   );
 
   if (foundChild) {
@@ -134,11 +153,11 @@ export function buildOrShareJoinNode(
   node.nearestAncestorWithSameAlphaMemory =
     findNearestAncestorWithSameAlphaMemory(parent, alphaMemory) || null;
 
-  // if (!parent.items) {
-  //   alphaMemory.successors = removeFromList(alphaMemory.successors, node);
-  // } else if (!alphaMemory.items) {
-  //   parent.children = removeFromList(parent.children, node);
-  // }
+  if (!parent.items) {
+    alphaMemory.successors = removeFromList(alphaMemory.successors, node);
+  } else if (!alphaMemory.items) {
+    parent.children = removeFromList(parent.children, node);
+  }
 
   return node;
 }

@@ -20,12 +20,12 @@ export function negatedConjunctiveConditionsPartnerNodeLeftActivation(
 
   const newResult = makeToken(node, t, f);
 
-  let ownersT = t;
+  let ownersT: IToken | null = t;
   let ownersF: IFact | null = f;
 
   for (let i = 0; i < node.numberOfConjuncts; i++) {
-    ownersF = ownersT.fact;
-    ownersT = ownersT.parent;
+    ownersF = ownersT && ownersT.fact;
+    ownersT = ownersT && ownersT.parent;
   }
 
   if (

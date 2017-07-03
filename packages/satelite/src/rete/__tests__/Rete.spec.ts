@@ -30,15 +30,10 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
-      // tslint:disable-next-line:variable-name
       f => {
-        console.log("final", f);
+        expect(f[2]).toBe("Grace");
         done();
       },
     );
-
-    // DATA_SET2.forEach((f: any) => {
-    //   addFact(rete, f as IFactTule);
-    // });
   });
 });
