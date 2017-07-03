@@ -45,6 +45,9 @@ export function makeRete(): IRete {
 
 export function addFact(r: IRete, factTuple: IFactTuple): IRete {
   const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
+
+  // TODO: Prevent duplicates
+
   r.workingMemory = addToListHead(r.workingMemory, f);
 
   let am;

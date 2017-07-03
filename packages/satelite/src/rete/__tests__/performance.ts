@@ -8,19 +8,19 @@ import { addFact, addProduction, makeRete } from "../Rete";
 const TEAMS = ["Spirit", "WW", "Fun", "Content", "Ops"];
 const GENDERS = ["M", "F"];
 
-function makeFakePerson() {
+function makeFakePerson(): IFactTuple[] {
   const id = faker.random.uuid();
   return [
     [id, "name", faker.name.findName()],
     [id, "gender", faker.random.arrayElement(GENDERS)],
     [id, "team", faker.random.arrayElement(TEAMS)],
-  ];
+  ] as any;
 }
 
 const rete = makeRete();
 
 console.time("Generating Data");
-const fakePeople = [];
+const fakePeople: IFactTuple[][] = [];
 for (let i = 0; i < 20000; i++) {
   fakePeople.push(makeFakePerson());
 }
@@ -28,9 +28,9 @@ console.timeEnd("Generating Data");
 
 console.time("Adding Facts");
 for (let i = 0; i < fakePeople.length; i++) {
-  fakePeople[i].forEach((f: IFactTuple) => {
-    addFact(rete, f);
-  });
+  for (let j = 0; j < fakePeople[i].length; j++) {
+    addFact(rete, fakePeople[i][j]);
+  }
 }
 console.timeEnd("Adding Facts");
 

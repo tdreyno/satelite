@@ -172,26 +172,6 @@ export function getConditionField(f: ICondition, field: IFactFields): any {
   }
 }
 
-export function setFactField<T extends { [P in IFactFields]?: any }>(
-  f: T,
-  field: IFactFields,
-  v: any,
-): T {
-  switch (field) {
-    case "identifier":
-      f.identifier = v;
-      break;
-    case "attribute":
-      f.attribute = v;
-      break;
-    case "value":
-      f.value = v;
-      break;
-  }
-
-  return f;
-}
-
 export function findNearestAncestorWithSameAlphaMemory(
   node: IReteNode,
   alphaMemory: IAlphaMemoryNode,

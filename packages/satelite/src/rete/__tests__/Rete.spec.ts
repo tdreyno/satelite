@@ -23,9 +23,9 @@ describe("Rete", () => {
   it("should add a production", done => {
     const rete = makeRete();
 
-    DATA_SET.forEach((f: any) => {
-      addFact(rete, f as IFactTuple);
-    });
+    for (let i = 0; i < DATA_SET.length; i++) {
+      addFact(rete, DATA_SET[i] as IFactTuple);
+    }
 
     addProduction(
       rete,

@@ -66,15 +66,6 @@ export function createExhaustiveHashTable(): IExhaustiveHashTable {
   return new Map();
 }
 
-export const alphaMemoryForCondition = memoize((
-  // tslint:disable-next-line:variable-name
-  _identifier: IPrimitive | IIdentifier | null,
-  // tslint:disable-next-line:variable-name
-  _attribute: string | null,
-  // tslint:disable-next-line:variable-name
-  _value: IValue | null,
-) => makeAlphaMemoryNode());
-
 export function makeAlphaMemoryItem(
   am: IAlphaMemoryNode,
   f: IFact,

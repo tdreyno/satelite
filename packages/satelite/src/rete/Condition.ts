@@ -2,7 +2,7 @@ import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
-import { addToListHead, IList, setFactField } from "./util";
+import { addToListHead, IList } from "./util";
 
 export type IConstantTest = string;
 
@@ -26,16 +26,6 @@ export interface IParsedCondition {
   variableNames: { [varName: string]: IFactFields };
 }
 
-function keyForIndex(index: number): IFactFields {
-  if (index === 0) {
-    return "identifier";
-  } else if (index === 1) {
-    return "attribute";
-  } else {
-    return "value";
-  }
-}
-
 function baseParseCondition(
   identifier: IPrimitive | IIdentifier | IConstantTest,
   attribute: string | IConstantTest,
@@ -46,22 +36,28 @@ function baseParseCondition(
   result.variableFields = Object.create(null);
   result.variableNames = Object.create(null);
 
-  return [
-    identifier,
-    attribute,
-    value,
-  ].reduce((sum: IParsedCondition, v: IFactFields, index: number) => {
-    const key = keyForIndex(index);
+  if (isVariable(identifier)) {
+    result.variableNames[identifier as string] = "identifier";
+    result.variableFields.identifier = identifier as string;
+  } else {
+    result.constantFields.identifier = identifier as IIdentifier;
+  }
 
-    if (isVariable(v)) {
-      sum.variableNames[v] = key;
-      setFactField(sum.variableFields, key, v);
-    } else {
-      setFactField(sum.constantFields, key, v);
-    }
+  if (isVariable(attribute)) {
+    result.variableNames[attribute as string] = "attribute";
+    result.variableFields.attribute = attribute as string;
+  } else {
+    result.constantFields.attribute = attribute as string;
+  }
 
-    return sum;
-  }, result);
+  if (isVariable(value)) {
+    result.variableNames[value as string] = "value";
+    result.variableFields.value = value as string;
+  } else {
+    result.constantFields.value = value as any;
+  }
+
+  return result;
 }
 
 // Memoize so conditions are be compared later.
@@ -78,11 +74,11 @@ export function getJoinTestsFromCondition(
 ): IList<ITestAtJoinNode> {
   const { variableNames } = parseCondition(c);
 
-  const output: IList<ITestAtJoinNode> = null;
+  let results: IList<ITestAtJoinNode> = null;
 
-  return Object.keys(
-    variableNames,
-  ).reduce((results: IList<ITestAtJoinNode>, variableName: IFactFields) => {
+  // `variableNames` has no prototype, so we don't need this test.
+  // tslint:disable-next-line:forin
+  for (const variableName in variableNames) {
     const earlierConditionIndex = findVariableInEarlierConditions(
       variableName,
       earlierConditions,
@@ -101,16 +97,21 @@ export function getJoinTestsFromCondition(
         makeTestAtJoinNode(fieldArg1, earlierConditionIndex, fieldArg2),
       );
     }
+  }
 
-    return results;
-  }, output);
+  return results;
 }
 
 export function findVariableInEarlierConditions(
   variableName: string,
   earlierConditions: ICondition[],
 ): number {
-  return earlierConditions
-    .map(parseCondition)
-    .findIndex(({ variableNames }) => !!variableNames[variableName]);
+  for (let i = 0; i < earlierConditions.length; i++) {
+    const { variableNames } = parseCondition(earlierConditions[i]);
+    if (!!variableNames[variableName]) {
+      return i;
+    }
+  }
+
+  return -1;
 }
