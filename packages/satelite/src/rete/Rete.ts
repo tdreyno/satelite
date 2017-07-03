@@ -15,7 +15,7 @@ import { makeDummyNode } from "./nodes/DummyNode";
 import { buildOrShareJoinNode } from "./nodes/JoinNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
 import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
-import { makeProduction } from "./Production";
+import { IProduction, makeProduction } from "./Production";
 import { deleteTokenAndDescendents, IToken } from "./Token";
 import {
   addToListHead,
@@ -29,6 +29,7 @@ export interface IRete {
   root: IRootNode;
   workingMemory: IList<IFact>;
   hashTable: IExhaustiveHashTable;
+  productions: IList<IProduction>;
 }
 
 export function makeRete(): IRete {
@@ -37,6 +38,7 @@ export function makeRete(): IRete {
   r.root = makeRootNode();
   r.workingMemory = null;
   r.hashTable = createExhaustiveHashTable();
+  r.productions = null;
 
   return r;
 }
@@ -177,6 +179,8 @@ export function addProduction(
   production.productionNode.parent = currentNode;
 
   updateNewNodeWithMatchesFromAbove(production.productionNode);
+
+  r.productions = addToListHead(r.productions, production);
 
   return r;
 }
