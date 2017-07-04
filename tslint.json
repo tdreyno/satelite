@@ -6,6 +6,7 @@
     "object-literal-sort-keys": false,
     "prefer-object-spread": false,
     "arrow-parens": false,
-    "prefer-for-of": false
+    "prefer-for-of": false,
+    "member-access": false
   }
 }

@@ -61,4 +61,20 @@ describe("Rete", () => {
       expect(f[2]).toBe("Grace");
     });
   });
+
+  // it.only("should allow queries", () => {
+  //   expect.assertions(1);
+
+  //   const rete = makeRete();
+
+  //   for (let i = 0; i < DATA_SET.length; i++) {
+  //     addFact(rete, DATA_SET[i] as IFactTuple);
+  //   }
+
+  //   removeFact(rete, DATA_SET[4] as any);
+
+  //   addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
+  //     expect(f[2]).toBe("Grace");
+  //   });
+  // });
 });
