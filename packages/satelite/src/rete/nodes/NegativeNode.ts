@@ -1,86 +1,86 @@
-import { IFact } from "../Fact";
-import {
-  compareTokens,
-  deleteDescendentsOfToken,
-  IToken,
-  makeToken,
-} from "../Token";
-import { addToListHead, IList, runLeftActivateOnNode } from "../util";
-import { IAlphaMemoryNode } from "./AlphaMemoryNode";
-import { ITestAtJoinNode, performJoinTests } from "./JoinNode";
-import { IReteNode } from "./ReteNode";
+// import { IFact } from "../Fact";
+// import {
+//   compareTokens,
+//   deleteDescendentsOfToken,
+//   IToken,
+//   makeToken,
+// } from "../Token";
+// import { addToListHead, IList, runLeftActivateOnNode } from "../util";
+// import { IAlphaMemoryNode } from "./AlphaMemoryNode";
+// import { ITestAtJoinNode, performJoinTests } from "./JoinNode";
+// import { IReteNode } from "./ReteNode";
 
-export interface INegativeNode extends IReteNode {
-  type: "negative";
-  items: IList<IToken>;
-  alphaMemory: IAlphaMemoryNode;
-  tests: IList<ITestAtJoinNode>;
-}
+// export interface INegativeNode extends IReteNode {
+//   type: "negative";
+//   items: IList<IToken>;
+//   alphaMemory: IAlphaMemoryNode;
+//   tests: IList<ITestAtJoinNode>;
+// }
 
-export interface INegativeJoinResult {
-  owner: IToken;
-  fact: IFact;
-}
+// export interface INegativeJoinResult {
+//   owner: IToken;
+//   fact: IFact;
+// }
 
-export function makeNegativeJoinResult(
-  owner: IToken,
-  fact: IFact,
-): INegativeJoinResult {
-  const njr = Object.create(null);
+// export function makeNegativeJoinResult(
+//   owner: IToken,
+//   fact: IFact,
+// ): INegativeJoinResult {
+//   const njr = Object.create(null);
 
-  njr.owner = owner;
-  njr.fact = fact;
+//   njr.owner = owner;
+//   njr.fact = fact;
 
-  return njr;
-}
+//   return njr;
+// }
 
-export function negativeNodeLeftActivation(
-  node: INegativeNode,
-  t: IToken,
-  f: IFact | null,
-): void {
-  const newToken = makeToken(node, t, f);
+// export function negativeNodeLeftActivation(
+//   node: INegativeNode,
+//   t: IToken,
+//   f: IFact | null,
+// ): void {
+//   const newToken = makeToken(node, t, f);
 
-  // Only insert unique.
-  if (!node.items || node.items.every(i => !compareTokens(i, newToken))) {
-    node.items = addToListHead(node.items, newToken);
+//   // Only insert unique.
+//   if (!node.items || node.items.every(i => !compareTokens(i, newToken))) {
+//     node.items = addToListHead(node.items, newToken);
 
-    if (f && node.alphaMemory.facts) {
-      for (let i = 0; i < node.alphaMemory.facts.length; i++) {
-        const fact = node.alphaMemory.facts[i];
-        if (performJoinTests(node.tests, newToken, fact)) {
-          const jr = makeNegativeJoinResult(newToken, f);
-          newToken.joinResults = addToListHead(newToken.joinResults, jr);
-          f.negativeJoinResults = addToListHead(f.negativeJoinResults, jr);
-        }
-      }
-    }
+//     if (f && node.alphaMemory.facts) {
+//       for (let i = 0; i < node.alphaMemory.facts.length; i++) {
+//         const fact = node.alphaMemory.facts[i];
+//         if (performJoinTests(node.tests, newToken, fact)) {
+//           const jr = makeNegativeJoinResult(newToken, f);
+//           newToken.joinResults = addToListHead(newToken.joinResults, jr);
+//           f.negativeJoinResults = addToListHead(f.negativeJoinResults, jr);
+//         }
+//       }
+//     }
 
-    if (!newToken.joinResults && node.children) {
-      for (let i = 0; i < node.children.length; i++) {
-        const child = node.children[i];
-        runLeftActivateOnNode(child, newToken, null);
-      }
-    }
-  }
-}
+//     if (!newToken.joinResults && node.children) {
+//       for (let i = 0; i < node.children.length; i++) {
+//         const child = node.children[i];
+//         runLeftActivateOnNode(child, newToken, null);
+//       }
+//     }
+//   }
+// }
 
-export function negativeNodeRightActivation(
-  node: INegativeNode,
-  f: IFact,
-): void {
-  if (node.items) {
-    for (let i = 0; i < node.items.length; i++) {
-      const t = node.items[i];
-      if (performJoinTests(node.tests, t, f)) {
-        if (!t.joinResults) {
-          deleteDescendentsOfToken(t);
-        }
+// export function negativeNodeRightActivation(
+//   node: INegativeNode,
+//   f: IFact,
+// ): void {
+//   if (node.items) {
+//     for (let i = 0; i < node.items.length; i++) {
+//       const t = node.items[i];
+//       if (performJoinTests(node.tests, t, f)) {
+//         if (!t.joinResults) {
+//           deleteDescendentsOfToken(t);
+//         }
 
-        const jr = makeNegativeJoinResult(t, f);
-        t.joinResults = addToListHead(t.joinResults, jr);
-        f.negativeJoinResults = addToListHead(f.negativeJoinResults, jr);
-      }
-    }
-  }
-}
+//         const jr = makeNegativeJoinResult(t, f);
+//         t.joinResults = addToListHead(t.joinResults, jr);
+//         f.negativeJoinResults = addToListHead(f.negativeJoinResults, jr);
+//       }
+//     }
+//   }
+// }

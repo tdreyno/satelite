@@ -10,19 +10,19 @@ import {
   joinNodeLeftActivation,
   joinNodeRightActivation,
 } from "./nodes/JoinNode";
-import {
-  INegatedConjunctiveConditionsNode,
-  negatedConjunctiveConditionsNodeLeftActivation,
-} from "./nodes/NegatedConjunctiveConditionsNode";
-import {
-  INegatedConjunctiveConditionsPartnerNode,
-  negatedConjunctiveConditionsPartnerNodeLeftActivation,
-} from "./nodes/NegatedConjunctiveConditionsPartnerNode";
-import {
-  INegativeNode,
-  negativeNodeLeftActivation,
-  negativeNodeRightActivation,
-} from "./nodes/NegativeNode";
+// import {
+//   INegatedConjunctiveConditionsNode,
+//   negatedConjunctiveConditionsNodeLeftActivation,
+// } from "./nodes/NegatedConjunctiveConditionsNode";
+// import {
+//   INegatedConjunctiveConditionsPartnerNode,
+//   negatedConjunctiveConditionsPartnerNodeLeftActivation,
+// } from "./nodes/NegatedConjunctiveConditionsPartnerNode";
+// import {
+//   INegativeNode,
+//   negativeNodeLeftActivation,
+//   negativeNodeRightActivation,
+// } from "./nodes/NegativeNode";
 import {
   IProductionNode,
   productionNodeLeftActivation,
@@ -68,20 +68,20 @@ export function runLeftActivateOnNode(
       return betaMemoryNodeLeftActivation(node as IBetaMemoryNode, t, f);
     case "join":
       return joinNodeLeftActivation(node as IJoinNode, t);
-    case "negative":
-      return negativeNodeLeftActivation(node as INegativeNode, t, f);
-    case "ncc":
-      return negatedConjunctiveConditionsNodeLeftActivation(
-        node as INegatedConjunctiveConditionsNode,
-        t,
-        f,
-      );
-    case "ncc-partner":
-      return negatedConjunctiveConditionsPartnerNodeLeftActivation(
-        node as INegatedConjunctiveConditionsPartnerNode,
-        t,
-        f,
-      );
+    // case "negative":
+    //   return negativeNodeLeftActivation(node as INegativeNode, t, f);
+    // case "ncc":
+    //   return negatedConjunctiveConditionsNodeLeftActivation(
+    //     node as INegatedConjunctiveConditionsNode,
+    //     t,
+    //     f,
+    //   );
+    // case "ncc-partner":
+    //   return negatedConjunctiveConditionsPartnerNodeLeftActivation(
+    //     node as INegatedConjunctiveConditionsPartnerNode,
+    //     t,
+    //     f,
+    //   );
   }
 }
 
@@ -95,8 +95,8 @@ export function runRightActivateOnNode(node: IReteNode, f: IFact) {
   switch (node.type) {
     case "join":
       return joinNodeRightActivation(node as IJoinNode, f);
-    case "negative":
-      return negativeNodeRightActivation(node as INegativeNode, f);
+    // case "negative":
+    //   return negativeNodeRightActivation(node as INegativeNode, f);
   }
 }
 
@@ -143,33 +143,33 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
 
       break;
 
-    case "negative":
-      const negativeNodeItems = (parent as INegativeNode).items;
+    // case "negative":
+    //   const negativeNodeItems = (parent as INegativeNode).items;
 
-      if (negativeNodeItems) {
-        for (let i = 0; i < negativeNodeItems.length; i++) {
-          const t = negativeNodeItems[i];
-          if (t.joinResults) {
-            runLeftActivateOnNode(newNode, t, null);
-          }
-        }
-      }
+    //   if (negativeNodeItems) {
+    //     for (let i = 0; i < negativeNodeItems.length; i++) {
+    //       const t = negativeNodeItems[i];
+    //       if (t.joinResults) {
+    //         runLeftActivateOnNode(newNode, t, null);
+    //       }
+    //     }
+    //   }
 
-      break;
+    //   break;
 
-    case "ncc":
-      const nccItems = (parent as INegatedConjunctiveConditionsNode).items;
+    // case "ncc":
+    //   const nccItems = (parent as INegatedConjunctiveConditionsNode).items;
 
-      if (nccItems) {
-        for (let i = 0; i < nccItems.length; i++) {
-          const t = nccItems[i];
-          if (t.nccResults) {
-            runLeftActivateOnNode(newNode, t, null);
-          }
-        }
-      }
+    //   if (nccItems) {
+    //     for (let i = 0; i < nccItems.length; i++) {
+    //       const t = nccItems[i];
+    //       if (t.nccResults) {
+    //         runLeftActivateOnNode(newNode, t, null);
+    //       }
+    //     }
+    //   }
 
-      break;
+    //   break;
   }
 }
 
@@ -198,18 +198,18 @@ export function findNearestAncestorWithSameAlphaMemory(
       }
       break;
 
-    case "negative":
-      if ((node as INegativeNode).alphaMemory === alphaMemory) {
-        return node;
-      }
-      break;
+    // case "negative":
+    //   if ((node as INegativeNode).alphaMemory === alphaMemory) {
+    //     return node;
+    //   }
+    //   break;
 
-    case "ncc":
-      const nccParent = (node as INegatedConjunctiveConditionsNode).partner
-        .parent;
-      return nccParent
-        ? findNearestAncestorWithSameAlphaMemory(nccParent, alphaMemory)
-        : undefined;
+    // case "ncc":
+    //   const nccParent = (node as INegatedConjunctiveConditionsNode).partner
+    //     .parent;
+    //   return nccParent
+    //     ? findNearestAncestorWithSameAlphaMemory(nccParent, alphaMemory)
+    //     : undefined;
 
     default:
       const parent = node.parent;
