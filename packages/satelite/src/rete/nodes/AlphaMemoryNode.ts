@@ -2,7 +2,6 @@ import { memoize } from "interstelar/dist-es5";
 import { ICondition, isConstant } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
-import { IRete } from "../Rete";
 import {
   addToListHead,
   IList,
@@ -11,6 +10,7 @@ import {
   runRightRetractOnNode,
 } from "../util";
 import { IReteNode } from "./ReteNode";
+import { IRootJoinNode } from "./RootJoinNode";
 
 export interface IAlphaMemoryNode {
   facts: IList<IFact>;
@@ -94,7 +94,7 @@ export function alphaMemoryNodeRetract(node: IAlphaMemoryNode, f: IFact): void {
 }
 
 export function buildOrShareAlphaMemoryNode(
-  r: IRete,
+  root: IRootJoinNode,
   c: ICondition,
 ): IAlphaMemoryNode {
   const identifierTest = isConstant(c[0]) ? c[0] : null;
@@ -102,7 +102,7 @@ export function buildOrShareAlphaMemoryNode(
   const valueTest = isConstant(c[2]) ? c[2] : null;
 
   let alphaMemory = lookupInHashTable(
-    r.hashTable,
+    root.hashTable,
     identifierTest,
     attributeTest,
     valueTest,
@@ -113,13 +113,13 @@ export function buildOrShareAlphaMemoryNode(
   }
 
   alphaMemory = addToHashTable(
-    r.hashTable,
+    root.hashTable,
     identifierTest,
     attributeTest,
     valueTest,
   );
 
-  for (const f of r.workingMemory) {
+  for (const f of root.facts) {
     if (
       (!identifierTest || f.identifier === identifierTest) &&
       (!attributeTest || f.attribute === attributeTest) &&

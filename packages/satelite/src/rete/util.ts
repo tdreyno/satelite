@@ -1,32 +1,21 @@
-import { ICondition } from "./Condition";
-import { IFact, IFactFields } from "./Fact";
-import {
-  betaMemoryNodeLeftActivation,
-  IBetaMemoryNode,
-} from "./nodes/BetaMemoryNode";
+import { IFact } from "./Fact";
 import {
   IJoinNode,
-  joinNodeLeftActivation,
-  joinNodeRightActivation,
+  joinNodeLeftActivate,
+  joinNodeLeftRetract,
+  joinNodeRightActivate,
+  joinNodeRightRetract,
 } from "./nodes/JoinNode";
-// import {
-//   INegatedConjunctiveConditionsNode,
-//   negatedConjunctiveConditionsNodeLeftActivation,
-// } from "./nodes/NegatedConjunctiveConditionsNode";
-// import {
-//   INegatedConjunctiveConditionsPartnerNode,
-//   negatedConjunctiveConditionsPartnerNodeLeftActivation,
-// } from "./nodes/NegatedConjunctiveConditionsPartnerNode";
-// import {
-//   INegativeNode,
-//   negativeNodeLeftActivation,
-//   negativeNodeRightActivation,
-// } from "./nodes/NegativeNode";
 import {
   IProductionNode,
   productionNodeLeftActivation,
 } from "./nodes/ProductionNode";
 import { IReteNode } from "./nodes/ReteNode";
+import {
+  IRootJoinNode,
+  rootJoinNodeRightActivate,
+  rootJoinNodeRightRetract,
+} from "./nodes/RootJoinNode";
 import { IToken } from "./Token";
 
 export type IList<T> = T[] | null;
@@ -51,57 +40,104 @@ export function removeFromList<T>(list: T[] | null, item: T): T[] | null {
   return list;
 }
 
-export function runLeftActivateOnNode(
-  node: IReteNode,
+export function uniqueInList<T>(
+  list: IList<T> | null,
+  item: T,
+  comparator: (a: T, b: T) => boolean,
+): boolean {
+  if (list) {
+    for (let i = 0; i < list.length; i++) {
+      if (comparator(list[i], item)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+export function runLeftActivateOnNodes(
+  nodes: IList<IReteNode>,
   t: IToken,
-  f: IFact | null,
 ): void {
+  if (nodes) {
+    for (let i = 0; i < nodes.length; i++) {
+      const child = nodes[i];
+      runLeftActivateOnNode(child, t);
+    }
+  }
+}
+
+export function runLeftActivateOnNode(node: IReteNode, t: IToken): void {
   switch (node.type) {
     case "production":
-      return productionNodeLeftActivation(
-        node as IProductionNode,
-        t,
-        f as IFact,
-      );
-    case "beta-memory":
-      return betaMemoryNodeLeftActivation(node as IBetaMemoryNode, t, f);
+      return productionNodeLeftActivation(node as IProductionNode, t);
     case "join":
-      return joinNodeLeftActivation(node as IJoinNode, t);
-    // case "negative":
-    //   return negativeNodeLeftActivation(node as INegativeNode, t, f);
-    // case "ncc":
-    //   return negatedConjunctiveConditionsNodeLeftActivation(
-    //     node as INegatedConjunctiveConditionsNode,
-    //     t,
-    //     f,
-    //   );
-    // case "ncc-partner":
-    //   return negatedConjunctiveConditionsPartnerNodeLeftActivation(
-    //     node as INegatedConjunctiveConditionsPartnerNode,
-    //     t,
-    //     f,
-    //   );
+      return joinNodeLeftActivate(node as IJoinNode, t);
+  }
+}
+
+export function runLeftRetractOnNodes(
+  nodes: IList<IReteNode>,
+  t: IToken,
+): void {
+  if (nodes) {
+    for (let i = 0; i < nodes.length; i++) {
+      const child = nodes[i];
+      runLeftRetractOnNode(child, t);
+    }
   }
 }
 
 // tslint:disable-next-line:variable-name
-export function runLeftRetractOnNode(node: IReteNode, _t: IToken, _f: IFact) {
+export function runLeftRetractOnNode(node: IReteNode, t: IToken) {
   switch (node.type) {
+    case "join":
+      return joinNodeLeftRetract(node as IJoinNode, t);
+  }
+}
+
+export function runRightActivateOnNodes(
+  nodes: IList<IReteNode>,
+  f: IFact,
+): void {
+  if (nodes) {
+    for (let i = 0; i < nodes.length; i++) {
+      const child = nodes[i];
+      runRightActivateOnNode(child, f);
+    }
   }
 }
 
 export function runRightActivateOnNode(node: IReteNode, f: IFact) {
   switch (node.type) {
+    case "root-join":
+      return rootJoinNodeRightActivate(node as IRootJoinNode, f);
     case "join":
-      return joinNodeRightActivation(node as IJoinNode, f);
+      return joinNodeRightActivate(node as IJoinNode, f);
     // case "negative":
     //   return negativeNodeRightActivation(node as INegativeNode, f);
   }
 }
 
-// tslint:disable-next-line:variable-name
-export function runRightRetractOnNode(node: IReteNode, _f: IFact) {
+export function runRightRetractOnNodes(
+  nodes: IList<IReteNode>,
+  f: IFact,
+): void {
+  if (nodes) {
+    for (let i = 0; i < nodes.length; i++) {
+      const child = nodes[i];
+      runRightRetractOnNode(child, f);
+    }
+  }
+}
+
+export function runRightRetractOnNode(node: IReteNode, f: IFact) {
   switch (node.type) {
+    case "root-join":
+      return rootJoinNodeRightRetract(node as IRootJoinNode, f);
+    case "join":
+      return joinNodeRightRetract(node as IJoinNode, f);
   }
 }
 
@@ -113,18 +149,19 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
   }
 
   switch (parent.type) {
-    case "beta-memory":
-      const betaMemoryItems = (parent as IBetaMemoryNode).items;
+    case "root-join":
+      const items = (parent as IRootJoinNode).facts;
 
-      if (betaMemoryItems) {
-        for (let i = 0; i < betaMemoryItems.length; i++) {
-          const t = betaMemoryItems[i];
-          runLeftActivateOnNode(newNode, t, t.fact);
-        }
+      const savedListOfRootChildren = parent.children;
+      parent.children = [newNode];
+
+      for (const fact of items) {
+        runRightActivateOnNode(parent, fact);
       }
 
-      break;
+      parent.children = savedListOfRootChildren;
 
+      break;
     case "join":
       const facts = (parent as IJoinNode).alphaMemory.facts;
 
@@ -141,44 +178,5 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
       }
 
       break;
-
-    // case "negative":
-    //   const negativeNodeItems = (parent as INegativeNode).items;
-
-    //   if (negativeNodeItems) {
-    //     for (let i = 0; i < negativeNodeItems.length; i++) {
-    //       const t = negativeNodeItems[i];
-    //       if (t.joinResults) {
-    //         runLeftActivateOnNode(newNode, t, null);
-    //       }
-    //     }
-    //   }
-
-    //   break;
-
-    // case "ncc":
-    //   const nccItems = (parent as INegatedConjunctiveConditionsNode).items;
-
-    //   if (nccItems) {
-    //     for (let i = 0; i < nccItems.length; i++) {
-    //       const t = nccItems[i];
-    //       if (t.nccResults) {
-    //         runLeftActivateOnNode(newNode, t, null);
-    //       }
-    //     }
-    //   }
-
-    //   break;
-  }
-}
-
-export function getConditionField(f: ICondition, field: IFactFields): any {
-  switch (field) {
-    case "identifier":
-      return f[0];
-    case "attribute":
-      return f[1];
-    case "value":
-      return f[2];
   }
 }

@@ -1,38 +1,19 @@
 import { IFact } from "./Fact";
-import { IBetaMemoryNode } from "./nodes/BetaMemoryNode";
-import { IDummyNode } from "./nodes/DummyNode";
-import {
-  addToListHead,
-  IList,
-  removeFromList,
-  // runLeftActivateOnNode,
-  // runLeftActivationOnNode,
-} from "./util";
+import { IJoinNode } from "./nodes/JoinNode";
+import { IRootJoinNode } from "./nodes/RootJoinNode";
+import { addToListHead, IList } from "./util";
 
 export interface IToken {
   parent: IToken | null;
-  fact: IFact | null;
-  node: IBetaMemoryNode;
-  // | INegatedConjunctiveConditionsNode
-  // | INegatedConjunctiveConditionsPartnerNode
-  // | INegativeNode;
+  fact: IFact;
+  node: IJoinNode | IRootJoinNode;
   children: IList<IToken>;
-
-  // // For Negated
-  // joinResults: IList<INegativeJoinResult>;
-
-  // // For NCC
-  // nccResults: IList<IToken>;
-  // owner: IToken | null;
 }
 
 export function makeToken(
-  node: IDummyNode | IBetaMemoryNode,
-  // | INegatedConjunctiveConditionsNode
-  // | INegatedConjunctiveConditionsPartnerNode
-  // | INegativeNode,
+  node: IRootJoinNode | IJoinNode,
   parent: IToken | null,
-  f: IFact | null,
+  f: IFact,
 ): IToken {
   const t: IToken = Object.create(null);
 
@@ -40,10 +21,6 @@ export function makeToken(
   t.parent = parent;
   t.fact = f;
   t.children = null;
-
-  // t.joinResults = null;
-  // t.nccResults = null;
-  // t.owner = null;
 
   if (parent) {
     parent.children = addToListHead(parent.children, t);
@@ -54,74 +31,4 @@ export function makeToken(
 
 export function compareTokens(t1: IToken, t2: IToken): boolean {
   return t1.fact === t2.fact;
-}
-
-export function deleteTokenAndDescendents(t: IToken): void {
-  if (t.children) {
-    for (let i = 0; i < t.children.length; i++) {
-      const child = t.children[i];
-      deleteTokenAndDescendents(child);
-    }
-  }
-
-  // if (t.node.type !== "ncc-partner") {
-  t.node.items = removeFromList(t.node.items, t);
-  // }
-
-  // if (t.fact) {
-  //   t.fact.tokens = removeFromList(t.fact.tokens, t);
-  // }
-
-  // Remove self from parent's children.
-  if (t.parent) {
-    t.parent.children = removeFromList(t.parent.children, t);
-  }
-
-  // if (t.node.type === "negative") {
-  //   if (t.joinResults) {
-  //     for (let i = 0; i < t.joinResults.length; i++) {
-  //       const jr = t.joinResults[i];
-  //       jr.fact.negativeJoinResults = removeFromList(
-  //         jr.fact.negativeJoinResults,
-  //         jr,
-  //       );
-  //     }
-  //   }
-  // } else if (t.node.type === "ncc") {
-  //   if (t.nccResults) {
-  //     for (let i = 0; i < t.nccResults.length; i++) {
-  //       const result = t.nccResults[i];
-  //       if (result.fact) {
-  //         result.fact.tokens = removeFromList(result.fact.tokens, result);
-  //       }
-
-  //       if (result.parent) {
-  //         result.parent.children = removeFromList(
-  //           result.parent.children,
-  //           result,
-  //         );
-  //       }
-  //     }
-  //   }
-  // } else if (t.node.type === "ncc-partner") {
-  //   if (t.owner) {
-  //     t.owner.nccResults = removeFromList(t.owner.nccResults, t);
-
-  //     if (!t.owner.nccResults && t.node.nccNode.children) {
-  //       for (let i = 0; i < t.node.nccNode.children.length; i++) {
-  //         const child = t.node.nccNode.children[i];
-  //         runLeftActivateOnNode(child, t.owner, null);
-  //       }
-  //     }
-  //   }
-  // }
-}
-
-export function deleteDescendentsOfToken(t: IToken): void {
-  if (t.children) {
-    for (let i = 0; i < t.children.length; i++) {
-      const child = t.children[i];
-      deleteTokenAndDescendents(child);
-    }
-  }
 }
