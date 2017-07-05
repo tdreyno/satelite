@@ -55,6 +55,10 @@ describe("Rete", () => {
       addFact(rete, DATA_SET[i] as IFactTuple);
     }
 
+    addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], () => {
+      // expect(f[2]).toBe("Grace");
+    });
+
     removeFact(rete, DATA_SET[4] as any);
 
     // addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
@@ -62,7 +66,7 @@ describe("Rete", () => {
     // });
   });
 
-  // it.only("should allow queries", () => {
+  // it("should allow queries", () => {
   //   expect.assertions(1);
 
   //   const rete = makeRete();

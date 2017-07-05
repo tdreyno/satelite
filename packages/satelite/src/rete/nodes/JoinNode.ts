@@ -2,9 +2,8 @@ import { IFact, IFactFields } from "../Fact";
 import { IToken, makeToken } from "../Token";
 import {
   addToListHead,
-  findNearestAncestorWithSameAlphaMemory,
   IList,
-  removeFromList,
+  // removeFromList,
   runLeftActivateOnNode,
 } from "../util";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
@@ -63,7 +62,6 @@ export interface IJoinNode extends IReteNode {
   parent: IBetaMemoryNode | IDummyNode;
   alphaMemory: IAlphaMemoryNode;
   tests: IList<ITestAtJoinNode>;
-  nearestAncestorWithSameAlphaMemory: IReteNode | null;
 }
 
 export function makeJoinNode(
@@ -164,16 +162,6 @@ export function buildOrShareJoinNode(
   parent.allChildren = addToListHead(parent.allChildren, node);
 
   alphaMemory.successors = addToListHead(alphaMemory.successors, node);
-  alphaMemory.referenceCount += 1;
-
-  node.nearestAncestorWithSameAlphaMemory =
-    findNearestAncestorWithSameAlphaMemory(parent, alphaMemory) || null;
-
-  if (!parent.items) {
-    alphaMemory.successors = removeFromList(alphaMemory.successors, node);
-  } else if (!alphaMemory.facts) {
-    parent.children = removeFromList(parent.children, node);
-  }
 
   return node;
 }

@@ -1,6 +1,5 @@
 import { ICondition } from "./Condition";
 import { IFact, IFactFields } from "./Fact";
-import { IAlphaMemoryNode } from "./nodes/AlphaMemoryNode";
 import {
   betaMemoryNodeLeftActivation,
   IBetaMemoryNode,
@@ -181,40 +180,5 @@ export function getConditionField(f: ICondition, field: IFactFields): any {
       return f[1];
     case "value":
       return f[2];
-  }
-}
-
-export function findNearestAncestorWithSameAlphaMemory(
-  node: IReteNode,
-  alphaMemory: IAlphaMemoryNode,
-): IReteNode | undefined {
-  switch (node.type) {
-    case "dummy":
-      return;
-
-    case "join":
-      if ((node as IJoinNode).alphaMemory === alphaMemory) {
-        return node;
-      }
-      break;
-
-    // case "negative":
-    //   if ((node as INegativeNode).alphaMemory === alphaMemory) {
-    //     return node;
-    //   }
-    //   break;
-
-    // case "ncc":
-    //   const nccParent = (node as INegatedConjunctiveConditionsNode).partner
-    //     .parent;
-    //   return nccParent
-    //     ? findNearestAncestorWithSameAlphaMemory(nccParent, alphaMemory)
-    //     : undefined;
-
-    default:
-      const parent = node.parent;
-      return parent
-        ? findNearestAncestorWithSameAlphaMemory(parent, alphaMemory)
-        : undefined;
   }
 }

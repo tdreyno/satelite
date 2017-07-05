@@ -57,7 +57,7 @@ describe("Condition", () => {
       expect(variableNames["?c"]).toBe("value");
     });
 
-    it.only("should memoize the parse", () => {
+    it("should memoize the parse", () => {
       const a = parseCondition(["?a", "is", "?c"]);
       const b = parseCondition(["?a", "is", "?c"]);
       const c = parseCondition(["?a", "is", "?c"]);
@@ -71,7 +71,7 @@ describe("Condition", () => {
   describe("findVariableInEarlierConditions", () => {
     it("should find previous condition", () => {
       const conditions: ICondition[] = [["?e", "age", 34]];
-      expect(findVariableInEarlierConditions("?e", conditions)).toBeTruthy();
+      expect(findVariableInEarlierConditions("?e", conditions)).toBe(0);
     });
 
     it("should find multiple previous conditions", () => {
@@ -79,17 +79,17 @@ describe("Condition", () => {
         ["?e", "age", 34],
         ["?e", "name", "?v"],
       ];
-      expect(findVariableInEarlierConditions("?e", conditions)).toBeTruthy();
-      expect(findVariableInEarlierConditions("?v", conditions)).toBeTruthy();
+      expect(findVariableInEarlierConditions("?e", conditions)).toBe(0);
+      expect(findVariableInEarlierConditions("?v", conditions)).toBe(1);
     });
 
     it("should not find previous condition", () => {
       const conditions: ICondition[] = [[1, "age", 34]];
-      expect(findVariableInEarlierConditions("?e", conditions)).toBeFalsy();
+      expect(findVariableInEarlierConditions("?e", conditions)).toBe(-1);
     });
   });
 
-  describe.only("getJoinTestsFromCondition", () => {
+  describe("getJoinTestsFromCondition", () => {
     it("should create a join test for the known variable ?e, but not ?v", () => {
       const conditions: ICondition[] = [
         [1, "name", "Thomas"],

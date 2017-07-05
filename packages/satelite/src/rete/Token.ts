@@ -49,10 +49,6 @@ export function makeToken(
     parent.children = addToListHead(parent.children, t);
   }
 
-  if (f) {
-    f.tokens = addToListHead(f.tokens, t);
-  }
-
   return t;
 }
 
@@ -72,9 +68,9 @@ export function deleteTokenAndDescendents(t: IToken): void {
   t.node.items = removeFromList(t.node.items, t);
   // }
 
-  if (t.fact) {
-    t.fact.tokens = removeFromList(t.fact.tokens, t);
-  }
+  // if (t.fact) {
+  //   t.fact.tokens = removeFromList(t.fact.tokens, t);
+  // }
 
   // Remove self from parent's children.
   if (t.parent) {

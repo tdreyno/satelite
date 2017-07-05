@@ -2,8 +2,10 @@ import { getJoinTestsFromCondition, ICondition } from "./Condition";
 import { IFact, IFactTuple, makeFact } from "./Fact";
 import {
   alphaMemoryNodeActivate,
+  alphaMemoryNodeRetract,
   buildOrShareAlphaMemoryNode,
   createExhaustiveHashTable,
+  IAlphaMemoryNode,
   IExhaustiveHashTable,
   lookupInHashTable,
 } from "./nodes/AlphaMemoryNode";
@@ -16,12 +18,10 @@ import { buildOrShareJoinNode } from "./nodes/JoinNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
 import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
 import { IProduction, makeProduction } from "./Production";
-import { deleteTokenAndDescendents, IToken } from "./Token";
+import { IToken } from "./Token";
 import {
   addToListHead,
   IList,
-  removeFromList,
-  // runLeftActivationOnNode,
   updateNewNodeWithMatchesFromAbove,
 } from "./util";
 
@@ -43,6 +43,54 @@ export function makeRete(): IRete {
   return r;
 }
 
+export function dispatchToAlphaMemories(
+  r: IRete,
+  f: IFact,
+  fn: (am: IAlphaMemoryNode, f: IFact) => void,
+) {
+  let am;
+
+  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, f.value);
+  if (am) {
+    fn(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, null);
+  if (am) {
+    fn(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, f.attribute, f.value);
+  if (am) {
+    fn(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, f.identifier, null, f.value);
+  if (am) {
+    fn(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, null, f.value);
+  if (am) {
+    fn(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, f.attribute, null);
+  if (am) {
+    fn(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, f.identifier, null, null);
+  if (am) {
+    fn(am, f);
+  }
+
+  am = lookupInHashTable(r.hashTable, null, null, null);
+  if (am) {
+    fn(am, f);
+  }
+}
+
 export function addFact(r: IRete, factTuple: IFactTuple): IRete {
   const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
@@ -53,54 +101,18 @@ export function addFact(r: IRete, factTuple: IFactTuple): IRete {
 
   r.workingMemory.add(f);
 
-  let am;
-
-  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, f.value);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, null);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, null, f.attribute, f.value);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, f.identifier, null, f.value);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, null, null, f.value);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, null, f.attribute, null);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, f.identifier, null, null);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, null, null, null);
-  if (am) {
-    alphaMemoryNodeActivate(am, f);
-  }
+  dispatchToAlphaMemories(r, f, alphaMemoryNodeActivate);
 
   return r;
 }
 
 // tslint:disable-next-line:variable-name
-export function removeFact(r: IRete, _fact: IFactTuple): IRete {
-  // const f = makeFact(fact[0], fact[1], fact[2]);
+export function removeFact(r: IRete, fact: IFactTuple): IRete {
+  const f = makeFact(fact[0], fact[1], fact[2]);
+
+  dispatchToAlphaMemories(r, f, alphaMemoryNodeRetract);
+
+  r.workingMemory.delete(f);
 
   return r;
 }

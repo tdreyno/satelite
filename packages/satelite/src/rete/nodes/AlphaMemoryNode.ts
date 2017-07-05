@@ -15,7 +15,6 @@ import { IReteNode } from "./ReteNode";
 export interface IAlphaMemoryNode {
   facts: IList<IFact>;
   successors: IList<IReteNode>;
-  referenceCount: number;
 }
 
 export function makeAlphaMemoryNode(): IAlphaMemoryNode {
@@ -23,21 +22,20 @@ export function makeAlphaMemoryNode(): IAlphaMemoryNode {
 
   am.facts = null;
   am.successors = null;
-  am.referenceCount = 0;
 
   return am;
 }
 
 export type IExhaustiveHashTable = Map<number, IAlphaMemoryNode>;
 
-let hashCode = 0;
+let nextHashCode = 0;
 // tslint:disable:variable-name
 export const getHashCode = memoize(
   (
     _identifier: IPrimitive | IIdentifier | null,
     _attribute: string | null,
     _value: IValue | null,
-  ): number => hashCode++,
+  ): number => nextHashCode++,
 );
 // tslint:enable:variable-name
 
@@ -47,7 +45,9 @@ export function lookupInHashTable(
   attribute: string | null,
   value: IValue | null,
 ): IAlphaMemoryNode | undefined {
-  return hashTable.get(getHashCode(identifier, attribute, value));
+  const hashCode = getHashCode(identifier, attribute, value);
+
+  return hashTable.get(hashCode);
 }
 
 export function addToHashTable(
@@ -58,7 +58,8 @@ export function addToHashTable(
 ): IAlphaMemoryNode {
   const node = makeAlphaMemoryNode();
 
-  hashTable.set(getHashCode(identifier, attribute, value), node);
+  const hashCode = getHashCode(identifier, attribute, value);
+  hashTable.set(hashCode, node);
 
   return node;
 }
@@ -72,7 +73,6 @@ export function alphaMemoryNodeActivate(
   f: IFact,
 ): void {
   node.facts = addToListHead(node.facts, f);
-  f.alphaMemories = addToListHead(f.alphaMemories, node);
 
   if (node.successors) {
     for (let j = 0; j < node.successors.length; j++) {
@@ -84,7 +84,7 @@ export function alphaMemoryNodeActivate(
 
 export function alphaMemoryNodeRetract(node: IAlphaMemoryNode, f: IFact): void {
   node.facts = removeFromList(node.facts, f);
-  f.alphaMemories = addToListHead(f.alphaMemories, node);
+
   if (node.successors) {
     for (let j = 0; j < node.successors.length; j++) {
       const successor = node.successors[j];
