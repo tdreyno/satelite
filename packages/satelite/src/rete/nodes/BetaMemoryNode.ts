@@ -3,7 +3,7 @@ import { compareTokens, IToken, makeToken } from "../Token";
 import {
   addToListHead,
   IList,
-  runLeftActivationOnNode,
+  runLeftActivateOnNode,
   updateNewNodeWithMatchesFromAbove,
 } from "../util";
 import { IJoinNode } from "./JoinNode";
@@ -48,7 +48,7 @@ export function betaMemoryNodeLeftActivation(
   if (node.children) {
     for (let i = 0; i < node.children.length; i++) {
       const child = node.children[i];
-      runLeftActivationOnNode(child, newToken, f);
+      runLeftActivateOnNode(child, newToken, f);
     }
   }
 }

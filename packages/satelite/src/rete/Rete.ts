@@ -1,7 +1,7 @@
 import { getJoinTestsFromCondition, ICondition } from "./Condition";
 import { IFact, IFactTuple, makeFact } from "./Fact";
 import {
-  alphaMemoryNodeActivation,
+  alphaMemoryNodeActivate,
   buildOrShareAlphaMemoryNode,
   createExhaustiveHashTable,
   IExhaustiveHashTable,
@@ -57,94 +57,50 @@ export function addFact(r: IRete, factTuple: IFactTuple): IRete {
 
   am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, f.value);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, null);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   am = lookupInHashTable(r.hashTable, null, f.attribute, f.value);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   am = lookupInHashTable(r.hashTable, f.identifier, null, f.value);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   am = lookupInHashTable(r.hashTable, null, null, f.value);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   am = lookupInHashTable(r.hashTable, null, f.attribute, null);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   am = lookupInHashTable(r.hashTable, f.identifier, null, null);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   am = lookupInHashTable(r.hashTable, null, null, null);
   if (am) {
-    alphaMemoryNodeActivation(am, f);
+    alphaMemoryNodeActivate(am, f);
   }
 
   return r;
 }
 
-export function removeFact(r: IRete, fact: IFactTuple): IRete {
-  const f = makeFact(fact[0], fact[1], fact[2]);
-
-  if (f.alphaMemoryItems) {
-    for (let i = 0; i < f.alphaMemoryItems.length; i++) {
-      const item = f.alphaMemoryItems[i];
-      item.alphaMemory.items = removeFromList(item.alphaMemory.items, item);
-
-      // Items just became empty.
-      if (!item.alphaMemory.items) {
-        if (item.alphaMemory.successors) {
-          for (let j = 0; j < item.alphaMemory.successors.length; j++) {
-            const node = item.alphaMemory.successors[j];
-
-            if (node.type === "join" && node.parent) {
-              node.parent.children = removeFromList(node.parent.children, node);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  if (f.tokens) {
-    for (let i = 0; i < f.tokens.length; i++) {
-      const t = f.tokens[i];
-      deleteTokenAndDescendents(t);
-    }
-  }
-
-  // if (f.negativeJoinResults) {
-  //   for (let i = 0; i < f.negativeJoinResults.length; i++) {
-  //     const jr = f.negativeJoinResults[i];
-  //     jr.owner.joinResults = removeFromList(jr.owner.joinResults, jr);
-
-  //     if (!jr.owner.joinResults) {
-  //       if (jr.owner.node.children) {
-  //         for (let j = 0; j < jr.owner.node.children.length; j++) {
-  //           const child = jr.owner.node.children[j];
-  //           runLeftActivationOnNode(child, jr.owner, null);
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  r.workingMemory.delete(f);
+// tslint:disable-next-line:variable-name
+export function removeFact(r: IRete, _fact: IFactTuple): IRete {
+  // const f = makeFact(fact[0], fact[1], fact[2]);
 
   return r;
 }

@@ -52,7 +52,7 @@ export function removeFromList<T>(list: T[] | null, item: T): T[] | null {
   return list;
 }
 
-export function runLeftActivationOnNode(
+export function runLeftActivateOnNode(
   node: IReteNode,
   t: IToken,
   f: IFact | null,
@@ -85,12 +85,24 @@ export function runLeftActivationOnNode(
   }
 }
 
-export function runRightActivationOnNode(node: IReteNode, f: IFact) {
+// tslint:disable-next-line:variable-name
+export function runLeftRetractOnNode(node: IReteNode, _t: IToken, _f: IFact) {
+  switch (node.type) {
+  }
+}
+
+export function runRightActivateOnNode(node: IReteNode, f: IFact) {
   switch (node.type) {
     case "join":
       return joinNodeRightActivation(node as IJoinNode, f);
     case "negative":
       return negativeNodeRightActivation(node as INegativeNode, f);
+  }
+}
+
+// tslint:disable-next-line:variable-name
+export function runRightRetractOnNode(node: IReteNode, _f: IFact) {
+  switch (node.type) {
   }
 }
 
@@ -108,22 +120,22 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
       if (betaMemoryItems) {
         for (let i = 0; i < betaMemoryItems.length; i++) {
           const t = betaMemoryItems[i];
-          runLeftActivationOnNode(newNode, t, t.fact);
+          runLeftActivateOnNode(newNode, t, t.fact);
         }
       }
 
       break;
 
     case "join":
-      const alphaMemoryItems = (parent as IJoinNode).alphaMemory.items;
+      const facts = (parent as IJoinNode).alphaMemory.facts;
 
-      if (alphaMemoryItems) {
+      if (facts) {
         const savedListOfChildren = parent.children;
         parent.children = [newNode];
 
-        for (let i = 0; i < alphaMemoryItems.length; i++) {
-          const item = alphaMemoryItems[i];
-          runRightActivationOnNode(parent, item.fact);
+        for (let i = 0; i < facts.length; i++) {
+          const fact = facts[i];
+          runRightActivateOnNode(parent, fact);
         }
 
         parent.children = savedListOfChildren;
@@ -138,7 +150,7 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
         for (let i = 0; i < negativeNodeItems.length; i++) {
           const t = negativeNodeItems[i];
           if (t.joinResults) {
-            runLeftActivationOnNode(newNode, t, null);
+            runLeftActivateOnNode(newNode, t, null);
           }
         }
       }
@@ -152,7 +164,7 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
         for (let i = 0; i < nccItems.length; i++) {
           const t = nccItems[i];
           if (t.nccResults) {
-            runLeftActivationOnNode(newNode, t, null);
+            runLeftActivateOnNode(newNode, t, null);
           }
         }
       }

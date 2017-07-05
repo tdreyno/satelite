@@ -4,7 +4,7 @@ import {
   addToListHead,
   IList,
   removeFromList,
-  runLeftActivationOnNode,
+  runLeftActivateOnNode,
 } from "../util";
 import { INegatedConjunctiveConditionsPartnerNode } from "./NegatedConjunctiveConditionsPartnerNode";
 import { IReteNode } from "./ReteNode";
@@ -41,7 +41,7 @@ export function negatedConjunctiveConditionsNodeLeftActivation(
     if (node.children) {
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
-        runLeftActivationOnNode(child, newToken, null);
+        runLeftActivateOnNode(child, newToken, null);
       }
     }
   }

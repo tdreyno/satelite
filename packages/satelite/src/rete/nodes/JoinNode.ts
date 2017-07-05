@@ -5,7 +5,7 @@ import {
   findNearestAncestorWithSameAlphaMemory,
   IList,
   removeFromList,
-  runLeftActivationOnNode,
+  runLeftActivateOnNode,
 } from "../util";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
 import { IBetaMemoryNode } from "./BetaMemoryNode";
@@ -84,17 +84,17 @@ export function makeJoinNode(
 }
 
 export function joinNodeLeftActivation(node: IJoinNode, t: IToken): void {
-  if (!node.alphaMemory.items) {
+  if (!node.alphaMemory.facts) {
     return;
   }
 
-  for (let i = 0; i < node.alphaMemory.items.length; i++) {
-    const item = node.alphaMemory.items[i];
+  for (let i = 0; i < node.alphaMemory.facts.length; i++) {
+    const fact = node.alphaMemory.facts[i];
 
-    if (node.children && performJoinTests(node.tests, t, item.fact)) {
+    if (node.children && performJoinTests(node.tests, t, fact)) {
       for (let j = 0; j < node.children.length; j++) {
         const child = node.children[j];
-        runLeftActivationOnNode(child, t, item.fact);
+        runLeftActivateOnNode(child, t, fact);
       }
     }
   }
@@ -105,7 +105,7 @@ export function joinNodeRightActivation(node: IJoinNode, f: IFact): void {
     if (node.children && performJoinTests(node.tests, t, f)) {
       for (let j = 0; j < node.children.length; j++) {
         const child = node.children[j];
-        runLeftActivationOnNode(child, t, f);
+        runLeftActivateOnNode(child, t, f);
       }
     }
   }
@@ -171,7 +171,7 @@ export function buildOrShareJoinNode(
 
   if (!parent.items) {
     alphaMemory.successors = removeFromList(alphaMemory.successors, node);
-  } else if (!alphaMemory.items) {
+  } else if (!alphaMemory.facts) {
     parent.children = removeFromList(parent.children, node);
   }
 

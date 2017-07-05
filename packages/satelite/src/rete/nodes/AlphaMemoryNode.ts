@@ -3,24 +3,25 @@ import { ICondition, isConstant } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
 import { IRete } from "../Rete";
-import { addToListHead, IList, runRightActivationOnNode } from "../util";
+import {
+  addToListHead,
+  IList,
+  removeFromList,
+  runRightActivateOnNode,
+  runRightRetractOnNode,
+} from "../util";
 import { IReteNode } from "./ReteNode";
 
 export interface IAlphaMemoryNode {
-  items: IList<IAlphaMemoryItem>;
+  facts: IList<IFact>;
   successors: IList<IReteNode>;
   referenceCount: number;
-}
-
-export interface IAlphaMemoryItem {
-  fact: IFact;
-  alphaMemory: IAlphaMemoryNode;
 }
 
 export function makeAlphaMemoryNode(): IAlphaMemoryNode {
   const am: IAlphaMemoryNode = Object.create(null);
 
-  am.items = null;
+  am.facts = null;
   am.successors = null;
   am.referenceCount = 0;
 
@@ -66,31 +67,28 @@ export function createExhaustiveHashTable(): IExhaustiveHashTable {
   return new Map();
 }
 
-export function makeAlphaMemoryItem(
-  am: IAlphaMemoryNode,
-  f: IFact,
-): IAlphaMemoryItem {
-  const i: IAlphaMemoryItem = Object.create(null);
-
-  i.alphaMemory = am;
-  i.fact = f;
-
-  return i;
-}
-
-export function alphaMemoryNodeActivation(
+export function alphaMemoryNodeActivate(
   node: IAlphaMemoryNode,
   f: IFact,
 ): void {
-  const i = makeAlphaMemoryItem(node, f);
-
-  node.items = addToListHead(node.items, i);
-  f.alphaMemoryItems = addToListHead(f.alphaMemoryItems, i);
+  node.facts = addToListHead(node.facts, f);
+  f.alphaMemories = addToListHead(f.alphaMemories, node);
 
   if (node.successors) {
     for (let j = 0; j < node.successors.length; j++) {
       const successor = node.successors[j];
-      runRightActivationOnNode(successor, f);
+      runRightActivateOnNode(successor, f);
+    }
+  }
+}
+
+export function alphaMemoryNodeRetract(node: IAlphaMemoryNode, f: IFact): void {
+  node.facts = removeFromList(node.facts, f);
+  f.alphaMemories = addToListHead(f.alphaMemories, node);
+  if (node.successors) {
+    for (let j = 0; j < node.successors.length; j++) {
+      const successor = node.successors[j];
+      runRightRetractOnNode(successor, f);
     }
   }
 }
@@ -127,7 +125,7 @@ export function buildOrShareAlphaMemoryNode(
       (!attributeTest || f.attribute === attributeTest) &&
       (!valueTest || f.value === valueTest)
     ) {
-      alphaMemoryNodeActivation(alphaMemory as IAlphaMemoryNode, f);
+      alphaMemoryNodeActivate(alphaMemory as IAlphaMemoryNode, f);
     }
   }
 

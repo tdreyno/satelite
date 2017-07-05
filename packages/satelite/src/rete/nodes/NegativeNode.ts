@@ -5,7 +5,7 @@ import {
   IToken,
   makeToken,
 } from "../Token";
-import { addToListHead, IList, runLeftActivationOnNode } from "../util";
+import { addToListHead, IList, runLeftActivateOnNode } from "../util";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
 import { ITestAtJoinNode, performJoinTests } from "./JoinNode";
 import { IReteNode } from "./ReteNode";
@@ -45,10 +45,10 @@ export function negativeNodeLeftActivation(
   if (!node.items || node.items.every(i => !compareTokens(i, newToken))) {
     node.items = addToListHead(node.items, newToken);
 
-    if (f && node.alphaMemory.items) {
-      for (let i = 0; i < node.alphaMemory.items.length; i++) {
-        const item = node.alphaMemory.items[i];
-        if (performJoinTests(node.tests, newToken, item.fact)) {
+    if (f && node.alphaMemory.facts) {
+      for (let i = 0; i < node.alphaMemory.facts.length; i++) {
+        const fact = node.alphaMemory.facts[i];
+        if (performJoinTests(node.tests, newToken, fact)) {
           const jr = makeNegativeJoinResult(newToken, f);
           newToken.joinResults = addToListHead(newToken.joinResults, jr);
           f.negativeJoinResults = addToListHead(f.negativeJoinResults, jr);
@@ -59,7 +59,7 @@ export function negativeNodeLeftActivation(
     if (!newToken.joinResults && node.children) {
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
-        runLeftActivationOnNode(child, newToken, null);
+        runLeftActivateOnNode(child, newToken, null);
       }
     }
   }

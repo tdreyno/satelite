@@ -8,7 +8,7 @@ import {
   addToListHead,
   IList,
   removeFromList,
-  runLeftActivationOnNode,
+  runLeftActivateOnNode,
   // runLeftActivationOnNode,
 } from "./util";
 
@@ -120,7 +120,7 @@ export function deleteTokenAndDescendents(t: IToken): void {
       if (!t.owner.nccResults && t.node.nccNode.children) {
         for (let i = 0; i < t.node.nccNode.children.length; i++) {
           const child = t.node.nccNode.children[i];
-          runLeftActivationOnNode(child, t.owner, null);
+          runLeftActivateOnNode(child, t.owner, null);
         }
       }
     }
