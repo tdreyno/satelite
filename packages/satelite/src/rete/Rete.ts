@@ -31,6 +31,16 @@ import {
 
 export type ITerminalNode = IProduction | IQuery;
 
+let variablePrefix = "?";
+
+export function getVariablePrefix(): string {
+  return variablePrefix;
+}
+
+export function setVariablePrefix(p: string): void {
+  variablePrefix = p;
+}
+
 export interface IRete {
   root: IRootNode;
   terminalNodes: IList<ITerminalNode>;

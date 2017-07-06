@@ -2,13 +2,14 @@ import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
+import { getVariablePrefix } from "./Rete";
 import { IToken } from "./Token";
 import { addToListHead, IList } from "./util";
 
 export type IConstantTest = string;
 
 export function isVariable(v: any): boolean {
-  return typeof v === "string" && v.startsWith("?");
+  return typeof v === "string" && v.startsWith(getVariablePrefix());
 }
 
 export function isConstant(v: any): boolean {
@@ -143,7 +144,10 @@ export function defineVariables(
 
     // tslint:disable-next-line:forin
     for (const variableName in condition.variableNames) {
-      const cleanedVariableName = variableName.replace(/^\?/, "");
+      const cleanedVariableName =
+        variableName.charAt(0) === getVariablePrefix()
+          ? variableName.slice(1, variableName.length)
+          : variableName;
 
       if (typeof foundVariables[cleanedVariableName] !== "undefined") {
         break;
