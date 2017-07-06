@@ -5,8 +5,8 @@ import {
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
 } from "../util";
-import { IReteNode } from "./ReteNode";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
+import { IReteNode } from "./ReteNode";
 
 export interface IRootJoinNode extends IReteNode {
   type: "root-join";

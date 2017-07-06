@@ -44,14 +44,11 @@ export function performJoinTests(
   for (let i = 0; i < tests.length; i++) {
     const test = tests[i];
     const arg1 = f[test.fieldArg1];
+    const arg2 = t.fact[test.fieldArg2];
 
-    if (t.fact) {
-      const arg2 = t.fact[test.fieldArg2];
-
-      // TODO: Make this comparison any predicate
-      if (arg1 !== arg2) {
-        return false;
-      }
+    // TODO: Make this comparison any predicate
+    if (arg1 !== arg2) {
+      return false;
     }
   }
 
@@ -84,6 +81,23 @@ export function makeJoinNode(
   return node;
 }
 
+function executeLeft(
+  node: IJoinNode,
+  t: IToken,
+  action: (children: IList<IReteNode>, t: IToken) => void,
+) {
+  if (node.alphaMemory.facts) {
+    for (let i = 0; i < node.alphaMemory.facts.length; i++) {
+      const fact = node.alphaMemory.facts[i];
+
+      if (performJoinTests(node.tests, t, fact)) {
+        const newToken = makeToken(node, t, fact);
+        action(node.children, newToken);
+      }
+    }
+  }
+}
+
 export function joinNodeLeftActivate(node: IJoinNode, t: IToken): void {
   if (findInList(node.items, t, compareTokens) !== -1) {
     return;
@@ -91,16 +105,7 @@ export function joinNodeLeftActivate(node: IJoinNode, t: IToken): void {
 
   node.items = addToListHead(node.items, t);
 
-  if (node.alphaMemory.facts) {
-    for (let i = 0; i < node.alphaMemory.facts.length; i++) {
-      const fact = node.alphaMemory.facts[i];
-
-      if (performJoinTests(node.tests, t, fact)) {
-        const newToken = makeToken(node, t, fact);
-        runLeftActivateOnNodes(node.children, newToken);
-      }
-    }
-  }
+  executeLeft(node, t, runLeftActivateOnNodes);
 }
 
 export function joinNodeLeftRetract(node: IJoinNode, t: IToken): void {
@@ -112,16 +117,7 @@ export function joinNodeLeftRetract(node: IJoinNode, t: IToken): void {
 
   node.items = removeIndexFromList(node.items, foundIndex);
 
-  if (node.alphaMemory.facts) {
-    for (let i = 0; i < node.alphaMemory.facts.length; i++) {
-      const fact = node.alphaMemory.facts[i];
-
-      if (performJoinTests(node.tests, t, fact)) {
-        const newToken = makeToken(node, t, fact);
-        runLeftRetractOnNodes(node.children, newToken);
-      }
-    }
-  }
+  executeLeft(node, t, runLeftRetractOnNodes);
 }
 
 function executeRight(

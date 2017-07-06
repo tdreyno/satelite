@@ -1,4 +1,10 @@
-import { getJoinTestsFromCondition, ICondition } from "./Condition";
+import {
+  getJoinTestsFromCondition,
+  ICondition,
+  IParsedCondition,
+  IVariableBindings,
+  parseCondition,
+} from "./Condition";
 import { IFact, IFactTuple, makeFact } from "./Fact";
 import {
   alphaMemoryNodeActivate,
@@ -16,7 +22,6 @@ import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
 import { makeRootJoinNode } from "./nodes/RootJoinNode";
 import { IProduction, makeProduction } from "./Production";
 import { IQuery, makeQuery } from "./Query";
-import { IToken } from "./Token";
 import {
   addToListHead,
   IList,
@@ -121,8 +126,8 @@ export function dispatchToAlphaMemories(
 
 export function buildOrShareNetworkForConditions(
   r: IRete,
-  conditions: ICondition[],
-  earlierConditions: ICondition[],
+  conditions: IParsedCondition[],
+  earlierConditions: IParsedCondition[],
 ): IReteNode {
   let currentNode: IReteNode = r.root;
   const conditionsHigherUp = earlierConditions;
@@ -151,12 +156,13 @@ export function addProduction(
   conditions: ICondition[],
   callback: (
     f: IFactTuple,
-    t: IToken,
+    variableBindings: IVariableBindings,
   ) => void | null | undefined | IFactTuple | IFactTuple[],
 ): IProduction {
-  const currentNode = buildOrShareNetworkForConditions(r, conditions, []);
+  const parsedConditions = conditions.map(parseCondition);
+  const currentNode = buildOrShareNetworkForConditions(r, parsedConditions, []);
 
-  const production = makeProduction(callback);
+  const production = makeProduction(parsedConditions, callback);
   production.productionNode = makeProductionNode(r, production);
   currentNode.children = addToListHead(
     currentNode.children,
@@ -173,9 +179,10 @@ export function addProduction(
 }
 
 export function addQuery(r: IRete, conditions: ICondition[]): IQuery {
-  const currentNode = buildOrShareNetworkForConditions(r, conditions, []);
+  const parsedConditions = conditions.map(parseCondition);
+  const currentNode = buildOrShareNetworkForConditions(r, parsedConditions, []);
 
-  const query = makeQuery();
+  const query = makeQuery(parsedConditions);
   query.queryNode = makeQueryNode(query);
   currentNode.children = addToListHead(currentNode.children, query.queryNode);
 

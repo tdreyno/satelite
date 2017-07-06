@@ -27,7 +27,7 @@ const DATA_SET: IFactTuple[] = [
 
 describe("Rete", () => {
   it("should add a production", () => {
-    expect.assertions(2);
+    expect.assertions(6);
 
     const rete = makeRete();
 
@@ -38,16 +38,20 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
-      f => {
+      (f, b) => {
         expect(f[2]).toBe("Grace");
+        expect(b["?e"]).toBe(4);
+        expect(b["?v"]).toBe("Grace");
       },
     );
 
     addProduction(
       rete,
       [["?e", "gender", "M"], ["?e", "team", "WW"], ["?e", "name", "?v"]],
-      f => {
+      (f, b) => {
         expect(f[2]).toBe("Thomas");
+        expect(b["?e"]).toBe(1);
+        expect(b["?v"]).toBe("Thomas");
       },
     );
   });
@@ -78,7 +82,7 @@ describe("Rete", () => {
   });
 
   it("should be able to have dependent facts", () => {
-    expect.assertions(3);
+    expect.assertions(4);
 
     const rete = makeRete();
 
@@ -86,18 +90,23 @@ describe("Rete", () => {
       addFact(rete, DATA_SET[i]);
     }
 
-    addProduction(rete, [["?e", "isLady", true]], f => {
+    addProduction(rete, [["?e", "isLady", true]], (f, b) => {
       expect(f).toEqual([2, "isLady", true]);
+      expect(b["?e"]).toBe(2);
     });
 
-    addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
-      if ((f[0] as any) === 2) {
-        expect(f[2]).toBe("Violet");
-        return [f[0], "isLady", true];
-      } else {
-        expect(f[2]).toBe("Grace");
-      }
-    });
+    addProduction(
+      rete,
+      [["?e", "gender", "F"], ["?e", "name", "?v"]],
+      (f, b) => {
+        if (b["?e"] === 2) {
+          expect(f[2]).toBe("Violet");
+          return [f[0], "isLady", true];
+        } else {
+          expect(f[2]).toBe("Grace");
+        }
+      },
+    );
   });
 
   it("should allow queries", () => {
@@ -113,22 +122,30 @@ describe("Rete", () => {
 
     const ladyQuery = addQuery(rete, [["?e", "isLady", true]]);
 
-    let ladies;
+    let ladyFacts;
+    let ladyVariableBindings;
 
-    ladies = ladyQuery.getFacts();
-    expect(ladies).toHaveLength(2);
-    expect(ladies[0][0]).toBe(4);
-    expect(ladies[1][0]).toBe(2);
+    ladyFacts = ladyQuery.getFacts();
+    expect(ladyFacts).toHaveLength(2);
+    expect(ladyFacts[0][0]).toBe(4);
+    expect(ladyFacts[1][0]).toBe(2);
 
-    removeFact(rete, DATA_SET[4] as any);
-
-    ladies = ladyQuery.getFacts();
-    expect(ladies).toHaveLength(1);
-    expect(ladies[0][0]).toBe(4);
+    ladyVariableBindings = ladyQuery.getVariableBindings();
+    expect(ladyVariableBindings[0]["?e"]).toBe(4);
+    expect(ladyVariableBindings[1]["?e"]).toBe(2);
 
     removeFact(rete, DATA_SET[10] as any);
 
-    ladies = ladyQuery.getFacts();
-    expect(ladies).toHaveLength(0);
+    ladyFacts = ladyQuery.getFacts();
+    expect(ladyFacts).toHaveLength(1);
+    expect(ladyFacts[0][0]).toBe(2);
+
+    ladyVariableBindings = ladyQuery.getVariableBindings();
+    expect(ladyVariableBindings[0]["?e"]).toBe(2);
+
+    removeFact(rete, DATA_SET[4] as any);
+
+    ladyFacts = ladyQuery.getFacts();
+    expect(ladyFacts).toHaveLength(0);
   });
 });

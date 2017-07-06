@@ -2,6 +2,7 @@ import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
+import { IToken } from "./Token";
 import { addToListHead, IList } from "./util";
 
 export type IConstantTest = string;
@@ -21,6 +22,9 @@ export interface ICondition extends Array<any> {
 }
 
 export interface IParsedCondition {
+  identifier: IPrimitive | IIdentifier | IConstantTest;
+  attribute: string | IConstantTest;
+  value: IValue | IConstantTest;
   constantFields: Partial<IFact>;
   variableFields: { [P in IFactFields]?: string };
   variableNames: { [varName: string]: IFactFields };
@@ -32,6 +36,10 @@ function baseParseCondition(
   value: IValue | IConstantTest,
 ): IParsedCondition {
   const result: IParsedCondition = Object.create(null);
+
+  result.identifier = identifier;
+  result.attribute = attribute;
+  result.value = value;
   result.constantFields = Object.create(null);
   result.variableFields = Object.create(null);
   result.variableNames = Object.create(null);
@@ -69,10 +77,10 @@ export function parseCondition(c: ICondition): IParsedCondition {
 }
 
 export function getJoinTestsFromCondition(
-  c: ICondition,
-  earlierConditions: ICondition[],
+  c: IParsedCondition,
+  earlierConditions: IParsedCondition[],
 ): IList<ITestAtJoinNode> {
-  const { variableNames } = parseCondition(c);
+  const { variableNames } = c;
 
   let results: IList<ITestAtJoinNode> = null;
 
@@ -87,9 +95,7 @@ export function getJoinTestsFromCondition(
     if (earlierConditionIndex !== -1) {
       const fieldArg1 = variableNames[variableName];
 
-      const earlierCondition = parseCondition(
-        earlierConditions[earlierConditionIndex],
-      );
+      const earlierCondition = earlierConditions[earlierConditionIndex];
       const fieldArg2 = earlierCondition.variableNames[variableName];
 
       results = addToListHead(
@@ -104,14 +110,51 @@ export function getJoinTestsFromCondition(
 
 export function findVariableInEarlierConditions(
   variableName: string,
-  earlierConditions: ICondition[],
+  earlierConditions: IParsedCondition[],
 ): number {
   for (let i = 0; i < earlierConditions.length; i++) {
-    const { variableNames } = parseCondition(earlierConditions[i]);
+    const { variableNames } = earlierConditions[i];
     if (!!variableNames[variableName]) {
       return i;
     }
   }
 
   return -1;
+}
+
+export interface IVariableBindings {
+  [variableName: string]: any;
+}
+
+export function defineVariables(
+  conditions: IParsedCondition[],
+  t: IToken,
+): IVariableBindings {
+  const foundVariables: IVariableBindings = {};
+
+  let token: IToken | null = t;
+
+  for (let i = conditions.length - 1; i >= 0; i--) {
+    const condition = conditions[i];
+
+    if (!token) {
+      break;
+    }
+
+    // tslint:disable-next-line:forin
+    for (const variableName in condition.variableNames) {
+      if (typeof foundVariables[variableName] !== "undefined") {
+        break;
+      }
+
+      const factKey = condition.variableNames[variableName];
+      const variableData = token.fact[factKey];
+
+      foundVariables[variableName] = variableData;
+    }
+
+    token = token ? token.parent : null;
+  }
+
+  return foundVariables;
 }

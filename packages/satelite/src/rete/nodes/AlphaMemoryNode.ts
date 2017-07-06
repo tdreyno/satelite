@@ -1,5 +1,5 @@
 import { memoize } from "interstelar/dist-es5";
-import { ICondition, isConstant } from "../Condition";
+import { IParsedCondition, isConstant } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
 import { IRete } from "../Rete";
@@ -100,11 +100,11 @@ export function alphaMemoryNodeRetract(node: IAlphaMemoryNode, f: IFact): void {
 
 export function buildOrShareAlphaMemoryNode(
   rete: IRete,
-  c: ICondition,
+  c: IParsedCondition,
 ): IAlphaMemoryNode {
-  const identifierTest = isConstant(c[0]) ? c[0] : null;
-  const attributeTest = isConstant(c[1]) ? c[1] : null;
-  const valueTest = isConstant(c[2]) ? c[2] : null;
+  const identifierTest = isConstant(c.identifier) ? c.identifier : null;
+  const attributeTest = isConstant(c.attribute) ? c.attribute : null;
+  const valueTest = isConstant(c.value) ? c.value : null;
 
   let alphaMemory = lookupInHashTable(
     rete.hashTable,

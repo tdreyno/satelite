@@ -47,7 +47,7 @@ export function productionNodeLeftActivate(
 
   if (results) {
     const resultingFacts: IFactTuple[] =
-      results[1] && typeof results[1] === "string" ? [results] : results;
+      results[1] && typeof results[1] === "string" ? [results] : results as any;
 
     for (let i = 0; i < resultingFacts.length; i++) {
       addFact(node.rete, resultingFacts[i]);
