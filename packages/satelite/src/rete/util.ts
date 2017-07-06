@@ -7,6 +7,13 @@ import {
   joinNodeRightRetract,
 } from "./nodes/JoinNode";
 import {
+  INegativeNode,
+  negativeNodeLeftActivate,
+  negativeNodeLeftRetract,
+  negativeNodeRightActivate,
+  negativeNodeRightRetract,
+} from "./nodes/NegativeNode";
+import {
   IProductionNode,
   productionNodeLeftActivate,
   productionNodeLeftRetract,
@@ -97,6 +104,8 @@ export function runLeftActivateOnNode(node: IReteNode, t: IToken): void {
       return productionNodeLeftActivate(node as IProductionNode, t);
     case "join":
       return joinNodeLeftActivate(node as IJoinNode, t);
+    case "negative":
+      return negativeNodeLeftActivate(node as INegativeNode, t);
   }
 }
 
@@ -121,6 +130,8 @@ export function runLeftRetractOnNode(node: IReteNode, t: IToken) {
       return productionNodeLeftRetract(node as IProductionNode, t);
     case "join":
       return joinNodeLeftRetract(node as IJoinNode, t);
+    case "negative":
+      return negativeNodeLeftRetract(node as INegativeNode, t);
   }
 }
 
@@ -142,6 +153,8 @@ export function runRightActivateOnNode(node: IReteNode, f: IFact) {
       return rootJoinNodeRightActivate(node as IRootJoinNode, f);
     case "join":
       return joinNodeRightActivate(node as IJoinNode, f);
+    case "negative":
+      return negativeNodeRightActivate(node as INegativeNode, f);
   }
 }
 
@@ -163,6 +176,8 @@ export function runRightRetractOnNode(node: IReteNode, f: IFact) {
       return rootJoinNodeRightRetract(node as IRootJoinNode, f);
     case "join":
       return joinNodeRightRetract(node as IJoinNode, f);
+    case "negative":
+      return negativeNodeRightRetract(node as INegativeNode, f);
   }
 }
 
@@ -176,6 +191,7 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
   switch (parent.type) {
     case "root-join":
     case "join":
+    case "negative":
       const facts = (parent as IJoinNode).alphaMemory.facts;
 
       if (facts) {

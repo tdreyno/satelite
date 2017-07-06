@@ -1,7 +1,7 @@
 import { IList } from "../util";
 
 export interface IReteNode {
-  type: "join" | "production" | "root-join" | "root" | "query";
+  type: "join" | "production" | "root-join" | "root" | "query" | "negative";
   children: IList<IReteNode>;
   parent: IReteNode | null;
 }

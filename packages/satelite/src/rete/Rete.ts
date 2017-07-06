@@ -15,6 +15,7 @@ import {
   lookupInHashTable,
 } from "./nodes/AlphaMemoryNode";
 import { buildOrShareJoinNode } from "./nodes/JoinNode";
+import { buildOrShareNegativeNode } from "./nodes/NegativeNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
 import { makeQueryNode } from "./nodes/QueryNode";
 import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
@@ -40,6 +41,11 @@ export function getVariablePrefix(): string {
 
 export function setVariablePrefix(p: string): void {
   variablePrefix = p;
+}
+
+export function not(c: ICondition) {
+  c.isNegated = true;
+  return c;
 }
 
 export class Rete {
@@ -200,14 +206,13 @@ export class Rete {
       const c = conditions[i];
       const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
 
+      const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
       currentNode =
         currentNode === this.root
           ? makeRootJoinNode(currentNode, alphaMemory)
-          : buildOrShareJoinNode(
-              currentNode,
-              alphaMemory,
-              getJoinTestsFromCondition(c, conditionsHigherUp),
-            );
+          : c.isNegated
+            ? buildOrShareNegativeNode(currentNode, alphaMemory, joinTests)
+            : buildOrShareJoinNode(currentNode, alphaMemory, joinTests);
 
       conditionsHigherUp.push(c);
     }

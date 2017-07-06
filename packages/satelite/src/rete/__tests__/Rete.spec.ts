@@ -1,6 +1,6 @@
 import { IFactTuple } from "../Fact";
 import { makeIdentifier } from "../Identifier";
-import { Rete } from "../Rete";
+import { not, Rete } from "../Rete";
 
 const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
@@ -48,6 +48,24 @@ describe("Rete", () => {
       ({ e, v }) => {
         expect(e).toBe(thomas);
         expect(v).toBe("Thomas");
+      },
+    );
+  });
+
+  it.only("should allow negative conditions", () => {
+    expect.assertions(2);
+
+    const { addFact, addProduction } = Rete.create();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      addFact(DATA_SET[i]);
+    }
+
+    addProduction(
+      [["?e", "gender", "F"], not(["?e", "team", "Fun"]), ["?e", "name", "?v"]],
+      ({ e, v }) => {
+        expect(e).toBe(violet);
+        expect(v).toBe("Violet");
       },
     );
   });

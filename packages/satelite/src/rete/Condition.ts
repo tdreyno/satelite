@@ -20,6 +20,8 @@ export interface ICondition extends Array<any> {
   [0]: IPrimitive | IIdentifier | IConstantTest;
   [1]: string | IConstantTest;
   [2]: IValue | IConstantTest;
+
+  isNegated?: boolean;
 }
 
 export interface IParsedCondition {
@@ -29,12 +31,14 @@ export interface IParsedCondition {
   constantFields: Partial<IFact>;
   variableFields: { [P in IFactFields]?: string };
   variableNames: { [varName: string]: IFactFields };
+  isNegated: boolean;
 }
 
 function baseParseCondition(
   identifier: IPrimitive | IIdentifier | IConstantTest,
   attribute: string | IConstantTest,
   value: IValue | IConstantTest,
+  isNegated: boolean,
 ): IParsedCondition {
   const result: IParsedCondition = Object.create(null);
 
@@ -44,6 +48,7 @@ function baseParseCondition(
   result.constantFields = Object.create(null);
   result.variableFields = Object.create(null);
   result.variableNames = Object.create(null);
+  result.isNegated = isNegated;
 
   if (isVariable(identifier)) {
     result.variableNames[identifier as string] = "identifier";
@@ -74,7 +79,7 @@ function baseParseCondition(
 const memoizedParseCondition = memoize(baseParseCondition);
 
 export function parseCondition(c: ICondition): IParsedCondition {
-  return memoizedParseCondition(c[0], c[1], c[2]);
+  return memoizedParseCondition(c[0], c[1], c[2], c.isNegated || false);
 }
 
 export function getJoinTestsFromCondition(
