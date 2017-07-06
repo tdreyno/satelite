@@ -52,7 +52,7 @@ describe("Rete", () => {
     );
   });
 
-  it.only("should allow negative conditions", () => {
+  it("should allow negative conditions", () => {
     expect.assertions(2);
 
     const { addFact, addProduction } = Rete.create();
