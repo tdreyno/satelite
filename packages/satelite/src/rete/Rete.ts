@@ -157,6 +157,8 @@ export function addProduction(
   callback: (
     f: IFactTuple,
     variableBindings: IVariableBindings,
+    addProducedFacts: (facts: IFactTuple | IFactTuple[]) => void,
+    addFact: (facts: IFactTuple | IFactTuple[]) => void,
   ) => void | null | undefined | IFactTuple | IFactTuple[],
 ): IProduction {
   const parsedConditions = conditions.map(parseCondition);

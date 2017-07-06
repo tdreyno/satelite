@@ -65,14 +65,18 @@ describe("Rete", () => {
       addFact(rete, DATA_SET[i]);
     }
 
-    addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
-      if ((f[0] as any) === 2) {
-        expect(f[2]).toBe("Violet");
-        return [f[0], "isLady", true];
-      } else {
-        expect(f[2]).toBe("Grace");
-      }
-    });
+    addProduction(
+      rete,
+      [["?e", "gender", "F"], ["?e", "name", "?v"]],
+      (f, variables, addProducedFact) => {
+        if ((f[0] as any) === 2) {
+          expect(f[2]).toBe("Violet");
+          addProducedFact([variables["?e"], "isLady", true]);
+        } else {
+          expect(f[2]).toBe("Grace");
+        }
+      },
+    );
 
     removeFact(rete, DATA_SET[4]);
 
@@ -98,10 +102,10 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      (f, b) => {
-        if (b["?e"] === 2) {
+      (f, variables, addProducedFact) => {
+        if (variables["?e"] === 2) {
           expect(f[2]).toBe("Violet");
-          return [f[0], "isLady", true];
+          addProducedFact([variables["?e"], "isLady", true]);
         } else {
           expect(f[2]).toBe("Grace");
         }
@@ -116,14 +120,27 @@ describe("Rete", () => {
       addFact(rete, DATA_SET[i]);
     }
 
-    addProduction(rete, [["?e", "gender", "F"]], f => {
-      return [f[0], "isLady", true];
-    });
+    addProduction(
+      rete,
+      [["?e", "gender", "F"]],
+      // tslint:disable-next-line:variable-name
+      (_f, variables, addProducedFact, addFact) => {
+        addProducedFact([variables["?e"], "isLady", true]);
 
+        addFact([1, "superCool", true]);
+      },
+    );
+
+    const coolQuery = addQuery(rete, [["?e", "superCool", true]]);
     const ladyQuery = addQuery(rete, [["?e", "isLady", true]]);
 
+    let coolFacts;
     let ladyFacts;
     let ladyVariableBindings;
+
+    coolFacts = coolQuery.getFacts();
+    expect(coolFacts).toHaveLength(1);
+    expect(coolFacts[0][0]).toBe(1);
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(2);
@@ -147,5 +164,9 @@ describe("Rete", () => {
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(0);
+
+    coolFacts = coolQuery.getFacts();
+    expect(coolFacts).toHaveLength(1);
+    expect(coolFacts[0][0]).toBe(1);
   });
 });

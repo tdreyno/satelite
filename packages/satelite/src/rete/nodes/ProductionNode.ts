@@ -43,21 +43,39 @@ export function productionNodeLeftActivate(
 
   node.items = addToListHead(node.items, t);
 
-  const results = node.production.onActivation(makeFactTuple(t.fact), t);
+  function addProducedFacts(factOrFacts: IFactTuple | IFactTuple[]) {
+    const facts: IFactTuple[] =
+      factOrFacts[1] && typeof factOrFacts[1] === "string"
+        ? [factOrFacts]
+        : factOrFacts as any;
 
-  if (results) {
-    const resultingFacts: IFactTuple[] =
-      results[1] && typeof results[1] === "string" ? [results] : results as any;
-
-    for (let i = 0; i < resultingFacts.length; i++) {
-      addFact(node.rete, resultingFacts[i]);
+    for (let i = 0; i < facts.length; i++) {
+      addFact(node.rete, facts[i]);
     }
 
     node.resultingFacts = addToListHead(node.resultingFacts, {
       token: t,
-      facts: resultingFacts,
+      facts,
     });
   }
+
+  function addFacts(factOrFacts: IFactTuple | IFactTuple[]) {
+    const facts: IFactTuple[] =
+      factOrFacts[1] && typeof factOrFacts[1] === "string"
+        ? [factOrFacts]
+        : factOrFacts as any;
+
+    for (let i = 0; i < facts.length; i++) {
+      addFact(node.rete, facts[i]);
+    }
+  }
+
+  node.production.onActivation(
+    makeFactTuple(t.fact),
+    t,
+    addProducedFacts,
+    addFacts,
+  );
 }
 
 export function productionNodeLeftRetract(

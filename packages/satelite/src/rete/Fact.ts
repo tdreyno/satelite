@@ -1,5 +1,5 @@
 import { memoize } from "interstelar";
-import { IIdentifier } from "./Identifier";
+import { IIdentifier, IPrimitive } from "./Identifier";
 import { IAlphaMemoryNode } from "./nodes/AlphaMemoryNode";
 // import { INegativeJoinResult } from "./nodes/NegativeNode";
 // import { IToken } from "./Token";
@@ -9,10 +9,10 @@ export type IValue = any;
 
 export type IFactFields = "identifier" | "attribute" | "value";
 
-export type IFactTuple = [IIdentifier, string, IValue];
+export type IFactTuple = [IIdentifier | IPrimitive, string, IValue];
 
 export interface IFact {
-  identifier: IIdentifier;
+  identifier: IIdentifier | IPrimitive;
   attribute: string;
   value: IValue;
 
@@ -23,7 +23,7 @@ export interface IFact {
 }
 
 export function makeFactPure(
-  identifier: IIdentifier,
+  identifier: IIdentifier | IPrimitive,
   attribute: string,
   value: IValue,
 ): IFact {
