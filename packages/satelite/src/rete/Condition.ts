@@ -143,14 +143,16 @@ export function defineVariables(
 
     // tslint:disable-next-line:forin
     for (const variableName in condition.variableNames) {
-      if (typeof foundVariables[variableName] !== "undefined") {
+      const cleanedVariableName = variableName.replace(/^\?/, "");
+
+      if (typeof foundVariables[cleanedVariableName] !== "undefined") {
         break;
       }
 
       const factKey = condition.variableNames[variableName];
       const variableData = token.fact[factKey];
 
-      foundVariables[variableName] = variableData;
+      foundVariables[cleanedVariableName] = variableData;
     }
 
     token = token ? token.parent : null;

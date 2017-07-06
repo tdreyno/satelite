@@ -38,20 +38,20 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
-      (f, b) => {
+      (f, { e, v }) => {
         expect(f[2]).toBe("Grace");
-        expect(b["?e"]).toBe(4);
-        expect(b["?v"]).toBe("Grace");
+        expect(e).toBe(4);
+        expect(v).toBe("Grace");
       },
     );
 
     addProduction(
       rete,
       [["?e", "gender", "M"], ["?e", "team", "WW"], ["?e", "name", "?v"]],
-      (f, b) => {
+      (f, { e, v }) => {
         expect(f[2]).toBe("Thomas");
-        expect(b["?e"]).toBe(1);
-        expect(b["?v"]).toBe("Thomas");
+        expect(e).toBe(1);
+        expect(v).toBe("Thomas");
       },
     );
   });
@@ -68,10 +68,10 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      (f, variables, addProducedFact) => {
+      (f, { e }, addProducedFact) => {
         if ((f[0] as any) === 2) {
           expect(f[2]).toBe("Violet");
-          addProducedFact([variables["?e"], "isLady", true]);
+          addProducedFact([e, "isLady", true]);
         } else {
           expect(f[2]).toBe("Grace");
         }
@@ -94,18 +94,18 @@ describe("Rete", () => {
       addFact(rete, DATA_SET[i]);
     }
 
-    addProduction(rete, [["?e", "isLady", true]], (f, b) => {
+    addProduction(rete, [["?e", "isLady", true]], (f, { e }) => {
       expect(f).toEqual([2, "isLady", true]);
-      expect(b["?e"]).toBe(2);
+      expect(e).toBe(2);
     });
 
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      (f, variables, addProducedFact) => {
-        if (variables["?e"] === 2) {
+      (f, { e }, addProducedFact) => {
+        if (e === 2) {
           expect(f[2]).toBe("Violet");
-          addProducedFact([variables["?e"], "isLady", true]);
+          addProducedFact([e, "isLady", true]);
         } else {
           expect(f[2]).toBe("Grace");
         }
@@ -124,8 +124,8 @@ describe("Rete", () => {
       rete,
       [["?e", "gender", "F"]],
       // tslint:disable-next-line:variable-name
-      (_f, variables, addProducedFact, addFact) => {
-        addProducedFact([variables["?e"], "isLady", true]);
+      (_f, { e }, addProducedFact, addFact) => {
+        addProducedFact([e, "isLady", true]);
 
         addFact([1, "superCool", true]);
       },
@@ -148,8 +148,8 @@ describe("Rete", () => {
     expect(ladyFacts[1][0]).toBe(2);
 
     ladyVariableBindings = ladyQuery.getVariableBindings();
-    expect(ladyVariableBindings[0]["?e"]).toBe(4);
-    expect(ladyVariableBindings[1]["?e"]).toBe(2);
+    expect(ladyVariableBindings[0].e).toBe(4);
+    expect(ladyVariableBindings[1].e).toBe(2);
 
     removeFact(rete, DATA_SET[10] as any);
 
@@ -158,7 +158,7 @@ describe("Rete", () => {
     expect(ladyFacts[0][0]).toBe(2);
 
     ladyVariableBindings = ladyQuery.getVariableBindings();
-    expect(ladyVariableBindings[0]["?e"]).toBe(2);
+    expect(ladyVariableBindings[0].e).toBe(2);
 
     removeFact(rete, DATA_SET[4] as any);
 
