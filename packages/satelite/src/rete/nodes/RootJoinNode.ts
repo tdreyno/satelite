@@ -1,109 +1,41 @@
 import { IFact } from "../Fact";
-import { IToken, makeToken } from "../Token";
-import { runLeftActivateOnNode, runLeftRetractOnNode } from "../util";
+import { makeToken } from "../Token";
 import {
-  alphaMemoryNodeActivate,
-  alphaMemoryNodeRetract,
-  createExhaustiveHashTable,
-  IAlphaMemoryNode,
-  IExhaustiveHashTable,
-  lookupInHashTable,
-} from "./AlphaMemoryNode";
+  addToListHead,
+  runLeftActivateOnNodes,
+  runLeftRetractOnNodes,
+} from "../util";
 import { IReteNode } from "./ReteNode";
+import { IAlphaMemoryNode } from "./AlphaMemoryNode";
 
 export interface IRootJoinNode extends IReteNode {
   type: "root-join";
-  parent: null;
-  facts: Set<IFact>;
-  tokens: IList<IToken>;
-  hashTable: IExhaustiveHashTable;
+  alphaMemory: IAlphaMemoryNode;
 }
 
-export function makeRootJoinNode(): IRootJoinNode {
+export function makeRootJoinNode(
+  parent: IReteNode,
+  alphaMemory: IAlphaMemoryNode,
+): IRootJoinNode {
   const node: IRootJoinNode = Object.create(null);
 
   node.type = "root-join";
+  node.parent = parent;
   node.children = null;
-  node.facts = new Set();
-  node.hashTable = createExhaustiveHashTable();
+  node.alphaMemory = alphaMemory;
+
+  parent.children = addToListHead(parent.children, node);
+  alphaMemory.successors = addToListHead(alphaMemory.successors, node);
 
   return node;
 }
 
 export function rootJoinNodeRightActivate(node: IRootJoinNode, f: IFact): void {
-  node.facts.add(f);
-
-  dispatchToAlphaMemories(node, f, alphaMemoryNodeActivate);
-
   const t = makeToken(node, null, f);
-
-  if (node.children) {
-    for (let j = 0; j < node.children.length; j++) {
-      const child = node.children[j];
-      runLeftActivateOnNode(child, t);
-    }
-  }
+  runLeftActivateOnNodes(node.children, t);
 }
 
 export function rootJoinNodeRightRetract(node: IRootJoinNode, f: IFact): void {
-  node.facts.delete(f);
-
-  dispatchToAlphaMemories(node, f, alphaMemoryNodeRetract);
-
   const t = makeToken(node, null, f);
-
-  if (node.children) {
-    for (let j = 0; j < node.children.length; j++) {
-      const child = node.children[j];
-      runLeftRetractOnNode(child, t);
-    }
-  }
-}
-
-export function dispatchToAlphaMemories(
-  node: IRootJoinNode,
-  f: IFact,
-  fn: (am: IAlphaMemoryNode, f: IFact) => void,
-) {
-  let am;
-
-  am = lookupInHashTable(node.hashTable, f.identifier, f.attribute, f.value);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(node.hashTable, f.identifier, f.attribute, null);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(node.hashTable, null, f.attribute, f.value);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(node.hashTable, f.identifier, null, f.value);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(node.hashTable, null, null, f.value);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(node.hashTable, null, f.attribute, null);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(node.hashTable, f.identifier, null, null);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(node.hashTable, null, null, null);
-  if (am) {
-    fn(am, f);
-  }
+  runLeftRetractOnNodes(node.children, t);
 }

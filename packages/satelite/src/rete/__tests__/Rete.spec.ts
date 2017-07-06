@@ -58,6 +58,7 @@ describe("Rete", () => {
     addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
       if ((f[0] as any) === 2) {
         expect(f[2]).toBe("Violet");
+        return [f[0], "isLady", true];
       } else {
         expect(f[2]).toBe("Grace");
       }
@@ -68,10 +69,51 @@ describe("Rete", () => {
     addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
       expect(f[2]).toBe("Grace");
     });
+  });
 
-    // addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
-    //   expect(f[2]).toBe("Grace");
-    // });
+  it("should be able to have dependent facts", () => {
+    expect.assertions(3);
+
+    const rete = makeRete();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      addFact(rete, DATA_SET[i]);
+    }
+
+    addProduction(rete, [["?e", "isLady", true]], f => {
+      expect(f).toEqual([2, "isLady", true]);
+    });
+
+    addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
+      if ((f[0] as any) === 2) {
+        expect(f[2]).toBe("Violet");
+        return [f[0], "isLady", true];
+      } else {
+        expect(f[2]).toBe("Grace");
+      }
+    });
+  });
+
+  it("should clean up dependent facts on removal", () => {
+    expect.assertions(2);
+
+    const rete = makeRete();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      addFact(rete, DATA_SET[i]);
+    }
+
+    addProduction(rete, [["?e", "gender", "F"]], f => {
+      return [f[0], "isLady", true];
+    });
+
+    addProduction(rete, [["?e", "isLady", true]], f => {
+      expect(f).toEqual([f[0], "isLady", true]);
+    });
+
+    removeFact(rete, DATA_SET[4] as any);
+
+    // test query
   });
 
   // it("should allow queries", () => {

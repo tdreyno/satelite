@@ -2,6 +2,7 @@ import { memoize } from "interstelar/dist-es5";
 import { ICondition, isConstant } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
+import { IRete } from "../Rete";
 import {
   addToListHead,
   IList,
@@ -10,16 +11,17 @@ import {
   runRightRetractOnNode,
 } from "../util";
 import { IReteNode } from "./ReteNode";
-import { IRootJoinNode } from "./RootJoinNode";
 
 export interface IAlphaMemoryNode {
+  name: string;
   facts: IList<IFact>;
   successors: IList<IReteNode>;
 }
 
-export function makeAlphaMemoryNode(): IAlphaMemoryNode {
+export function makeAlphaMemoryNode(name: string): IAlphaMemoryNode {
   const am: IAlphaMemoryNode = Object.create(null);
 
+  am.name = name;
   am.facts = null;
   am.successors = null;
 
@@ -56,7 +58,9 @@ export function addToHashTable(
   attribute: string | null,
   value: IValue | null,
 ): IAlphaMemoryNode {
-  const node = makeAlphaMemoryNode();
+  const node = makeAlphaMemoryNode(
+    `${identifier || "_"} ${attribute || "_"} ${value || "_"}`,
+  );
 
   const hashCode = getHashCode(identifier, attribute, value);
   hashTable.set(hashCode, node);
@@ -83,18 +87,19 @@ export function alphaMemoryNodeActivate(
 }
 
 export function alphaMemoryNodeRetract(node: IAlphaMemoryNode, f: IFact): void {
-  node.facts = removeFromList(node.facts, f);
-
   if (node.successors) {
     for (let j = 0; j < node.successors.length; j++) {
       const successor = node.successors[j];
+
       runRightRetractOnNode(successor, f);
     }
   }
+
+  node.facts = removeFromList(node.facts, f);
 }
 
 export function buildOrShareAlphaMemoryNode(
-  root: IRootJoinNode,
+  rete: IRete,
   c: ICondition,
 ): IAlphaMemoryNode {
   const identifierTest = isConstant(c[0]) ? c[0] : null;
@@ -102,7 +107,7 @@ export function buildOrShareAlphaMemoryNode(
   const valueTest = isConstant(c[2]) ? c[2] : null;
 
   let alphaMemory = lookupInHashTable(
-    root.hashTable,
+    rete.hashTable,
     identifierTest,
     attributeTest,
     valueTest,
@@ -113,13 +118,13 @@ export function buildOrShareAlphaMemoryNode(
   }
 
   alphaMemory = addToHashTable(
-    root.hashTable,
+    rete.hashTable,
     identifierTest,
     attributeTest,
     valueTest,
   );
 
-  for (const f of root.facts) {
+  for (const f of rete.facts) {
     if (
       (!identifierTest || f.identifier === identifierTest) &&
       (!attributeTest || f.attribute === attributeTest) &&

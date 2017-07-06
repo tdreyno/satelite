@@ -8,7 +8,8 @@ import {
 } from "./nodes/JoinNode";
 import {
   IProductionNode,
-  productionNodeLeftActivation,
+  productionNodeLeftActivate,
+  productionNodeLeftRetract,
 } from "./nodes/ProductionNode";
 import { IReteNode } from "./nodes/ReteNode";
 import {
@@ -33,27 +34,42 @@ export function removeFromList<T>(list: T[] | null, item: T): T[] | null {
 
   const i = list.indexOf(item);
 
-  if (i !== -1) {
-    list.splice(i);
+  return removeIndexFromList(list, i);
+}
+
+export function removeIndexFromList<T>(
+  list: T[] | null,
+  index: number,
+): T[] | null {
+  if (!list) {
+    return null;
+  }
+
+  if (index !== -1) {
+    list.splice(index, 1);
+  }
+
+  if (list.length <= 0) {
+    return null;
   }
 
   return list;
 }
 
-export function uniqueInList<T>(
+export function findInList<T, K>(
   list: IList<T> | null,
-  item: T,
-  comparator: (a: T, b: T) => boolean,
-): boolean {
+  item: K,
+  comparator: (a: T, b: K) => boolean,
+): number {
   if (list) {
     for (let i = 0; i < list.length; i++) {
       if (comparator(list[i], item)) {
-        return false;
+        return i;
       }
     }
   }
 
-  return true;
+  return -1;
 }
 
 export function runLeftActivateOnNodes(
@@ -71,7 +87,7 @@ export function runLeftActivateOnNodes(
 export function runLeftActivateOnNode(node: IReteNode, t: IToken): void {
   switch (node.type) {
     case "production":
-      return productionNodeLeftActivation(node as IProductionNode, t);
+      return productionNodeLeftActivate(node as IProductionNode, t);
     case "join":
       return joinNodeLeftActivate(node as IJoinNode, t);
   }
@@ -92,6 +108,8 @@ export function runLeftRetractOnNodes(
 // tslint:disable-next-line:variable-name
 export function runLeftRetractOnNode(node: IReteNode, t: IToken) {
   switch (node.type) {
+    case "production":
+      return productionNodeLeftRetract(node as IProductionNode, t);
     case "join":
       return joinNodeLeftRetract(node as IJoinNode, t);
   }
@@ -115,8 +133,6 @@ export function runRightActivateOnNode(node: IReteNode, f: IFact) {
       return rootJoinNodeRightActivate(node as IRootJoinNode, f);
     case "join":
       return joinNodeRightActivate(node as IJoinNode, f);
-    // case "negative":
-    //   return negativeNodeRightActivation(node as INegativeNode, f);
   }
 }
 
@@ -150,18 +166,6 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
 
   switch (parent.type) {
     case "root-join":
-      const items = (parent as IRootJoinNode).facts;
-
-      const savedListOfRootChildren = parent.children;
-      parent.children = [newNode];
-
-      for (const fact of items) {
-        runRightActivateOnNode(parent, fact);
-      }
-
-      parent.children = savedListOfRootChildren;
-
-      break;
     case "join":
       const facts = (parent as IJoinNode).alphaMemory.facts;
 

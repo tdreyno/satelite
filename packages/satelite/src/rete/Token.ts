@@ -30,5 +30,5 @@ export function makeToken(
 }
 
 export function compareTokens(t1: IToken, t2: IToken): boolean {
-  return t1.fact === t2.fact;
+  return t1.node === t2.node && t1.fact === t2.fact;
 }

@@ -2,11 +2,11 @@ import { IFact, IFactFields } from "../Fact";
 import { compareTokens, IToken, makeToken } from "../Token";
 import {
   addToListHead,
+  findInList,
   IList,
-  removeFromList,
+  removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  uniqueInList,
   updateNewNodeWithMatchesFromAbove,
 } from "../util";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
@@ -85,7 +85,7 @@ export function makeJoinNode(
 }
 
 export function joinNodeLeftActivate(node: IJoinNode, t: IToken): void {
-  if (!uniqueInList(node.items, t, compareTokens)) {
+  if (findInList(node.items, t, compareTokens) !== -1) {
     return;
   }
 
@@ -104,11 +104,13 @@ export function joinNodeLeftActivate(node: IJoinNode, t: IToken): void {
 }
 
 export function joinNodeLeftRetract(node: IJoinNode, t: IToken): void {
-  if (uniqueInList(node.items, t, compareTokens)) {
+  const foundIndex = findInList(node.items, t, compareTokens);
+
+  if (foundIndex === -1) {
     return;
   }
 
-  node.items = removeFromList(node.items, t);
+  node.items = removeIndexFromList(node.items, foundIndex);
 
   if (node.alphaMemory.facts) {
     for (let i = 0; i < node.alphaMemory.facts.length; i++) {
