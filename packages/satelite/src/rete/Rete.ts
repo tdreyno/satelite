@@ -2,7 +2,6 @@ import {
   getJoinTestsFromCondition,
   ICondition,
   IParsedCondition,
-  IVariableBindings,
   parseCondition,
 } from "./Condition";
 import { IFact, IFactTuple, makeFact } from "./Fact";
@@ -20,7 +19,7 @@ import { makeProductionNode } from "./nodes/ProductionNode";
 import { makeQueryNode } from "./nodes/QueryNode";
 import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
 import { makeRootJoinNode } from "./nodes/RootJoinNode";
-import { IProduction, makeProduction } from "./Production";
+import { IActivateCallback, IProduction, makeProduction } from "./Production";
 import { IQuery, makeQuery } from "./Query";
 import {
   addToListHead,
@@ -164,12 +163,7 @@ export function buildOrShareNetworkForConditions(
 export function addProduction(
   r: IRete,
   conditions: ICondition[],
-  callback: (
-    f: IFactTuple,
-    variableBindings: IVariableBindings,
-    addProducedFacts: (facts: IFactTuple | IFactTuple[]) => void,
-    addFact: (facts: IFactTuple | IFactTuple[]) => void,
-  ) => void | null | undefined | IFactTuple | IFactTuple[],
+  callback: IActivateCallback,
 ): IProduction {
   const parsedConditions = conditions.map(parseCondition);
   const currentNode = buildOrShareNetworkForConditions(r, parsedConditions, []);

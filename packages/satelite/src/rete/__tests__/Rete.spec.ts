@@ -1,4 +1,5 @@
 import { IFactTuple } from "../Fact";
+import { makeIdentifier } from "../Identifier";
 import {
   addFact,
   addProduction,
@@ -7,27 +8,32 @@ import {
   removeFact,
 } from "../Rete";
 
+const thomas = makeIdentifier("person", 1);
+const violet = makeIdentifier("person", 2);
+const marc = makeIdentifier("person", 3);
+const grace = makeIdentifier("person", 4);
+
 const DATA_SET: IFactTuple[] = [
-  [1, "name", "Thomas"],
-  [1, "gender", "M"],
-  [1, "team", "WW"],
+  [thomas, "name", "Thomas"],
+  [thomas, "gender", "M"],
+  [thomas, "team", "WW"],
 
-  [2, "name", "Violet"],
-  [2, "gender", "F"],
-  [2, "team", "Spirit"],
+  [violet, "name", "Violet"],
+  [violet, "gender", "F"],
+  [violet, "team", "Spirit"],
 
-  [3, "name", "Marc"],
-  [3, "gender", "M"],
-  [3, "team", "Content"],
+  [marc, "name", "Marc"],
+  [marc, "gender", "M"],
+  [marc, "team", "Content"],
 
-  [4, "name", "Grace"],
-  [4, "gender", "F"],
-  [4, "team", "Fun"],
+  [grace, "name", "Grace"],
+  [grace, "gender", "F"],
+  [grace, "team", "Fun"],
 ] as any;
 
 describe("Rete", () => {
   it("should add a production", () => {
-    expect.assertions(6);
+    expect.assertions(4);
 
     const rete = makeRete();
 
@@ -38,9 +44,8 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
-      (f, { e, v }) => {
-        expect(f[2]).toBe("Grace");
-        expect(e).toBe(4);
+      ({ e, v }) => {
+        expect(e).toBe(grace);
         expect(v).toBe("Grace");
       },
     );
@@ -48,9 +53,8 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "M"], ["?e", "team", "WW"], ["?e", "name", "?v"]],
-      (f, { e, v }) => {
-        expect(f[2]).toBe("Thomas");
-        expect(e).toBe(1);
+      ({ e, v }) => {
+        expect(e).toBe(thomas);
         expect(v).toBe("Thomas");
       },
     );
@@ -68,21 +72,25 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      (f, { e }, addProducedFact) => {
-        if ((f[0] as any) === 2) {
-          expect(f[2]).toBe("Violet");
+      ({ e, v }, { addProducedFact }) => {
+        if (e === violet) {
+          expect(v).toBe("Violet");
           addProducedFact([e, "isLady", true]);
         } else {
-          expect(f[2]).toBe("Grace");
+          expect(v).toBe("Grace");
         }
       },
     );
 
     removeFact(rete, DATA_SET[4]);
 
-    addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
-      expect(f[2]).toBe("Grace");
-    });
+    addProduction(
+      rete,
+      [["?e", "gender", "F"], ["?e", "name", "?v"]],
+      ({ v }) => {
+        expect(v).toBe("Grace");
+      },
+    );
   });
 
   it("should be able to have dependent facts", () => {
@@ -94,20 +102,20 @@ describe("Rete", () => {
       addFact(rete, DATA_SET[i]);
     }
 
-    addProduction(rete, [["?e", "isLady", true]], (f, { e }) => {
-      expect(f).toEqual([2, "isLady", true]);
-      expect(e).toBe(2);
+    addProduction(rete, [["?e", "isLady", true]], ({ e }, { fact }) => {
+      expect(fact).toEqual([violet, "isLady", true]);
+      expect(e).toBe(violet);
     });
 
     addProduction(
       rete,
       [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      (f, { e }, addProducedFact) => {
-        if (e === 2) {
-          expect(f[2]).toBe("Violet");
+      ({ e, v }, { addProducedFact }) => {
+        if (e === violet) {
+          expect(v).toBe("Violet");
           addProducedFact([e, "isLady", true]);
         } else {
-          expect(f[2]).toBe("Grace");
+          expect(v).toBe("Grace");
         }
       },
     );
@@ -123,11 +131,10 @@ describe("Rete", () => {
     addProduction(
       rete,
       [["?e", "gender", "F"]],
-      // tslint:disable-next-line:variable-name
-      (_f, { e }, addProducedFact, addFact) => {
+      ({ e }, { addProducedFact, addFact }) => {
         addProducedFact([e, "isLady", true]);
 
-        addFact([1, "superCool", true]);
+        addFact([thomas, "superCool", true]);
       },
     );
 
@@ -140,25 +147,25 @@ describe("Rete", () => {
 
     coolFacts = coolQuery.getFacts();
     expect(coolFacts).toHaveLength(1);
-    expect(coolFacts[0][0]).toBe(1);
+    expect(coolFacts[0][0]).toBe(thomas);
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(2);
-    expect(ladyFacts[0][0]).toBe(4);
-    expect(ladyFacts[1][0]).toBe(2);
+    expect(ladyFacts[0][0]).toBe(grace);
+    expect(ladyFacts[1][0]).toBe(violet);
 
     ladyVariableBindings = ladyQuery.getVariableBindings();
-    expect(ladyVariableBindings[0].e).toBe(4);
-    expect(ladyVariableBindings[1].e).toBe(2);
+    expect(ladyVariableBindings[0].e).toBe(grace);
+    expect(ladyVariableBindings[1].e).toBe(violet);
 
     removeFact(rete, DATA_SET[10] as any);
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(1);
-    expect(ladyFacts[0][0]).toBe(2);
+    expect(ladyFacts[0][0]).toBe(violet);
 
     ladyVariableBindings = ladyQuery.getVariableBindings();
-    expect(ladyVariableBindings[0].e).toBe(2);
+    expect(ladyVariableBindings[0].e).toBe(violet);
 
     removeFact(rete, DATA_SET[4] as any);
 
@@ -167,6 +174,6 @@ describe("Rete", () => {
 
     coolFacts = coolQuery.getFacts();
     expect(coolFacts).toHaveLength(1);
-    expect(coolFacts[0][0]).toBe(1);
+    expect(coolFacts[0][0]).toBe(thomas);
   });
 });

@@ -7,26 +7,32 @@ import { IFactTuple } from "./Fact";
 import { IProductionNode } from "./nodes/ProductionNode";
 import { IToken } from "./Token";
 
+export type IAddFactsSignature = (facts: IFactTuple | IFactTuple[]) => void;
+export type IActivateCallback = (
+  variableBindings: IVariableBindings,
+  extra: {
+    fact: IFactTuple;
+    addProducedFact: IAddFactsSignature;
+    addFact: IAddFactsSignature;
+  },
+) => any;
+
+export type IInternalActivateCallback = (
+  f: IFactTuple,
+  t: IToken,
+  addProducedFact: IAddFactsSignature,
+  addFact: IAddFactsSignature,
+) => any;
+
 export interface IProduction {
   conditions: IParsedCondition[];
   productionNode: IProductionNode;
-
-  onActivation: (
-    f: IFactTuple,
-    t: IToken,
-    addProducedFacts: (facts: IFactTuple | IFactTuple[]) => void,
-    addFact: (facts: IFactTuple | IFactTuple[]) => void,
-  ) => void;
+  onActivation: IInternalActivateCallback;
 }
 
 export function makeProduction(
   conditions: IParsedCondition[],
-  onActivation: (
-    f: IFactTuple,
-    variableBindings: IVariableBindings,
-    addProducedFacts: (facts: IFactTuple | IFactTuple[]) => void,
-    addFact: (facts: IFactTuple | IFactTuple[]) => void,
-  ) => any,
+  onActivation: IActivateCallback,
 ): IProduction {
   const node: IProduction = Object.create(null);
 
@@ -35,10 +41,14 @@ export function makeProduction(
   node.onActivation = (
     f: IFactTuple,
     t: IToken,
-    addProducedFacts: (facts: IFactTuple | IFactTuple[]) => void,
+    addProducedFact: (facts: IFactTuple | IFactTuple[]) => void,
     addFact: (facts: IFactTuple | IFactTuple[]) => void,
   ): void => {
-    onActivation(f, defineVariables(conditions, t), addProducedFacts, addFact);
+    onActivation(defineVariables(conditions, t), {
+      fact: f,
+      addProducedFact,
+      addFact,
+    });
   };
 
   return node;
