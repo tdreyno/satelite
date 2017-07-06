@@ -30,6 +30,8 @@ import {
 
 export type ITerminalNode = IProduction | IQuery;
 
+export { IIdentifier } from "./Identifier";
+
 let variablePrefix = "?";
 
 export function getVariablePrefix(): string {
@@ -40,163 +42,176 @@ export function setVariablePrefix(p: string): void {
   variablePrefix = p;
 }
 
-export interface IRete {
-  root: IRootNode;
-  terminalNodes: IList<ITerminalNode>;
-  facts: Set<IFact>;
-  hashTable: IExhaustiveHashTable;
-}
+export class Rete {
+  static create(): {
+    addFact: (factTuple: IFactTuple) => void;
+    removeFact: (factTuple: IFactTuple) => void;
+    addProduction: (
+      conditions: ICondition[],
+      callback: IActivateCallback,
+    ) => IProduction;
+    addQuery: (conditions: ICondition[]) => IQuery;
+  } {
+    const r = new Rete();
 
-export function makeRete(): IRete {
-  const r: IRete = Object.create(null);
-
-  r.root = makeRootNode();
-  r.terminalNodes = null;
-  r.facts = new Set();
-  r.hashTable = createExhaustiveHashTable();
-
-  return r;
-}
-
-export function addFact(r: IRete, factTuple: IFactTuple): IRete {
-  const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
-
-  if (!r.facts.has(f)) {
-    r.facts.add(f);
-
-    dispatchToAlphaMemories(r, f, alphaMemoryNodeActivate);
+    return {
+      addFact: r.addFact,
+      removeFact: r.removeFact,
+      addProduction: r.addProduction,
+      addQuery: r.addQuery,
+    };
   }
 
-  return r;
-}
+  root: IRootNode = makeRootNode();
+  terminalNodes: IList<ITerminalNode> = null;
+  facts: Set<IFact> = new Set();
+  hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
 
-// tslint:disable-next-line:variable-name
-export function removeFact(r: IRete, fact: IFactTuple): IRete {
-  const f = makeFact(fact[0], fact[1], fact[2]);
-
-  if (r.facts.has(f)) {
-    dispatchToAlphaMemories(r, f, alphaMemoryNodeRetract);
-
-    r.facts.delete(f);
+  constructor() {
+    this.addFact = this.addFact.bind(this);
+    this.removeFact = this.removeFact.bind(this);
+    this.addProduction = this.addProduction.bind(this);
+    this.addQuery = this.addQuery.bind(this);
   }
 
-  runRightRetractOnNode(r.root, f);
+  addFact(factTuple: IFactTuple): void {
+    const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
-  return r;
-}
+    if (!this.facts.has(f)) {
+      this.facts.add(f);
 
-export function dispatchToAlphaMemories(
-  r: IRete,
-  f: IFact,
-  fn: (am: IAlphaMemoryNode, f: IFact) => void,
-) {
-  let am;
-
-  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, f.value);
-  if (am) {
-    fn(am, f);
+      this.dispatchToAlphaMemories(f, alphaMemoryNodeActivate);
+    }
   }
 
-  am = lookupInHashTable(r.hashTable, f.identifier, f.attribute, null);
-  if (am) {
-    fn(am, f);
+  removeFact(fact: IFactTuple): void {
+    const f = makeFact(fact[0], fact[1], fact[2]);
+
+    if (this.facts.has(f)) {
+      this.dispatchToAlphaMemories(f, alphaMemoryNodeRetract);
+
+      this.facts.delete(f);
+    }
+
+    runRightRetractOnNode(this.root, f);
   }
 
-  am = lookupInHashTable(r.hashTable, null, f.attribute, f.value);
-  if (am) {
-    fn(am, f);
+  addProduction(
+    conditions: ICondition[],
+    callback: IActivateCallback,
+  ): IProduction {
+    const parsedConditions = conditions.map(parseCondition);
+    const currentNode = this.buildOrShareNetworkForConditions(
+      parsedConditions,
+      [],
+    );
+
+    const production = makeProduction(parsedConditions, callback);
+    production.productionNode = makeProductionNode(this, production);
+    currentNode.children = addToListHead(
+      currentNode.children,
+      production.productionNode,
+    );
+
+    production.productionNode.parent = currentNode;
+
+    updateNewNodeWithMatchesFromAbove(production.productionNode);
+
+    this.terminalNodes = addToListHead(this.terminalNodes, production);
+
+    return production;
   }
 
-  am = lookupInHashTable(r.hashTable, f.identifier, null, f.value);
-  if (am) {
-    fn(am, f);
+  addQuery(conditions: ICondition[]): IQuery {
+    const parsedConditions = conditions.map(parseCondition);
+    const currentNode = this.buildOrShareNetworkForConditions(
+      parsedConditions,
+      [],
+    );
+
+    const query = makeQuery(parsedConditions);
+    query.queryNode = makeQueryNode(query);
+    currentNode.children = addToListHead(currentNode.children, query.queryNode);
+
+    query.queryNode.parent = currentNode;
+
+    updateNewNodeWithMatchesFromAbove(query.queryNode);
+
+    this.terminalNodes = addToListHead(this.terminalNodes, query);
+
+    return query;
   }
 
-  am = lookupInHashTable(r.hashTable, null, null, f.value);
-  if (am) {
-    fn(am, f);
+  private dispatchToAlphaMemories(
+    f: IFact,
+    fn: (am: IAlphaMemoryNode, f: IFact) => void,
+  ): void {
+    let am;
+
+    am = lookupInHashTable(this.hashTable, f.identifier, f.attribute, f.value);
+    if (am) {
+      fn(am, f);
+    }
+
+    am = lookupInHashTable(this.hashTable, f.identifier, f.attribute, null);
+    if (am) {
+      fn(am, f);
+    }
+
+    am = lookupInHashTable(this.hashTable, null, f.attribute, f.value);
+    if (am) {
+      fn(am, f);
+    }
+
+    am = lookupInHashTable(this.hashTable, f.identifier, null, f.value);
+    if (am) {
+      fn(am, f);
+    }
+
+    am = lookupInHashTable(this.hashTable, null, null, f.value);
+    if (am) {
+      fn(am, f);
+    }
+
+    am = lookupInHashTable(this.hashTable, null, f.attribute, null);
+    if (am) {
+      fn(am, f);
+    }
+
+    am = lookupInHashTable(this.hashTable, f.identifier, null, null);
+    if (am) {
+      fn(am, f);
+    }
+
+    am = lookupInHashTable(this.hashTable, null, null, null);
+    if (am) {
+      fn(am, f);
+    }
   }
 
-  am = lookupInHashTable(r.hashTable, null, f.attribute, null);
-  if (am) {
-    fn(am, f);
+  private buildOrShareNetworkForConditions(
+    conditions: IParsedCondition[],
+    earlierConditions: IParsedCondition[],
+  ): IReteNode {
+    let currentNode: IReteNode = this.root;
+    const conditionsHigherUp = earlierConditions;
+
+    for (let i = 0; i < conditions.length; i++) {
+      const c = conditions[i];
+      const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
+
+      currentNode =
+        currentNode === this.root
+          ? makeRootJoinNode(currentNode, alphaMemory)
+          : buildOrShareJoinNode(
+              currentNode,
+              alphaMemory,
+              getJoinTestsFromCondition(c, conditionsHigherUp),
+            );
+
+      conditionsHigherUp.push(c);
+    }
+
+    return currentNode;
   }
-
-  am = lookupInHashTable(r.hashTable, f.identifier, null, null);
-  if (am) {
-    fn(am, f);
-  }
-
-  am = lookupInHashTable(r.hashTable, null, null, null);
-  if (am) {
-    fn(am, f);
-  }
-}
-
-export function buildOrShareNetworkForConditions(
-  r: IRete,
-  conditions: IParsedCondition[],
-  earlierConditions: IParsedCondition[],
-): IReteNode {
-  let currentNode: IReteNode = r.root;
-  const conditionsHigherUp = earlierConditions;
-
-  for (let i = 0; i < conditions.length; i++) {
-    const c = conditions[i];
-    const alphaMemory = buildOrShareAlphaMemoryNode(r, c);
-
-    currentNode =
-      currentNode === r.root
-        ? makeRootJoinNode(currentNode, alphaMemory)
-        : buildOrShareJoinNode(
-            currentNode,
-            alphaMemory,
-            getJoinTestsFromCondition(c, conditionsHigherUp),
-          );
-
-    conditionsHigherUp.push(c);
-  }
-
-  return currentNode;
-}
-
-export function addProduction(
-  r: IRete,
-  conditions: ICondition[],
-  callback: IActivateCallback,
-): IProduction {
-  const parsedConditions = conditions.map(parseCondition);
-  const currentNode = buildOrShareNetworkForConditions(r, parsedConditions, []);
-
-  const production = makeProduction(parsedConditions, callback);
-  production.productionNode = makeProductionNode(r, production);
-  currentNode.children = addToListHead(
-    currentNode.children,
-    production.productionNode,
-  );
-
-  production.productionNode.parent = currentNode;
-
-  updateNewNodeWithMatchesFromAbove(production.productionNode);
-
-  r.terminalNodes = addToListHead(r.terminalNodes, production);
-
-  return production;
-}
-
-export function addQuery(r: IRete, conditions: ICondition[]): IQuery {
-  const parsedConditions = conditions.map(parseCondition);
-  const currentNode = buildOrShareNetworkForConditions(r, parsedConditions, []);
-
-  const query = makeQuery(parsedConditions);
-  query.queryNode = makeQueryNode(query);
-  currentNode.children = addToListHead(currentNode.children, query.queryNode);
-
-  query.queryNode.parent = currentNode;
-
-  updateNewNodeWithMatchesFromAbove(query.queryNode);
-
-  r.terminalNodes = addToListHead(r.terminalNodes, query);
-
-  return query;
 }

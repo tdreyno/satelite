@@ -1,12 +1,6 @@
 import { IFactTuple } from "../Fact";
 import { makeIdentifier } from "../Identifier";
-import {
-  addFact,
-  addProduction,
-  addQuery,
-  makeRete,
-  removeFact,
-} from "../Rete";
+import { Rete } from "../Rete";
 
 const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
@@ -35,14 +29,13 @@ describe("Rete", () => {
   it("should add a production", () => {
     expect.assertions(4);
 
-    const rete = makeRete();
+    const { addFact, addProduction } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(rete, DATA_SET[i]);
+      addFact(DATA_SET[i]);
     }
 
     addProduction(
-      rete,
       [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
       ({ e, v }) => {
         expect(e).toBe(grace);
@@ -51,7 +44,6 @@ describe("Rete", () => {
     );
 
     addProduction(
-      rete,
       [["?e", "gender", "M"], ["?e", "team", "WW"], ["?e", "name", "?v"]],
       ({ e, v }) => {
         expect(e).toBe(thomas);
@@ -63,14 +55,13 @@ describe("Rete", () => {
   it("should be able to remove fact", () => {
     expect.assertions(3);
 
-    const rete = makeRete();
+    const { addFact, removeFact, addProduction } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(rete, DATA_SET[i]);
+      addFact(DATA_SET[i]);
     }
 
     addProduction(
-      rete,
       [["?e", "gender", "F"], ["?e", "name", "?v"]],
       ({ e, v }, { addProducedFact }) => {
         if (e === violet) {
@@ -82,33 +73,28 @@ describe("Rete", () => {
       },
     );
 
-    removeFact(rete, DATA_SET[4]);
+    removeFact(DATA_SET[4]);
 
-    addProduction(
-      rete,
-      [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      ({ v }) => {
-        expect(v).toBe("Grace");
-      },
-    );
+    addProduction([["?e", "gender", "F"], ["?e", "name", "?v"]], ({ v }) => {
+      expect(v).toBe("Grace");
+    });
   });
 
   it("should be able to have dependent facts", () => {
     expect.assertions(4);
 
-    const rete = makeRete();
+    const { addFact, addProduction } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(rete, DATA_SET[i]);
+      addFact(DATA_SET[i]);
     }
 
-    addProduction(rete, [["?e", "isLady", true]], ({ e }, { fact }) => {
+    addProduction([["?e", "isLady", true]], ({ e }, { fact }) => {
       expect(fact).toEqual([violet, "isLady", true]);
       expect(e).toBe(violet);
     });
 
     addProduction(
-      rete,
       [["?e", "gender", "F"], ["?e", "name", "?v"]],
       ({ e, v }, { addProducedFact }) => {
         if (e === violet) {
@@ -122,24 +108,20 @@ describe("Rete", () => {
   });
 
   it("should allow queries", () => {
-    const rete = makeRete();
+    const { addFact, removeFact, addProduction, addQuery } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(rete, DATA_SET[i]);
+      addFact(DATA_SET[i]);
     }
 
-    addProduction(
-      rete,
-      [["?e", "gender", "F"]],
-      ({ e }, { addProducedFact, addFact }) => {
-        addProducedFact([e, "isLady", true]);
+    addProduction([["?e", "gender", "F"]], ({ e }, { addProducedFact }) => {
+      addProducedFact([e, "isLady", true]);
 
-        addFact([thomas, "superCool", true]);
-      },
-    );
+      addFact([thomas, "superCool", true]);
+    });
 
-    const coolQuery = addQuery(rete, [["?e", "superCool", true]]);
-    const ladyQuery = addQuery(rete, [["?e", "isLady", true]]);
+    const coolQuery = addQuery([["?e", "superCool", true]]);
+    const ladyQuery = addQuery([["?e", "isLady", true]]);
 
     let coolFacts;
     let ladyFacts;
@@ -158,7 +140,7 @@ describe("Rete", () => {
     expect(ladyVariableBindings[0].e).toBe(grace);
     expect(ladyVariableBindings[1].e).toBe(violet);
 
-    removeFact(rete, DATA_SET[10] as any);
+    removeFact(DATA_SET[10] as any);
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(1);
@@ -167,7 +149,7 @@ describe("Rete", () => {
     ladyVariableBindings = ladyQuery.getVariableBindings();
     expect(ladyVariableBindings[0].e).toBe(violet);
 
-    removeFact(rete, DATA_SET[4] as any);
+    removeFact(DATA_SET[4] as any);
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(0);

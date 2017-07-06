@@ -3,7 +3,7 @@ declare var console: any;
 
 import * as faker from "faker";
 import { IFactTuple } from "../Fact";
-import { addFact, addProduction, makeRete } from "../Rete";
+import { Rete } from "../Rete";
 
 const TEAMS = ["Spirit", "WW", "Fun", "Content", "Ops"];
 const GENDERS = ["M", "F"];
@@ -17,7 +17,7 @@ function makeFakePerson(): IFactTuple[] {
   ] as any;
 }
 
-const rete = makeRete();
+const { addFact, addProduction } = Rete.create();
 
 console.time("Generating Data");
 const fakePeople: IFactTuple[][] = [];
@@ -29,14 +29,13 @@ console.timeEnd("Generating Data");
 console.time("Adding Facts");
 for (let i = 0; i < fakePeople.length; i++) {
   for (let j = 0; j < fakePeople[i].length; j++) {
-    addFact(rete, fakePeople[i][j]);
+    addFact(fakePeople[i][j]);
   }
 }
 console.timeEnd("Adding Facts");
 
 console.time("Adding production");
 addProduction(
-  rete,
   [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
   () => {
     // expect(f[2]).toBe("Grace");

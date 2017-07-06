@@ -2,7 +2,7 @@ import { memoize } from "interstelar/dist-es5";
 import { IParsedCondition, isConstant } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
-import { IRete } from "../Rete";
+import { Rete } from "../Rete";
 import {
   addToListHead,
   IList,
@@ -99,7 +99,7 @@ export function alphaMemoryNodeRetract(node: IAlphaMemoryNode, f: IFact): void {
 }
 
 export function buildOrShareAlphaMemoryNode(
-  rete: IRete,
+  rete: Rete,
   c: IParsedCondition,
 ): IAlphaMemoryNode {
   const identifierTest = isConstant(c.identifier) ? c.identifier : null;

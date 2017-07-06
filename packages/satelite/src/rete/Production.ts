@@ -13,7 +13,6 @@ export type IActivateCallback = (
   extra: {
     fact: IFactTuple;
     addProducedFact: IAddFactsSignature;
-    addFact: IAddFactsSignature;
   },
 ) => any;
 
@@ -42,12 +41,10 @@ export function makeProduction(
     f: IFactTuple,
     t: IToken,
     addProducedFact: (facts: IFactTuple | IFactTuple[]) => void,
-    addFact: (facts: IFactTuple | IFactTuple[]) => void,
   ): void => {
     onActivation(defineVariables(conditions, t), {
       fact: f,
       addProducedFact,
-      addFact,
     });
   };
 

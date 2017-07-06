@@ -1,6 +1,6 @@
 import { IFactTuple, makeFactTuple } from "../Fact";
 import { IProduction } from "../Production";
-import { addFact, IRete, removeFact } from "../Rete";
+import { Rete } from "../Rete";
 import { compareTokens, IToken } from "../Token";
 import { addToListHead, findInList, IList, removeIndexFromList } from "../util";
 import { IReteNode } from "./ReteNode";
@@ -12,14 +12,14 @@ export interface IResultingFacts {
 
 export interface IProductionNode extends IReteNode {
   type: "production";
-  rete: IRete;
+  rete: Rete;
   items: IList<IToken>;
   production: IProduction;
   resultingFacts: IList<IResultingFacts>;
 }
 
 export function makeProductionNode(
-  r: IRete,
+  r: Rete,
   production: IProduction,
 ): IProductionNode {
   const node: IProductionNode = Object.create(null);
@@ -50,7 +50,7 @@ export function productionNodeLeftActivate(
         : factOrFacts as any;
 
     for (let i = 0; i < facts.length; i++) {
-      addFact(node.rete, facts[i]);
+      node.rete.addFact(facts[i]);
     }
 
     node.resultingFacts = addToListHead(node.resultingFacts, {
@@ -66,7 +66,7 @@ export function productionNodeLeftActivate(
         : factOrFacts as any;
 
     for (let i = 0; i < facts.length; i++) {
-      addFact(node.rete, facts[i]);
+      node.rete.addFact(facts[i]);
     }
   }
 
@@ -108,7 +108,7 @@ export function productionNodeLeftRetract(
       );
 
       for (let i = 0; i < facts.length; i++) {
-        removeFact(node.rete, facts[i]);
+        node.rete.removeFact(facts[i]);
       }
     }
   }
