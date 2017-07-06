@@ -11,6 +11,11 @@ import {
   productionNodeLeftActivate,
   productionNodeLeftRetract,
 } from "./nodes/ProductionNode";
+import {
+  IQueryNode,
+  queryNodeLeftActivate,
+  queryNodeLeftRetract,
+} from "./nodes/QueryNode";
 import { IReteNode } from "./nodes/ReteNode";
 import {
   IRootJoinNode,
@@ -86,6 +91,8 @@ export function runLeftActivateOnNodes(
 
 export function runLeftActivateOnNode(node: IReteNode, t: IToken): void {
   switch (node.type) {
+    case "query":
+      return queryNodeLeftActivate(node as IQueryNode, t);
     case "production":
       return productionNodeLeftActivate(node as IProductionNode, t);
     case "join":
@@ -108,6 +115,8 @@ export function runLeftRetractOnNodes(
 // tslint:disable-next-line:variable-name
 export function runLeftRetractOnNode(node: IReteNode, t: IToken) {
   switch (node.type) {
+    case "query":
+      return queryNodeLeftRetract(node as IQueryNode, t);
     case "production":
       return productionNodeLeftRetract(node as IProductionNode, t);
     case "join":

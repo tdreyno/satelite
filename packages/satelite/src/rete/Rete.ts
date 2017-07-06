@@ -11,9 +11,11 @@ import {
 } from "./nodes/AlphaMemoryNode";
 import { buildOrShareJoinNode } from "./nodes/JoinNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
+import { makeQueryNode } from "./nodes/QueryNode";
 import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
 import { makeRootJoinNode } from "./nodes/RootJoinNode";
 import { IProduction, makeProduction } from "./Production";
+import { IQuery, makeQuery } from "./Query";
 import { IToken } from "./Token";
 import {
   addToListHead,
@@ -22,9 +24,11 @@ import {
   updateNewNodeWithMatchesFromAbove,
 } from "./util";
 
+export type ITerminalNode = IProduction | IQuery;
+
 export interface IRete {
   root: IRootNode;
-  productions: IList<IProduction>;
+  terminalNodes: IList<ITerminalNode>;
   facts: Set<IFact>;
   hashTable: IExhaustiveHashTable;
 }
@@ -33,7 +37,7 @@ export function makeRete(): IRete {
   const r: IRete = Object.create(null);
 
   r.root = makeRootNode();
-  r.productions = null;
+  r.terminalNodes = null;
   r.facts = new Set();
   r.hashTable = createExhaustiveHashTable();
 
@@ -149,7 +153,7 @@ export function addProduction(
     f: IFactTuple,
     t: IToken,
   ) => void | null | undefined | IFactTuple | IFactTuple[],
-): IRete {
+): IProduction {
   const currentNode = buildOrShareNetworkForConditions(r, conditions, []);
 
   const production = makeProduction(callback);
@@ -163,7 +167,23 @@ export function addProduction(
 
   updateNewNodeWithMatchesFromAbove(production.productionNode);
 
-  r.productions = addToListHead(r.productions, production);
+  r.terminalNodes = addToListHead(r.terminalNodes, production);
 
-  return r;
+  return production;
+}
+
+export function addQuery(r: IRete, conditions: ICondition[]): IQuery {
+  const currentNode = buildOrShareNetworkForConditions(r, conditions, []);
+
+  const query = makeQuery();
+  query.queryNode = makeQueryNode(query);
+  currentNode.children = addToListHead(currentNode.children, query.queryNode);
+
+  query.queryNode.parent = currentNode;
+
+  updateNewNodeWithMatchesFromAbove(query.queryNode);
+
+  r.terminalNodes = addToListHead(r.terminalNodes, query);
+
+  return query;
 }

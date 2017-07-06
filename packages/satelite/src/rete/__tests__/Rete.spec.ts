@@ -1,5 +1,11 @@
 import { IFactTuple } from "../Fact";
-import { addFact, addProduction, makeRete, removeFact } from "../Rete";
+import {
+  addFact,
+  addProduction,
+  addQuery,
+  makeRete,
+  removeFact,
+} from "../Rete";
 
 const DATA_SET: IFactTuple[] = [
   [1, "name", "Thomas"],
@@ -94,9 +100,7 @@ describe("Rete", () => {
     });
   });
 
-  it("should clean up dependent facts on removal", () => {
-    expect.assertions(2);
-
+  it("should allow queries", () => {
     const rete = makeRete();
 
     for (let i = 0; i < DATA_SET.length; i++) {
@@ -107,28 +111,24 @@ describe("Rete", () => {
       return [f[0], "isLady", true];
     });
 
-    addProduction(rete, [["?e", "isLady", true]], f => {
-      expect(f).toEqual([f[0], "isLady", true]);
-    });
+    const ladyQuery = addQuery(rete, [["?e", "isLady", true]]);
+
+    let ladies;
+
+    ladies = ladyQuery.getFacts();
+    expect(ladies).toHaveLength(2);
+    expect(ladies[0][0]).toBe(4);
+    expect(ladies[1][0]).toBe(2);
 
     removeFact(rete, DATA_SET[4] as any);
 
-    // test query
+    ladies = ladyQuery.getFacts();
+    expect(ladies).toHaveLength(1);
+    expect(ladies[0][0]).toBe(4);
+
+    removeFact(rete, DATA_SET[10] as any);
+
+    ladies = ladyQuery.getFacts();
+    expect(ladies).toHaveLength(0);
   });
-
-  // it("should allow queries", () => {
-  //   expect.assertions(1);
-
-  //   const rete = makeRete();
-
-  //   for (let i = 0; i < DATA_SET.length; i++) {
-  //     addFact(rete, DATA_SET[i] as IFactTuple);
-  //   }
-
-  //   removeFact(rete, DATA_SET[4] as any);
-
-  //   addProduction(rete, [["?e", "gender", "F"], ["?e", "name", "?v"]], f => {
-  //     expect(f[2]).toBe("Grace");
-  //   });
-  // });
 });
