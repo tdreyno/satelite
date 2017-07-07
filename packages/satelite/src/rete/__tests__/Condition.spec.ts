@@ -70,20 +70,26 @@ describe("Condition", () => {
   describe("findVariableInEarlierConditions", () => {
     it("should find previous condition", () => {
       const conditions = [["?e", "age", 34]].map(parseCondition);
-      expect(findVariableInEarlierConditions("?e", conditions)).toBe(0);
+      expect(findVariableInEarlierConditions("?e", conditions)).toBe(
+        conditions[0],
+      );
     });
 
     it("should find multiple previous conditions", () => {
       const conditions = [["?e", "age", 34], ["?e", "name", "?v"]].map(
         parseCondition,
       );
-      expect(findVariableInEarlierConditions("?e", conditions)).toBe(0);
-      expect(findVariableInEarlierConditions("?v", conditions)).toBe(1);
+      expect(findVariableInEarlierConditions("?e", conditions)).toBe(
+        conditions[0],
+      );
+      expect(findVariableInEarlierConditions("?v", conditions)).toBe(
+        conditions[1],
+      );
     });
 
     it("should not find previous condition", () => {
       const conditions = [[1, "age", 34]].map(parseCondition);
-      expect(findVariableInEarlierConditions("?e", conditions)).toBe(-1);
+      expect(findVariableInEarlierConditions("?e", conditions)).toBeUndefined();
     });
   });
 
@@ -101,7 +107,7 @@ describe("Condition", () => {
       expect(tests).toHaveLength(1);
       if (tests) {
         expect(tests[0].fieldArg1).toBe("value");
-        expect(tests[0].conditionNumberOfArg2).toBe(1);
+        expect(tests[0].condition).toBe(conditions[1]);
         expect(tests[0].fieldArg2).toBe("identifier");
       }
     });
@@ -120,10 +126,10 @@ describe("Condition", () => {
 
       if (tests) {
         expect(tests[0].fieldArg1).toBe("value");
-        expect(tests[0].conditionNumberOfArg2).toBe(1);
+        expect(tests[0].condition).toBe(conditions[1]);
         expect(tests[0].fieldArg2).toBe("value");
         expect(tests[1].fieldArg1).toBe("identifier");
-        expect(tests[1].conditionNumberOfArg2).toBe(0);
+        expect(tests[1].condition).toBe(conditions[0]);
         expect(tests[1].fieldArg2).toBe("identifier");
       }
     });

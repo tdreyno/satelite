@@ -3,7 +3,7 @@ import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
 import { getVariablePrefix } from "./Rete";
-import { IToken } from "./Token";
+import { IVariableBindings } from "./Token";
 import { addToListHead, IList } from "./util";
 
 export type IConstantTest = string;
@@ -93,20 +93,19 @@ export function getJoinTestsFromCondition(
   // `variableNames` has no prototype, so we don't need this test.
   // tslint:disable-next-line:forin
   for (const variableName in variableNames) {
-    const earlierConditionIndex = findVariableInEarlierConditions(
+    const earlierCondition = findVariableInEarlierConditions(
       variableName,
       earlierConditions,
     );
 
-    if (earlierConditionIndex !== -1) {
+    if (earlierCondition) {
       const fieldArg1 = variableNames[variableName];
 
-      const earlierCondition = earlierConditions[earlierConditionIndex];
       const fieldArg2 = earlierCondition.variableNames[variableName];
 
       results = addToListHead(
         results,
-        makeTestAtJoinNode(fieldArg1, earlierConditionIndex, fieldArg2),
+        makeTestAtJoinNode(fieldArg1, earlierCondition, fieldArg2),
       );
     }
   }
@@ -117,55 +116,35 @@ export function getJoinTestsFromCondition(
 export function findVariableInEarlierConditions(
   variableName: string,
   earlierConditions: IParsedCondition[],
-): number {
+): IParsedCondition | undefined {
   for (let i = 0; i < earlierConditions.length; i++) {
-    const { variableNames } = earlierConditions[i];
-    if (!!variableNames[variableName]) {
-      return i;
+    const c = earlierConditions[i];
+    if (!!c.variableNames[variableName]) {
+      return c;
     }
   }
-
-  return -1;
 }
 
-export interface IVariableBindings {
-  [variableName: string]: any;
-}
-
-export function defineVariables(
-  conditions: IParsedCondition[],
-  t: IToken,
+export function extractBindingsFromCondition(
+  c: IParsedCondition,
+  f: IFact,
+  b: IVariableBindings,
 ): IVariableBindings {
-  const foundVariables: IVariableBindings = {};
+  const bindings = Object.assign({}, b);
 
-  let token: IToken | null = t;
+  // tslint:disable-next-line:forin
+  for (const variableName in c.variableNames) {
+    const cleanedVariableName =
+      variableName.charAt(0) === getVariablePrefix()
+        ? variableName.slice(1, variableName.length)
+        : variableName;
 
-  for (let i = conditions.length - 1; i >= 0; i--) {
-    const condition = conditions[i];
+    if (typeof bindings[cleanedVariableName] === "undefined") {
+      const variableField = c.variableNames[variableName];
 
-    if (!token) {
-      break;
+      bindings[cleanedVariableName] = f[variableField];
     }
-
-    // tslint:disable-next-line:forin
-    for (const variableName in condition.variableNames) {
-      const cleanedVariableName =
-        variableName.charAt(0) === getVariablePrefix()
-          ? variableName.slice(1, variableName.length)
-          : variableName;
-
-      if (typeof foundVariables[cleanedVariableName] !== "undefined") {
-        break;
-      }
-
-      const factKey = condition.variableNames[variableName];
-      const variableData = token.fact[factKey];
-
-      foundVariables[cleanedVariableName] = variableData;
-    }
-
-    token = token ? token.parent : null;
   }
 
-  return foundVariables;
+  return bindings;
 }

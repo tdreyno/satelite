@@ -1,5 +1,7 @@
+import { IParsedCondition, extractBindingsFromCondition } from "../Condition";
 import { IFact, IFactFields } from "../Fact";
-import { compareTokens, IToken, makeToken } from "../Token";
+import { getVariablePrefix } from "../Rete";
+import { compareTokens, IToken, IVariableBindings, makeToken } from "../Token";
 import {
   addToListHead,
   findInList,
@@ -14,19 +16,19 @@ import { IReteNode } from "./ReteNode";
 
 export interface ITestAtJoinNode {
   fieldArg1: IFactFields;
-  conditionNumberOfArg2: number;
+  condition: IParsedCondition;
   fieldArg2: IFactFields;
 }
 
 export function makeTestAtJoinNode(
   fieldArg1: IFactFields,
-  conditionNumberOfArg2: number,
+  condition: IParsedCondition,
   fieldArg2: IFactFields,
 ): ITestAtJoinNode {
   const tajn: ITestAtJoinNode = Object.create(null);
 
   tajn.fieldArg1 = fieldArg1;
-  tajn.conditionNumberOfArg2 = conditionNumberOfArg2;
+  tajn.condition = condition;
   tajn.fieldArg2 = fieldArg2;
 
   return tajn;
@@ -36,10 +38,12 @@ export function performJoinTests(
   tests: IList<ITestAtJoinNode>,
   t: IToken,
   f: IFact,
-): boolean {
+): false | IVariableBindings {
   if (!tests) {
-    return true;
+    return t.bindings;
   }
+
+  let bindings = Object.assign({}, t.bindings);
 
   for (let i = 0; i < tests.length; i++) {
     const test = tests[i];
@@ -50,9 +54,11 @@ export function performJoinTests(
     if (arg1 !== arg2) {
       return false;
     }
+
+    bindings = extractBindingsFromCondition(test.condition, f, bindings);
   }
 
-  return true;
+  return bindings;
 }
 
 export interface IJoinNode extends IReteNode {
@@ -89,9 +95,10 @@ function executeLeft(
   if (node.alphaMemory.facts) {
     for (let i = 0; i < node.alphaMemory.facts.length; i++) {
       const fact = node.alphaMemory.facts[i];
+      const bindings = performJoinTests(node.tests, t, fact);
 
-      if (performJoinTests(node.tests, t, fact)) {
-        const newToken = makeToken(node, t, fact);
+      if (bindings) {
+        const newToken = makeToken(node, t, fact, bindings);
         action(node.children, newToken);
       }
     }
@@ -128,9 +135,10 @@ function executeRight(
   if (node.items) {
     for (let i = 0; i < node.items.length; i++) {
       const token = node.items[i];
+      const bindings = performJoinTests(node.tests, token, f);
 
-      if (performJoinTests(node.tests, token, f)) {
-        const newToken = makeToken(node, token, f);
+      if (bindings) {
+        const newToken = makeToken(node, token, f, bindings);
 
         action(node.children, newToken);
       }

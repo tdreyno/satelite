@@ -1,11 +1,7 @@
-import {
-  defineVariables,
-  IParsedCondition,
-  IVariableBindings,
-} from "./Condition";
+import { extractBindingsFromCondition, IParsedCondition } from "./Condition";
 import { IFact, IFactTuple, makeFactTuple } from "./Fact";
 import { IQueryNode } from "./nodes/QueryNode";
-import { IToken } from "./Token";
+import { IToken, IVariableBindings } from "./Token";
 
 export type IQueryChangeFn = (
   facts: IFactTuple[],
@@ -30,6 +26,9 @@ export function makeQuery(conditions: IParsedCondition[]): IQuery {
   node.conditions = conditions;
   node.callbacks = new Set();
   node.queryNode = null;
+
+  const lastCondition = node.conditions[node.conditions.length - 1];
+
   node.getFacts = (): IFactTuple[] => {
     return node.queryNode && node.queryNode.facts
       ? (node.queryNode.facts as IFact[]).map(f => makeFactTuple(f))
@@ -37,9 +36,17 @@ export function makeQuery(conditions: IParsedCondition[]): IQuery {
   };
   node.getVariableBindings = (): IVariableBindings[] => {
     return node.queryNode && node.queryNode.items
-      ? (node.queryNode.items as IToken[]).map(t =>
-          defineVariables(conditions, t),
-        )
+      ? (node.queryNode.items as IToken[]).map(t => {
+          let bindings = t.bindings;
+          if (lastCondition) {
+            bindings = extractBindingsFromCondition(
+              lastCondition,
+              t.fact,
+              bindings,
+            );
+          }
+          return bindings;
+        })
       : [];
   };
 

@@ -1,3 +1,4 @@
+import { extractBindingsFromCondition, IParsedCondition } from "../Condition";
 import { IFactTuple, makeFactTuple } from "../Fact";
 import { IProduction } from "../Production";
 import { Rete } from "../Rete";
@@ -15,12 +16,14 @@ export interface IProductionNode extends IReteNode {
   rete: Rete;
   items: IList<IToken>;
   production: IProduction;
+  conditions: IParsedCondition[];
   resultingFacts: IList<IResultingFacts>;
 }
 
 export function makeProductionNode(
   r: Rete,
   production: IProduction,
+  conditions: IParsedCondition[],
 ): IProductionNode {
   const node: IProductionNode = Object.create(null);
 
@@ -28,6 +31,7 @@ export function makeProductionNode(
   node.rete = r;
   node.items = null;
   node.production = production;
+  node.conditions = conditions;
   node.resultingFacts = null;
 
   return node;
@@ -59,22 +63,17 @@ export function productionNodeLeftActivate(
     });
   }
 
-  function addFacts(factOrFacts: IFactTuple | IFactTuple[]) {
-    const facts: IFactTuple[] =
-      factOrFacts[1] && typeof factOrFacts[1] === "string"
-        ? [factOrFacts]
-        : factOrFacts as any;
+  const lastCondition = node.conditions[node.conditions.length - 1];
 
-    for (let i = 0; i < facts.length; i++) {
-      node.rete.addFact(facts[i]);
-    }
+  let bindings = t.bindings;
+  if (lastCondition) {
+    bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
   }
 
   node.production.onActivation(
     makeFactTuple(t.fact),
-    t,
+    bindings,
     addProducedFacts,
-    addFacts,
   );
 }
 

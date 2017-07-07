@@ -112,8 +112,12 @@ export class Rete {
       [],
     );
 
-    const production = makeProduction(parsedConditions, callback);
-    production.productionNode = makeProductionNode(this, production);
+    const production = makeProduction(callback);
+    production.productionNode = makeProductionNode(
+      this,
+      production,
+      parsedConditions,
+    );
     currentNode.children = addToListHead(
       currentNode.children,
       production.productionNode,
@@ -207,6 +211,7 @@ export class Rete {
       const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
 
       const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
+
       currentNode =
         currentNode === this.root
           ? makeRootJoinNode(currentNode, alphaMemory)

@@ -1,11 +1,19 @@
 import { IFact } from "./Fact";
+// import { IPrimitive } from "./Identifier";
 import { IJoinNode } from "./nodes/JoinNode";
 import { IRootJoinNode } from "./nodes/RootJoinNode";
 import { addToListHead, IList } from "./util";
 
+export type ITokenValue = IFact; // | IPrimitive | object | any[];
+
+export interface IVariableBindings {
+  [variableName: string]: any;
+}
+
 export interface IToken {
   parent: IToken | null;
-  fact: IFact;
+  fact: ITokenValue;
+  bindings: IVariableBindings;
   node: IJoinNode | IRootJoinNode;
   children: IList<IToken>;
 }
@@ -13,13 +21,15 @@ export interface IToken {
 export function makeToken(
   node: IRootJoinNode | IJoinNode,
   parent: IToken | null,
-  f: IFact,
+  fact: ITokenValue,
+  bindings: IVariableBindings = {},
 ): IToken {
   const t: IToken = Object.create(null);
 
   t.node = node;
   t.parent = parent;
-  t.fact = f;
+  t.fact = fact;
+  t.bindings = bindings;
   t.children = null;
 
   if (parent) {
