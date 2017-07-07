@@ -1,4 +1,5 @@
 import { IFact } from "./Fact";
+import { IAccumulatorNode } from "./nodes/AccumulatorNode";
 // import { IPrimitive } from "./Identifier";
 import { IJoinNode } from "./nodes/JoinNode";
 import { IRootJoinNode } from "./nodes/RootJoinNode";
@@ -14,12 +15,12 @@ export interface IToken {
   parent: IToken | null;
   fact: ITokenValue;
   bindings: IVariableBindings;
-  node: IJoinNode | IRootJoinNode;
+  node: IJoinNode | IRootJoinNode | IAccumulatorNode;
   children: IList<IToken>;
 }
 
 export function makeToken(
-  node: IRootJoinNode | IJoinNode,
+  node: IRootJoinNode | IJoinNode | IAccumulatorNode,
   parent: IToken | null,
   fact: ITokenValue,
   bindings: IVariableBindings = {},

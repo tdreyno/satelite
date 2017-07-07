@@ -1,6 +1,6 @@
 import { IFactTuple } from "../Fact";
 import { makeIdentifier } from "../Identifier";
-import { not, Rete } from "../Rete";
+import { acc, not, Rete } from "../Rete";
 
 const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
@@ -175,5 +175,22 @@ describe("Rete", () => {
     coolFacts = coolQuery.getFacts();
     expect(coolFacts).toHaveLength(1);
     expect(coolFacts[0][0]).toBe(thomas);
+  });
+
+  it("should be able to accumulate facts", () => {
+    expect.assertions(1);
+
+    const { addFact, addProduction } = Rete.create();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      addFact(DATA_SET[i]);
+    }
+
+    addProduction(
+      [["?e", "gender", "F"], acc("?count", acc => acc, 5)],
+      ({ count }) => {
+        expect(count).toBe(5);
+      },
+    );
   });
 });

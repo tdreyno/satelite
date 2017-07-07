@@ -2,7 +2,7 @@ import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
-import { getVariablePrefix } from "./Rete";
+import { AccumulatorCondition, getVariablePrefix } from "./Rete";
 import { IVariableBindings } from "./Token";
 import { addToListHead, IList } from "./util";
 
@@ -78,15 +78,23 @@ function baseParseCondition(
 // Converts condition `toJSON` for caching. Might not be worth the memory.
 const memoizedParseCondition = memoize(baseParseCondition);
 
-export function parseCondition(c: ICondition): IParsedCondition {
+export function parseCondition(c: AccumulatorCondition): AccumulatorCondition;
+export function parseCondition(c: ICondition): IParsedCondition;
+export function parseCondition(
+  c: ICondition | AccumulatorCondition,
+): IParsedCondition | AccumulatorCondition {
+  if (c instanceof AccumulatorCondition) {
+    return c;
+  }
   return memoizedParseCondition(c[0], c[1], c[2], c.isNegated || false);
 }
 
 export function getJoinTestsFromCondition(
-  c: IParsedCondition,
-  earlierConditions: IParsedCondition[],
+  c: IParsedCondition | AccumulatorCondition,
+  earlierConditions: Array<IParsedCondition | AccumulatorCondition>,
 ): IList<ITestAtJoinNode> {
-  const { variableNames } = c;
+  const variableNames =
+    c instanceof AccumulatorCondition ? {} : c.variableNames;
 
   let results: IList<ITestAtJoinNode> = null;
 
@@ -115,15 +123,28 @@ export function getJoinTestsFromCondition(
 
 export function findVariableInEarlierConditions(
   variableName: string,
-  earlierConditions: IParsedCondition[],
-): IParsedCondition | undefined {
+  earlierConditions: Array<IParsedCondition | AccumulatorCondition>,
+): IParsedCondition | AccumulatorCondition | undefined {
   for (let i = 0; i < earlierConditions.length; i++) {
     const c = earlierConditions[i];
-    if (!!c.variableNames[variableName]) {
+
+    if (c instanceof AccumulatorCondition) {
+      if (c.bindingName === variableName) {
+        return c;
+      }
+    } else if (!!c.variableNames[variableName]) {
       return c;
     }
   }
 }
+
+export function cleanVariableNamePure(variableName: string): string {
+  return variableName.charAt(0) === getVariablePrefix()
+    ? variableName.slice(1, variableName.length)
+    : variableName;
+}
+
+export const cleanVariableName = memoize(cleanVariableNamePure);
 
 export function extractBindingsFromCondition(
   c: IParsedCondition,
@@ -134,10 +155,7 @@ export function extractBindingsFromCondition(
 
   // tslint:disable-next-line:forin
   for (const variableName in c.variableNames) {
-    const cleanedVariableName =
-      variableName.charAt(0) === getVariablePrefix()
-        ? variableName.slice(1, variableName.length)
-        : variableName;
+    const cleanedVariableName = cleanVariableName(variableName);
 
     if (typeof bindings[cleanedVariableName] === "undefined") {
       const variableField = c.variableNames[variableName];

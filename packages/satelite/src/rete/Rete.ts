@@ -6,6 +6,10 @@ import {
 } from "./Condition";
 import { IFact, IFactTuple, makeFact } from "./Fact";
 import {
+  buildOrShareAccumulatorNode,
+  IAccumulatorReducer,
+} from "./nodes/AccumulatorNode";
+import {
   alphaMemoryNodeActivate,
   alphaMemoryNodeRetract,
   buildOrShareAlphaMemoryNode,
@@ -29,6 +33,8 @@ import {
   updateNewNodeWithMatchesFromAbove,
 } from "./util";
 
+// tslint:disable:max-classes-per-file
+
 export type ITerminalNode = IProduction | IQuery;
 
 export { IIdentifier } from "./Identifier";
@@ -48,19 +54,45 @@ export function not(c: ICondition) {
   return c;
 }
 
+export class AccumulatorCondition<T = any> {
+  bindingName: string;
+  reducer: IAccumulatorReducer<T>;
+  initialValue: T;
+
+  constructor(
+    bindingName: string,
+    reducer: IAccumulatorReducer<T>,
+    initialValue: T,
+  ) {
+    this.bindingName = bindingName;
+    this.reducer = reducer;
+    this.initialValue = initialValue;
+  }
+}
+
+export function acc<T>(
+  bindingName: string,
+  reducer: IAccumulatorReducer<T>,
+  initialValue: T,
+): AccumulatorCondition<T> {
+  return new AccumulatorCondition(bindingName, reducer, initialValue);
+}
+
 export class Rete {
   static create(): {
+    self: Rete;
     addFact: (factTuple: IFactTuple) => void;
     removeFact: (factTuple: IFactTuple) => void;
     addProduction: (
-      conditions: ICondition[],
+      conditions: Array<ICondition | AccumulatorCondition>,
       callback: IActivateCallback,
     ) => IProduction;
-    addQuery: (conditions: ICondition[]) => IQuery;
+    addQuery: (conditions: Array<ICondition | AccumulatorCondition>) => IQuery;
   } {
     const r = new Rete();
 
     return {
+      self: r,
       addFact: r.addFact,
       removeFact: r.removeFact,
       addProduction: r.addProduction,
@@ -103,7 +135,7 @@ export class Rete {
   }
 
   addProduction(
-    conditions: ICondition[],
+    conditions: Array<ICondition | AccumulatorCondition>,
     callback: IActivateCallback,
   ): IProduction {
     const parsedConditions = conditions.map(parseCondition);
@@ -118,6 +150,7 @@ export class Rete {
       production,
       parsedConditions,
     );
+
     currentNode.children = addToListHead(
       currentNode.children,
       production.productionNode,
@@ -132,7 +165,7 @@ export class Rete {
     return production;
   }
 
-  addQuery(conditions: ICondition[]): IQuery {
+  addQuery(conditions: Array<ICondition | AccumulatorCondition>): IQuery {
     const parsedConditions = conditions.map(parseCondition);
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
@@ -200,24 +233,27 @@ export class Rete {
   }
 
   private buildOrShareNetworkForConditions(
-    conditions: IParsedCondition[],
-    earlierConditions: IParsedCondition[],
+    conditions: Array<IParsedCondition | AccumulatorCondition>,
+    earlierConditions: Array<IParsedCondition | AccumulatorCondition>,
   ): IReteNode {
     let currentNode: IReteNode = this.root;
     const conditionsHigherUp = earlierConditions;
 
     for (let i = 0; i < conditions.length; i++) {
       const c = conditions[i];
-      const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
 
-      const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
-
-      currentNode =
-        currentNode === this.root
-          ? makeRootJoinNode(currentNode, alphaMemory)
-          : c.isNegated
-            ? buildOrShareNegativeNode(currentNode, alphaMemory, joinTests)
-            : buildOrShareJoinNode(currentNode, alphaMemory, joinTests);
+      if (c instanceof AccumulatorCondition) {
+        currentNode = buildOrShareAccumulatorNode(currentNode, c);
+      } else if (currentNode === this.root) {
+        const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
+        currentNode = makeRootJoinNode(currentNode, alphaMemory);
+      } else {
+        const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
+        const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
+        currentNode = c.isNegated
+          ? buildOrShareNegativeNode(currentNode, alphaMemory, joinTests)
+          : buildOrShareJoinNode(currentNode, alphaMemory, joinTests);
+      }
 
       conditionsHigherUp.push(c);
     }

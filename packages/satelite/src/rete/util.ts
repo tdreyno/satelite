@@ -1,5 +1,11 @@
 import { IFact } from "./Fact";
 import {
+  accumulatorNodeLeftActivate,
+  accumulatorNodeLeftRetract,
+  executeAccumulator,
+  IAccumulatorNode,
+} from "./nodes/AccumulatorNode";
+import {
   IJoinNode,
   joinNodeLeftActivate,
   joinNodeLeftRetract,
@@ -84,6 +90,22 @@ export function findInList<T, K>(
   return -1;
 }
 
+export function reduceList<T, V>(
+  list: IList<T>,
+  reducer: (acc: V, i: T) => V,
+  initialValue: V,
+): V {
+  let currentValue = initialValue;
+
+  if (list) {
+    for (let i = 0; i < list.length; i++) {
+      currentValue = reducer(currentValue, list[i]);
+    }
+  }
+
+  return currentValue;
+}
+
 export function runLeftActivateOnNodes(
   nodes: IList<IReteNode>,
   t: IToken,
@@ -106,6 +128,10 @@ export function runLeftActivateOnNode(node: IReteNode, t: IToken): void {
       return joinNodeLeftActivate(node as IJoinNode, t);
     case "negative":
       return negativeNodeLeftActivate(node as INegativeNode, t);
+    case "accumulator":
+      return accumulatorNodeLeftActivate(node as IAccumulatorNode, t);
+    default:
+      throw new Error(`Tried to leftActivate unknown node ${node.type}`);
   }
 }
 
@@ -132,6 +158,10 @@ export function runLeftRetractOnNode(node: IReteNode, t: IToken) {
       return joinNodeLeftRetract(node as IJoinNode, t);
     case "negative":
       return negativeNodeLeftRetract(node as INegativeNode, t);
+    case "accumulator":
+      return accumulatorNodeLeftRetract(node as IAccumulatorNode, t);
+    default:
+      throw new Error(`Tried to leftRetract unknown node ${node.type}`);
   }
 }
 
@@ -155,6 +185,8 @@ export function runRightActivateOnNode(node: IReteNode, f: IFact) {
       return joinNodeRightActivate(node as IJoinNode, f);
     case "negative":
       return negativeNodeRightActivate(node as INegativeNode, f);
+    default:
+      throw new Error(`Tried to rightActivate unknown node ${node.type}`);
   }
 }
 
@@ -172,12 +204,16 @@ export function runRightRetractOnNodes(
 
 export function runRightRetractOnNode(node: IReteNode, f: IFact) {
   switch (node.type) {
+    case "root":
+      break;
     case "root-join":
       return rootJoinNodeRightRetract(node as IRootJoinNode, f);
     case "join":
       return joinNodeRightRetract(node as IJoinNode, f);
     case "negative":
       return negativeNodeRightRetract(node as INegativeNode, f);
+    default:
+      throw new Error(`Tried to rightRetract unknown node ${node.type}`);
   }
 }
 
@@ -207,5 +243,20 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
       }
 
       break;
+
+    case "accumulator":
+      const savedListOfChildren = parent.children;
+      parent.children = [newNode];
+
+      executeAccumulator(parent as IAccumulatorNode);
+
+      parent.children = savedListOfChildren;
+
+      break;
+
+    default:
+      throw new Error(
+        `Tried to updateMatches of unknown parent ${parent.type}`,
+      );
   }
 }
