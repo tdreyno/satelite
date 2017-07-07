@@ -1,8 +1,9 @@
 import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
+import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
-import { AccumulatorCondition, getVariablePrefix } from "./Rete";
+import { getVariablePrefix, placeholder } from "./Rete";
 import { IVariableBindings } from "./Token";
 import { addToListHead, IList } from "./util";
 
@@ -12,8 +13,12 @@ export function isVariable(v: any): boolean {
   return typeof v === "string" && v.startsWith(getVariablePrefix());
 }
 
+export function isPlaceholder(v: any): boolean {
+  return typeof v === "string" && v === placeholder;
+}
+
 export function isConstant(v: any): boolean {
-  return !isVariable(v);
+  return !isVariable(v) && !isPlaceholder(v);
 }
 
 export interface ICondition extends Array<any> {
@@ -29,6 +34,7 @@ export interface IParsedCondition {
   attribute: string | IConstantTest;
   value: IValue | IConstantTest;
   constantFields: Partial<IFact>;
+  placeholderFields: { [P in IFactFields]?: true };
   variableFields: { [P in IFactFields]?: string };
   variableNames: { [varName: string]: IFactFields };
   isNegated: boolean;
@@ -47,12 +53,15 @@ function baseParseCondition(
   result.value = value;
   result.constantFields = Object.create(null);
   result.variableFields = Object.create(null);
+  result.placeholderFields = Object.create(null);
   result.variableNames = Object.create(null);
   result.isNegated = isNegated;
 
   if (isVariable(identifier)) {
     result.variableNames[identifier as string] = "identifier";
     result.variableFields.identifier = identifier as string;
+  } else if (isPlaceholder(identifier)) {
+    result.placeholderFields.identifier = true;
   } else {
     result.constantFields.identifier = identifier as IIdentifier;
   }
@@ -60,6 +69,8 @@ function baseParseCondition(
   if (isVariable(attribute)) {
     result.variableNames[attribute as string] = "attribute";
     result.variableFields.attribute = attribute as string;
+  } else if (isPlaceholder(attribute)) {
+    result.placeholderFields.attribute = true;
   } else {
     result.constantFields.attribute = attribute as string;
   }
@@ -67,6 +78,8 @@ function baseParseCondition(
   if (isVariable(value)) {
     result.variableNames[value as string] = "value";
     result.variableFields.value = value as string;
+  } else if (isPlaceholder(value)) {
+    result.placeholderFields.value = true;
   } else {
     result.constantFields.value = value as any;
   }
@@ -109,7 +122,10 @@ export function getJoinTestsFromCondition(
     if (earlierCondition) {
       const fieldArg1 = variableNames[variableName];
 
-      const fieldArg2 = earlierCondition.variableNames[variableName];
+      const fieldArg2 =
+        earlierCondition instanceof AccumulatorCondition
+          ? earlierCondition.bindingName
+          : earlierCondition.variableNames[variableName];
 
       results = addToListHead(
         results,
@@ -147,11 +163,16 @@ export function cleanVariableNamePure(variableName: string): string {
 export const cleanVariableName = memoize(cleanVariableNamePure);
 
 export function extractBindingsFromCondition(
-  c: IParsedCondition,
+  c: IParsedCondition | AccumulatorCondition,
   f: IFact,
   b: IVariableBindings,
 ): IVariableBindings {
   const bindings = Object.assign({}, b);
+
+  if (c instanceof AccumulatorCondition) {
+    bindings[c.bindingName] = f;
+    return bindings;
+  }
 
   // tslint:disable-next-line:forin
   for (const variableName in c.variableNames) {

@@ -6,8 +6,9 @@ import {
 } from "./Condition";
 import { IFact, IFactTuple, makeFact } from "./Fact";
 import {
+  AccumulatorCondition,
   buildOrShareAccumulatorNode,
-  IAccumulatorReducer,
+  IAccumulator,
 } from "./nodes/AccumulatorNode";
 import {
   alphaMemoryNodeActivate,
@@ -49,33 +50,22 @@ export function setVariablePrefix(p: string): void {
   variablePrefix = p;
 }
 
+export const placeholder = "__placeholder__";
+
 export function not(c: ICondition) {
   c.isNegated = true;
   return c;
 }
 
-export class AccumulatorCondition<T = any> {
-  bindingName: string;
-  reducer: IAccumulatorReducer<T>;
-  initialValue: T;
-
-  constructor(
-    bindingName: string,
-    reducer: IAccumulatorReducer<T>,
-    initialValue: T,
-  ) {
-    this.bindingName = bindingName;
-    this.reducer = reducer;
-    this.initialValue = initialValue;
-  }
-}
-
 export function acc<T>(
   bindingName: string,
-  reducer: IAccumulatorReducer<T>,
-  initialValue: T,
+  accumulator: IAccumulator<T>,
+  conditions?: Array<ICondition | AccumulatorCondition>,
 ): AccumulatorCondition<T> {
-  return new AccumulatorCondition(bindingName, reducer, initialValue);
+  const parsedConditions = conditions
+    ? conditions.map(parseCondition)
+    : undefined;
+  return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
 }
 
 export class Rete {
@@ -235,14 +225,22 @@ export class Rete {
   private buildOrShareNetworkForConditions(
     conditions: Array<IParsedCondition | AccumulatorCondition>,
     earlierConditions: Array<IParsedCondition | AccumulatorCondition>,
+    currentNode: IReteNode = this.root,
   ): IReteNode {
-    let currentNode: IReteNode = this.root;
-    const conditionsHigherUp = earlierConditions;
+    const conditionsHigherUp = [...earlierConditions];
 
     for (let i = 0; i < conditions.length; i++) {
       const c = conditions[i];
 
       if (c instanceof AccumulatorCondition) {
+        if (c.conditions) {
+          currentNode = this.buildOrShareNetworkForConditions(
+            c.conditions,
+            conditionsHigherUp,
+            currentNode,
+          );
+        }
+
         currentNode = buildOrShareAccumulatorNode(currentNode, c);
       } else if (currentNode === this.root) {
         const alphaMemory = buildOrShareAlphaMemoryNode(this, c);

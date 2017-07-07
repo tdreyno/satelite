@@ -1,6 +1,8 @@
 import { IFactTuple } from "../Fact";
 import { makeIdentifier } from "../Identifier";
-import { acc, not, Rete } from "../Rete";
+import { count, max } from "../nodes/AccumulatorNode";
+// import { max } from "../nodes/AccumulatorNode";
+import { acc, not, placeholder as _, Rete } from "../Rete";
 
 const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
@@ -178,7 +180,7 @@ describe("Rete", () => {
   });
 
   it("should be able to accumulate facts", () => {
-    expect.assertions(1);
+    expect.assertions(2);
 
     const { addFact, addProduction } = Rete.create();
 
@@ -187,10 +189,41 @@ describe("Rete", () => {
     }
 
     addProduction(
-      [["?e", "gender", "F"], acc("?count", acc => acc, 5)],
+      [["?e", "gender", "F"], acc("?count", count)],
       ({ count }) => {
-        expect(count).toBe(5);
+        expect(count).toBe(2);
       },
     );
+
+    addProduction(
+      [["?e", "team", "Fun"], acc("?count", count)],
+      ({ count }) => {
+        expect(count).toBe(1);
+      },
+    );
+  });
+
+  it.only("should be able to query a max accumulator", () => {
+    expect.assertions(2);
+
+    const { addFact, addQuery } = Rete.create();
+
+    addFact([3, "name", "Older"]);
+    addFact([2, "name", "Medium"]);
+    addFact([1, "name", "Young"]);
+
+    addFact([3, "age", 15]);
+    addFact([2, "age", 10]);
+    addFact([1, "age", 5]);
+
+    const maxQuery = addQuery([
+      acc("?max", max, [[_, "age", _]]),
+      ["?e", "age", "?max"],
+      ["?e", "name", "?v"],
+    ]);
+
+    const maxFacts = maxQuery.getFacts();
+    expect(maxFacts).toHaveLength(1);
+    expect(maxFacts[0][2]).toBe("Older");
   });
 });

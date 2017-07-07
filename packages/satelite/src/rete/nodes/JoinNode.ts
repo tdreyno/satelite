@@ -1,6 +1,9 @@
-import { IParsedCondition, extractBindingsFromCondition } from "../Condition";
-import { IFact, IFactFields } from "../Fact";
-import { getVariablePrefix } from "../Rete";
+import {
+  cleanVariableName,
+  extractBindingsFromCondition,
+  IParsedCondition,
+} from "../Condition";
+import { IFact } from "../Fact";
 import { compareTokens, IToken, IVariableBindings, makeToken } from "../Token";
 import {
   addToListHead,
@@ -11,19 +14,20 @@ import {
   runLeftRetractOnNodes,
   updateNewNodeWithMatchesFromAbove,
 } from "../util";
+import { AccumulatorCondition } from "./AccumulatorNode";
 import { IAlphaMemoryNode } from "./AlphaMemoryNode";
 import { IReteNode } from "./ReteNode";
 
 export interface ITestAtJoinNode {
-  fieldArg1: IFactFields;
-  condition: IParsedCondition;
-  fieldArg2: IFactFields;
+  fieldArg1: string;
+  condition: IParsedCondition | AccumulatorCondition;
+  fieldArg2: string;
 }
 
 export function makeTestAtJoinNode(
-  fieldArg1: IFactFields,
-  condition: IParsedCondition,
-  fieldArg2: IFactFields,
+  fieldArg1: string,
+  condition: IParsedCondition | AccumulatorCondition,
+  fieldArg2: string,
 ): ITestAtJoinNode {
   const tajn: ITestAtJoinNode = Object.create(null);
 
@@ -47,8 +51,11 @@ export function performJoinTests(
 
   for (let i = 0; i < tests.length; i++) {
     const test = tests[i];
-    const arg1 = f[test.fieldArg1];
-    const arg2 = t.fact[test.fieldArg2];
+    const arg1: any = f[test.fieldArg1];
+    const arg2: any =
+      test.condition instanceof AccumulatorCondition
+        ? t.bindings[cleanVariableName(test.fieldArg2)]
+        : t.fact[test.fieldArg2];
 
     // TODO: Make this comparison any predicate
     if (arg1 !== arg2) {

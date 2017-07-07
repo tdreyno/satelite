@@ -17,6 +17,7 @@ export interface IFact {
   value: IValue;
 
   alphaMemories: IList<IAlphaMemoryNode>;
+  [key: string]: any;
   // tokens: IList<IToken>;
 
   // negativeJoinResults: IList<INegativeJoinResult>;

@@ -1,5 +1,5 @@
 import { memoize } from "interstelar/dist-es5";
-import { IParsedCondition, isConstant } from "../Condition";
+import { IParsedCondition, isConstant, isPlaceholder } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
 import { Rete } from "../Rete";
@@ -106,6 +106,10 @@ export function buildOrShareAlphaMemoryNode(
   const attributeTest = isConstant(c.attribute) ? c.attribute : null;
   const valueTest = isConstant(c.value) ? c.value : null;
 
+  const identifierIsPlaceholder = isPlaceholder(c.identifier);
+  const attributeIsPlaceholder = isPlaceholder(c.attribute);
+  const valueIsPlaceholder = isPlaceholder(c.value);
+
   let alphaMemory = lookupInHashTable(
     rete.hashTable,
     identifierTest,
@@ -125,11 +129,18 @@ export function buildOrShareAlphaMemoryNode(
   );
 
   for (const f of rete.facts) {
-    if (
-      (!identifierTest || f.identifier === identifierTest) &&
-      (!attributeTest || f.attribute === attributeTest) &&
-      (!valueTest || f.value === valueTest)
-    ) {
+    const matchesIdentifier =
+      !identifierTest ||
+      identifierIsPlaceholder ||
+      f.identifier === identifierTest;
+
+    const matchesAttribute =
+      !attributeTest || attributeIsPlaceholder || f.attribute === attributeTest;
+
+    const matchesValue =
+      !valueTest || valueIsPlaceholder || f.value === valueTest;
+
+    if (matchesIdentifier && matchesAttribute && matchesValue) {
       alphaMemoryNodeActivate(alphaMemory as IAlphaMemoryNode, f);
     }
   }

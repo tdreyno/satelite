@@ -1,5 +1,5 @@
-import { IFact, IFactFields } from "../Fact";
-import { compareTokens, IToken, makeToken } from "../Token";
+import { IFact } from "../Fact";
+import { compareTokens, IToken } from "../Token";
 import {
   addToListHead,
   findInList,
