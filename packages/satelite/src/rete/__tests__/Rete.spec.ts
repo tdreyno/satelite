@@ -196,8 +196,6 @@ describe("Rete", () => {
   });
 
   it("should be able to query a max accumulator", () => {
-    expect.assertions(2);
-
     const { addFact, addQuery } = Rete.create();
 
     addFact([3, "name", "Older"]);
@@ -208,6 +206,10 @@ describe("Rete", () => {
     addFact([2, "age", 10]);
     addFact([1, "age", 5]);
 
+    addFact([3, "gender", "F"]);
+    addFact([2, "gender", "M"]);
+    addFact([1, "gender", "M"]);
+
     const maxQuery = addQuery([
       max("?max", [[_, "age", _]]),
       ["?e", "age", "?max"],
@@ -217,5 +219,26 @@ describe("Rete", () => {
     const maxFacts = maxQuery.getFacts();
     expect(maxFacts).toHaveLength(1);
     expect(maxFacts[0][2]).toBe("Older");
+
+    const maxMaleQuery = addQuery([
+      ["?e", "gender", "M"],
+      max("?max", [["?e", "age", _]]),
+      ["?e2", "age", "?max"],
+      ["?e2", "name", "?v"],
+    ]);
+
+    const maxMaleFacts = maxMaleQuery.getFacts();
+    expect(maxMaleFacts).toHaveLength(1);
+    expect(maxMaleFacts[0][2]).toBe("Medium");
+
+    const maxMaleQuery2 = addQuery([
+      max("?max", [["?e", "gender", "M"], ["?e", "age", _]]),
+      ["?e2", "age", "?max"],
+      ["?e2", "name", "?v"],
+    ]);
+
+    const maxMaleFacts2 = maxMaleQuery2.getFacts();
+    expect(maxMaleFacts2).toHaveLength(1);
+    expect(maxMaleFacts2[0][2]).toBe("Medium");
   });
 });

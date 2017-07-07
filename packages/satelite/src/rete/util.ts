@@ -225,6 +225,8 @@ export function updateNewNodeWithMatchesFromAbove(newNode: IReteNode): void {
   }
 
   switch (parent.type) {
+    case "root":
+      break;
     case "root-join":
     case "join":
     case "negative":

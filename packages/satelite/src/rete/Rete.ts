@@ -268,11 +268,20 @@ export class Rete {
 
       if (c instanceof AccumulatorCondition) {
         if (c.conditions) {
-          currentNode = this.buildOrShareNetworkForConditions(
+          const subNetwork = this.buildOrShareNetworkForConditions(
             c.conditions,
             conditionsHigherUp,
             currentNode,
           );
+
+          subNetwork.parent = currentNode;
+          currentNode.children = addToListHead(
+            currentNode.children,
+            subNetwork,
+          );
+
+          currentNode = subNetwork;
+          updateNewNodeWithMatchesFromAbove(currentNode);
         }
 
         currentNode = buildOrShareAccumulatorNode(currentNode, c);
