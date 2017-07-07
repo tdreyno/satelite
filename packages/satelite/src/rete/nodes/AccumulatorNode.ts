@@ -32,21 +32,6 @@ export class AccumulatorCondition<T = any> {
   }
 }
 
-export const count = {
-  reducer: (acc: number): number => {
-    return acc + 1;
-  },
-  initialValue: 0,
-};
-
-export const max = {
-  reducer: (acc: number, item: IToken): number => {
-    const value = item.fact.value;
-    return value > acc ? value : acc;
-  },
-  initialValue: 0,
-};
-
 export type IAccumulatorReducer<T> = (acc: T, t: IToken) => T;
 
 export interface IAccumulatorNode extends IReteNode {

@@ -27,6 +27,7 @@ import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
 import { makeRootJoinNode } from "./nodes/RootJoinNode";
 import { IActivateCallback, IProduction, makeProduction } from "./Production";
 import { IQuery, makeQuery } from "./Query";
+import { IToken } from "./Token";
 import {
   addToListHead,
   IList,
@@ -66,6 +67,39 @@ export function acc<T>(
     ? conditions.map(parseCondition)
     : undefined;
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
+}
+
+export function count(
+  bindingName: string,
+  conditions?: Array<ICondition | AccumulatorCondition>,
+) {
+  return acc(
+    bindingName,
+    {
+      reducer: (acc: number): number => {
+        return acc + 1;
+      },
+      initialValue: 0,
+    },
+    conditions,
+  );
+}
+
+export function max(
+  bindingName: string,
+  conditions?: Array<ICondition | AccumulatorCondition>,
+) {
+  return acc(
+    bindingName,
+    {
+      reducer: (acc: number, item: IToken): number => {
+        const value = item.fact.value;
+        return value > acc ? value : acc;
+      },
+      initialValue: 0,
+    },
+    conditions,
+  );
 }
 
 export class Rete {
