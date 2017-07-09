@@ -31,4 +31,18 @@ export class RootJoinNode extends ReteNode {
     const t = Token.create(this, null, f);
     runLeftRetractOnNodes(this.children, t);
   }
+
+  rerunForChild(child: ReteNode) {
+    const facts = this.alphaMemory.facts;
+
+    const savedListOfChildren = this.children;
+    this.children = [child];
+
+    for (let i = 0; i < facts.length; i++) {
+      const fact = facts[i];
+      this.rightActivate(fact);
+    }
+
+    this.children = savedListOfChildren;
+  }
 }

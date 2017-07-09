@@ -1,7 +1,5 @@
 import { IFact } from "../Fact";
 import { Token } from "../Token";
-import { AccumulatorNode } from "./AccumulatorNode";
-import { JoinNode } from "./JoinNode";
 
 export abstract class ReteNode {
   type: string;
@@ -28,6 +26,11 @@ export abstract class ReteNode {
     throw new Error("Tried to leftRetract a node without an implementation");
   }
 
+  // tslint:disable-next-line:variable-name
+  rerunForChild(_child: ReteNode) {
+    throw new Error("Tried to leftRetract a node without an implementation");
+  }
+
   updateNewNodeWithMatchesFromAbove(): void {
     const parent = this.parent;
 
@@ -35,43 +38,7 @@ export abstract class ReteNode {
       return;
     }
 
-    switch (parent.type) {
-      case "root":
-        break;
-      case "root-join":
-      case "join":
-      case "negative":
-        const facts = (parent as JoinNode).alphaMemory.facts;
-
-        if (facts) {
-          const savedListOfChildren = parent.children;
-          parent.children = [this];
-
-          for (let i = 0; i < facts.length; i++) {
-            const fact = facts[i];
-            parent.rightActivate(fact);
-          }
-
-          parent.children = savedListOfChildren;
-        }
-
-        break;
-
-      case "accumulator":
-        const savedListOfChildren = parent.children;
-        parent.children = [this];
-
-        (parent as AccumulatorNode).executeAccumulator();
-
-        parent.children = savedListOfChildren;
-
-        break;
-
-      default:
-        throw new Error(
-          `Tried to updateMatches of unknown parent ${parent.type}`,
-        );
-    }
+    parent.rerunForChild(this);
   }
 }
 
@@ -84,4 +51,7 @@ export class RootNode extends ReteNode {
 
   // tslint:disable-next-line:no-empty variable-name
   rightRetract(_f: IFact) {}
+
+  // tslint:disable-next-line:no-empty variable-name
+  rerunForChild(_child: ReteNode) {}
 }

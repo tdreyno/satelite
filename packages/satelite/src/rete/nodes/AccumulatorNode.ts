@@ -89,4 +89,12 @@ export class AccumulatorNode extends ReteNode {
 
     this.executeAccumulator();
   }
+
+  rerunForChild(child: ReteNode) {
+    const savedListOfChildren = this.children;
+
+    this.children = [child];
+    this.executeAccumulator();
+    this.children = savedListOfChildren;
+  }
 }
