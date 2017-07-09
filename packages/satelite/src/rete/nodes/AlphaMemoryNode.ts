@@ -80,17 +80,13 @@ export class AlphaMemoryNode extends ReteNode {
 
     for (const f of rete.facts) {
       const matchesIdentifier =
-        !identifierTest ||
-        identifierIsPlaceholder ||
-        f.identifier === identifierTest;
+        !identifierTest || identifierIsPlaceholder || f[0] === identifierTest;
 
       const matchesAttribute =
-        !attributeTest ||
-        attributeIsPlaceholder ||
-        f.attribute === attributeTest;
+        !attributeTest || attributeIsPlaceholder || f[1] === attributeTest;
 
       const matchesValue =
-        !valueTest || valueIsPlaceholder || f.value === valueTest;
+        !valueTest || valueIsPlaceholder || f[2] === valueTest;
 
       if (matchesIdentifier && matchesAttribute && matchesValue) {
         alphaMemory.activate(f);

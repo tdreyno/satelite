@@ -1,5 +1,5 @@
 import { memoize } from "interstelar";
-import { IFact, IFactFields, IValue } from "./Fact";
+import { IFactFields, IFact, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { TestAtJoinNode } from "./nodes/JoinNode";
@@ -67,30 +67,30 @@ export class ParsedCondition {
     this.isNegated = isNegated;
 
     if (isVariable(identifier)) {
-      this.variableNames[identifier as string] = "identifier";
-      this.variableFields.identifier = identifier as string;
+      this.variableNames[identifier as string] = "0";
+      this.variableFields["0"] = identifier as string;
     } else if (isPlaceholder(identifier)) {
-      this.placeholderFields.identifier = true;
+      this.placeholderFields["0"] = true;
     } else {
-      this.constantFields.identifier = identifier as IIdentifier;
+      this.constantFields["0"] = identifier as IIdentifier;
     }
 
     if (isVariable(attribute)) {
-      this.variableNames[attribute as string] = "attribute";
-      this.variableFields.attribute = attribute as string;
+      this.variableNames[attribute as string] = "1";
+      this.variableFields["1"] = attribute as string;
     } else if (isPlaceholder(attribute)) {
-      this.placeholderFields.attribute = true;
+      this.placeholderFields["1"] = true;
     } else {
-      this.constantFields.attribute = attribute as string;
+      this.constantFields["1"] = attribute as string;
     }
 
     if (isVariable(value)) {
-      this.variableNames[value as string] = "value";
-      this.variableFields.value = value as string;
+      this.variableNames[value as string] = "2";
+      this.variableFields["2"] = value as string;
     } else if (isPlaceholder(value)) {
-      this.placeholderFields.value = true;
+      this.placeholderFields["2"] = true;
     } else {
-      this.constantFields.value = value as any;
+      this.constantFields["2"] = value as any;
     }
   }
 }
@@ -128,7 +128,7 @@ export function getJoinTestsFromCondition(
     );
 
     if (earlierCondition) {
-      const fieldArg1 = variableNames[variableName];
+      const fieldArg1 = parseInt(variableNames[variableName], 10);
 
       const fieldArg2 =
         earlierCondition instanceof AccumulatorCondition

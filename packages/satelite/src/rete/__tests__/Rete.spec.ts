@@ -1,4 +1,4 @@
-import { IFactTuple } from "../Fact";
+import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
 import { count, max, not, placeholder as _, Rete } from "../Rete";
 
@@ -7,7 +7,7 @@ const violet = makeIdentifier("person", 2);
 const marc = makeIdentifier("person", 3);
 const grace = makeIdentifier("person", 4);
 
-const DATA_SET: IFactTuple[] = [
+const DATA_SET: IFact[] = [
   [thomas, "name", "Thomas"],
   [thomas, "gender", "M"],
   [thomas, "team", "WW"],

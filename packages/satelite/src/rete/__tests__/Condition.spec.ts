@@ -16,9 +16,9 @@ describe("Condition", () => {
       expect(Object.keys(variableFields)).toHaveLength(0);
       expect(Object.keys(variableNames)).toHaveLength(0);
       expect(Object.keys(constantFields)).toHaveLength(3);
-      expect(constantFields.identifier).toBe(1);
-      expect(constantFields.attribute).toBe("is");
-      expect(constantFields.value).toBe("odd");
+      expect(constantFields[0]).toBe(1);
+      expect(constantFields[1]).toBe("is");
+      expect(constantFields[2]).toBe("odd");
     });
 
     it("should parse a purely variable condition", () => {
@@ -31,12 +31,12 @@ describe("Condition", () => {
       expect(Object.keys(constantFields)).toHaveLength(0);
       expect(Object.keys(variableFields)).toHaveLength(3);
       expect(Object.keys(variableNames)).toHaveLength(3);
-      expect(variableFields.identifier).toBe("?a");
-      expect(variableFields.attribute).toBe("?b");
-      expect(variableFields.value).toBe("?c");
-      expect(variableNames["?a"]).toBe("identifier");
-      expect(variableNames["?b"]).toBe("attribute");
-      expect(variableNames["?c"]).toBe("value");
+      expect(variableFields[0]).toBe("?a");
+      expect(variableFields[1]).toBe("?b");
+      expect(variableFields[2]).toBe("?c");
+      expect(variableNames["?a"]).toBe("0");
+      expect(variableNames["?b"]).toBe("1");
+      expect(variableNames["?c"]).toBe("2");
     });
 
     it("should parse mixed variable/constant condition", () => {
@@ -49,11 +49,11 @@ describe("Condition", () => {
       expect(Object.keys(constantFields)).toHaveLength(1);
       expect(Object.keys(variableFields)).toHaveLength(2);
       expect(Object.keys(variableNames)).toHaveLength(2);
-      expect(constantFields.attribute).toBe("is");
-      expect(variableFields.identifier).toBe("?a");
-      expect(variableFields.value).toBe("?c");
-      expect(variableNames["?a"]).toBe("identifier");
-      expect(variableNames["?c"]).toBe("value");
+      expect(constantFields[1]).toBe("is");
+      expect(variableFields[0]).toBe("?a");
+      expect(variableFields[2]).toBe("?c");
+      expect(variableNames["?a"]).toBe("0");
+      expect(variableNames["?c"]).toBe("2");
     });
 
     it("should memoize the parse", () => {
@@ -106,9 +106,9 @@ describe("Condition", () => {
 
       expect(tests).toHaveLength(1);
       if (tests) {
-        expect(tests[0].fieldArg1).toBe("value");
+        expect(tests[0].fieldArg1).toBe(2);
         expect(tests[0].condition).toBe(conditions[1]);
-        expect(tests[0].fieldArg2).toBe("identifier");
+        expect(tests[0].fieldArg2).toBe("0");
       }
     });
 
@@ -125,12 +125,12 @@ describe("Condition", () => {
       expect(tests).toHaveLength(2);
 
       if (tests) {
-        expect(tests[0].fieldArg1).toBe("value");
+        expect(tests[0].fieldArg1).toBe(2);
         expect(tests[0].condition).toBe(conditions[1]);
-        expect(tests[0].fieldArg2).toBe("value");
-        expect(tests[1].fieldArg1).toBe("identifier");
+        expect(tests[0].fieldArg2).toBe("2");
+        expect(tests[1].fieldArg1).toBe(0);
         expect(tests[1].condition).toBe(conditions[0]);
-        expect(tests[1].fieldArg2).toBe("identifier");
+        expect(tests[1].fieldArg2).toBe("0");
       }
     });
   });

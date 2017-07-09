@@ -2,13 +2,13 @@
 declare var console: any;
 
 import * as faker from "faker";
-import { IFactTuple } from "../Fact";
+import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 
 const TEAMS = ["Spirit", "WW", "Fun", "Content", "Ops"];
 const GENDERS = ["M", "F"];
 
-function makeFakePerson(): IFactTuple[] {
+function makeFakePerson(): IFact[] {
   const id = faker.random.uuid();
   return [
     [id, "name", faker.name.findName()],
@@ -20,7 +20,7 @@ function makeFakePerson(): IFactTuple[] {
 const { addFact, addProduction } = Rete.create();
 
 console.time("Generating Data");
-const fakePeople: IFactTuple[][] = [];
+const fakePeople: IFact[][] = [];
 for (let i = 0; i < 20000; i++) {
   fakePeople.push(makeFakePerson());
 }

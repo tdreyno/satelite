@@ -1,10 +1,10 @@
 import { extractBindingsFromCondition, ParsedCondition } from "./Condition";
-import { IFact, IFactTuple, makeFactTuple } from "./Fact";
+import { IFact } from "./Fact";
 import { QueryNode } from "./nodes/QueryNode";
 import { IVariableBindings } from "./Token";
 
 export type IQueryChangeFn = (
-  facts: IFactTuple[],
+  facts: IFact[],
   variableBindings: IVariableBindings[],
 ) => any;
 
@@ -13,7 +13,7 @@ export class Query {
     return new Query(conditions);
   }
 
-  queryNode: QueryNode | null;
+  queryNode: QueryNode;
   callbacks: Set<IQueryChangeFn> = new Set();
   conditions: ParsedCondition[] = [];
   lastCondition: ParsedCondition;
@@ -23,10 +23,8 @@ export class Query {
     this.lastCondition = this.conditions[this.conditions.length - 1];
   }
 
-  getFacts(): IFactTuple[] {
-    return this.queryNode && this.queryNode.facts
-      ? (this.queryNode.facts as IFact[]).map(makeFactTuple)
-      : [];
+  getFacts(): IFact[] {
+    return this.queryNode && this.queryNode.facts ? this.queryNode.facts : [];
   }
 
   getVariableBindings(): IVariableBindings[] {
@@ -55,13 +53,13 @@ export class Query {
   }
 
   onChange(
-    cb: (facts: IFactTuple[], variableBindings: IVariableBindings[]) => any,
+    cb: (facts: IFact[], variableBindings: IVariableBindings[]) => any,
   ): void {
     this.callbacks.add(cb);
   }
 
   offChange(
-    cb: (facts: IFactTuple[], variableBindings: IVariableBindings[]) => any,
+    cb: (facts: IFact[], variableBindings: IVariableBindings[]) => any,
   ): void {
     this.callbacks.delete(cb);
   }

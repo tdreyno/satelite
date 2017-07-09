@@ -17,19 +17,19 @@ import { ReteNode } from "./ReteNode";
 
 export class TestAtJoinNode {
   static create(
-    fieldArg1: string,
+    fieldArg1: number,
     condition: ParsedCondition | AccumulatorCondition,
     fieldArg2: string,
   ): TestAtJoinNode {
     return new TestAtJoinNode(fieldArg1, condition, fieldArg2);
   }
 
-  fieldArg1: string;
+  fieldArg1: number;
   condition: ParsedCondition | AccumulatorCondition;
   fieldArg2: string;
 
   constructor(
-    fieldArg1: string,
+    fieldArg1: number,
     condition: ParsedCondition | AccumulatorCondition,
     fieldArg2: string,
   ) {
@@ -56,7 +56,7 @@ export function performJoinTests(
     const arg2: any =
       test.condition instanceof AccumulatorCondition
         ? t.bindings[cleanVariableName(test.fieldArg2)]
-        : t.fact[test.fieldArg2];
+        : t.fact[parseInt(test.fieldArg2, 10)];
 
     // TODO: Make this comparison any predicate
     if (arg1 !== arg2) {

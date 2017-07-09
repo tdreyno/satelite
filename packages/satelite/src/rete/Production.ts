@@ -1,12 +1,12 @@
-import { IFactTuple } from "./Fact";
+import { IFact } from "./Fact";
 import { ProductionNode } from "./nodes/ProductionNode";
 import { IVariableBindings } from "./Token";
 
-export type IAddFactsSignature = (facts: IFactTuple | IFactTuple[]) => void;
+export type IAddFactsSignature = (facts: IFact | IFact[]) => void;
 export type IActivateCallback = (
   variableBindings: IVariableBindings,
   extra: {
-    fact: IFactTuple;
+    fact: IFact;
     addProducedFact: IAddFactsSignature;
   },
 ) => any;
@@ -14,7 +14,7 @@ export type IActivateCallback = (
 export type IInternalActivateCallback = (
   v: IVariableBindings,
   extra: {
-    fact: IFactTuple;
+    fact: IFact;
     addProducedFact: IAddFactsSignature;
   },
 ) => any;
@@ -32,9 +32,9 @@ export class Production {
   }
 
   onActivation(
-    f: IFactTuple,
+    f: IFact,
     b: IVariableBindings,
-    addProducedFact: (facts: IFactTuple | IFactTuple[]) => void,
+    addProducedFact: (facts: IFact | IFact[]) => void,
   ): void {
     this.onActivationCallback(b, {
       fact: f,

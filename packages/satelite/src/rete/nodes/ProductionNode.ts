@@ -1,5 +1,5 @@
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
-import { IFactTuple, makeFactTuple } from "../Fact";
+import { IFact } from "../Fact";
 import { Production } from "../Production";
 import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
@@ -8,7 +8,7 @@ import { ReteNode } from "./ReteNode";
 
 export interface IResultingFacts {
   token: Token;
-  facts: IFactTuple[];
+  facts: IFact[];
 }
 
 export class ProductionNode extends ReteNode {
@@ -42,8 +42,8 @@ export class ProductionNode extends ReteNode {
 
     this.items.unshift(t);
 
-    const addProducedFacts = (factOrFacts: IFactTuple | IFactTuple[]) => {
-      const facts: IFactTuple[] =
+    const addProducedFacts = (factOrFacts: IFact | IFact[]) => {
+      const facts: IFact[] =
         factOrFacts[1] && typeof factOrFacts[1] === "string"
           ? [factOrFacts]
           : factOrFacts as any;
@@ -65,11 +65,7 @@ export class ProductionNode extends ReteNode {
       bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
     }
 
-    this.production.onActivation(
-      makeFactTuple(t.fact),
-      bindings,
-      addProducedFacts,
-    );
+    this.production.onActivation(t.fact, bindings, addProducedFacts);
   }
 
   leftRetract(t: Token): void {

@@ -4,7 +4,7 @@ import {
   parseCondition,
   ParsedCondition,
 } from "./Condition";
-import { IFact, IFactTuple, makeFact } from "./Fact";
+import { IFact, makeFact } from "./Fact";
 import {
   AccumulatorCondition,
   AccumulatorNode,
@@ -84,7 +84,7 @@ export function max(
     bindingName,
     {
       reducer: (acc: number, item: Token): number => {
-        const value = item.fact.value;
+        const value = item.fact[2] as number;
         return value > acc ? value : acc;
       },
       initialValue: 0,
@@ -96,8 +96,8 @@ export function max(
 export class Rete {
   static create(): {
     self: Rete;
-    addFact: (factTuple: IFactTuple) => void;
-    removeFact: (factTuple: IFactTuple) => void;
+    addFact: (factTuple: IFact) => void;
+    removeFact: (factTuple: IFact) => void;
     addProduction: (
       conditions: Array<ICondition | AccumulatorCondition>,
       callback: IActivateCallback,
@@ -127,7 +127,7 @@ export class Rete {
     this.addQuery = this.addQuery.bind(this);
   }
 
-  addFact(factTuple: IFactTuple): void {
+  addFact(factTuple: IFact): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     if (!this.facts.has(f)) {
@@ -137,7 +137,7 @@ export class Rete {
     }
   }
 
-  removeFact(fact: IFactTuple): void {
+  removeFact(fact: IFact): void {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     if (this.facts.has(f)) {
@@ -203,13 +203,13 @@ export class Rete {
   ): void {
     const fn = (am?: AlphaMemoryNode) => am && am[fnName](f);
 
-    fn(lookupInHashTable(this.hashTable, f.identifier, f.attribute, f.value));
-    fn(lookupInHashTable(this.hashTable, f.identifier, f.attribute, null));
-    fn(lookupInHashTable(this.hashTable, null, f.attribute, f.value));
-    fn(lookupInHashTable(this.hashTable, f.identifier, null, f.value));
-    fn(lookupInHashTable(this.hashTable, null, null, f.value));
-    fn(lookupInHashTable(this.hashTable, null, f.attribute, null));
-    fn(lookupInHashTable(this.hashTable, f.identifier, null, null));
+    fn(lookupInHashTable(this.hashTable, f[0], f[1], f[2]));
+    fn(lookupInHashTable(this.hashTable, f[0], f[1], null));
+    fn(lookupInHashTable(this.hashTable, null, f[1], f[2]));
+    fn(lookupInHashTable(this.hashTable, f[0], null, f[2]));
+    fn(lookupInHashTable(this.hashTable, null, null, f[2]));
+    fn(lookupInHashTable(this.hashTable, null, f[1], null));
+    fn(lookupInHashTable(this.hashTable, f[0], null, null));
     fn(lookupInHashTable(this.hashTable, null, null, null));
   }
 
