@@ -23,7 +23,7 @@ import { buildOrShareJoinNode } from "./nodes/JoinNode";
 import { buildOrShareNegativeNode } from "./nodes/NegativeNode";
 import { makeProductionNode } from "./nodes/ProductionNode";
 import { makeQueryNode } from "./nodes/QueryNode";
-import { IReteNode, IRootNode, makeRootNode } from "./nodes/ReteNode";
+import { IReteNode, RootNode } from "./nodes/ReteNode";
 import { makeRootJoinNode } from "./nodes/RootJoinNode";
 import { IActivateCallback, IProduction, makeProduction } from "./Production";
 import { IQuery, makeQuery } from "./Query";
@@ -124,7 +124,7 @@ export class Rete {
     };
   }
 
-  root: IRootNode = makeRootNode();
+  root = RootNode.create();
   terminalNodes: IList<ITerminalNode> = null;
   facts: Set<IFact> = new Set();
   hashTable: IExhaustiveHashTable = createExhaustiveHashTable();

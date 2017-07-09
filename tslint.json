@@ -7,6 +7,7 @@
     "prefer-object-spread": false,
     "arrow-parens": false,
     "prefer-for-of": false,
-    "member-access": false
+    "member-access": false,
+    "max-classes-per-file": false
   }
 }
