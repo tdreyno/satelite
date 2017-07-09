@@ -19,11 +19,6 @@ export abstract class ReteNode {
   parent: IReteNode | null;
 }
 
-export interface IRootNode extends IReteNode {
-  type: "root";
-  parent: null;
-}
-
 export class RootNode extends ReteNode {
   static create() {
     return new RootNode();
@@ -31,13 +26,4 @@ export class RootNode extends ReteNode {
 
   type = "root";
   parent = null;
-}
-
-export function makeRootNode(): IRootNode {
-  const node: IRootNode = Object.create(null);
-
-  node.type = "root";
-  node.parent = null;
-
-  return node;
 }
