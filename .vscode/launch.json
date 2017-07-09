@@ -10,15 +10,6 @@
       "name": "Attach to Process",
       "processId": "${command:PickProcess}",
       "port": 5858
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
-      "program": "${file}",
-      "outFiles": [
-        "${workspaceRoot}/out/**/*.js"
-      ]
     }
   ]
 }
