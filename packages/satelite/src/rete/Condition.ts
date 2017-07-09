@@ -2,10 +2,9 @@ import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition } from "./nodes/AccumulatorNode";
-import { ITestAtJoinNode, makeTestAtJoinNode } from "./nodes/JoinNode";
+import { TestAtJoinNode } from "./nodes/JoinNode";
 import { getVariablePrefix, placeholder } from "./Rete";
 import { IVariableBindings } from "./Token";
-import { addToListHead, IList } from "./util";
 
 export type IConstantTest = string;
 
@@ -29,73 +28,82 @@ export interface ICondition extends Array<any> {
   isNegated?: boolean;
 }
 
-export interface IParsedCondition {
+export interface IVariableNames {
+  [varName: string]: IFactFields;
+}
+
+export class ParsedCondition {
+  static create(
+    identifier: IPrimitive | IIdentifier | IConstantTest,
+    attribute: string | IConstantTest,
+    value: IValue | IConstantTest,
+    isNegated: boolean,
+  ) {
+    return new ParsedCondition(identifier, attribute, value, isNegated);
+  }
+
   identifier: IPrimitive | IIdentifier | IConstantTest;
   attribute: string | IConstantTest;
   value: IValue | IConstantTest;
   constantFields: Partial<IFact>;
   placeholderFields: { [P in IFactFields]?: true };
   variableFields: { [P in IFactFields]?: string };
-  variableNames: { [varName: string]: IFactFields };
+  variableNames: IVariableNames;
   isNegated: boolean;
-}
 
-function baseParseCondition(
-  identifier: IPrimitive | IIdentifier | IConstantTest,
-  attribute: string | IConstantTest,
-  value: IValue | IConstantTest,
-  isNegated: boolean,
-): IParsedCondition {
-  const result: IParsedCondition = Object.create(null);
+  constructor(
+    identifier: IPrimitive | IIdentifier | IConstantTest,
+    attribute: string | IConstantTest,
+    value: IValue | IConstantTest,
+    isNegated: boolean,
+  ) {
+    this.identifier = identifier;
+    this.attribute = attribute;
+    this.value = value;
+    this.constantFields = Object.create(null);
+    this.variableFields = Object.create(null);
+    this.placeholderFields = Object.create(null);
+    this.variableNames = Object.create(null);
+    this.isNegated = isNegated;
 
-  result.identifier = identifier;
-  result.attribute = attribute;
-  result.value = value;
-  result.constantFields = Object.create(null);
-  result.variableFields = Object.create(null);
-  result.placeholderFields = Object.create(null);
-  result.variableNames = Object.create(null);
-  result.isNegated = isNegated;
+    if (isVariable(identifier)) {
+      this.variableNames[identifier as string] = "identifier";
+      this.variableFields.identifier = identifier as string;
+    } else if (isPlaceholder(identifier)) {
+      this.placeholderFields.identifier = true;
+    } else {
+      this.constantFields.identifier = identifier as IIdentifier;
+    }
 
-  if (isVariable(identifier)) {
-    result.variableNames[identifier as string] = "identifier";
-    result.variableFields.identifier = identifier as string;
-  } else if (isPlaceholder(identifier)) {
-    result.placeholderFields.identifier = true;
-  } else {
-    result.constantFields.identifier = identifier as IIdentifier;
+    if (isVariable(attribute)) {
+      this.variableNames[attribute as string] = "attribute";
+      this.variableFields.attribute = attribute as string;
+    } else if (isPlaceholder(attribute)) {
+      this.placeholderFields.attribute = true;
+    } else {
+      this.constantFields.attribute = attribute as string;
+    }
+
+    if (isVariable(value)) {
+      this.variableNames[value as string] = "value";
+      this.variableFields.value = value as string;
+    } else if (isPlaceholder(value)) {
+      this.placeholderFields.value = true;
+    } else {
+      this.constantFields.value = value as any;
+    }
   }
-
-  if (isVariable(attribute)) {
-    result.variableNames[attribute as string] = "attribute";
-    result.variableFields.attribute = attribute as string;
-  } else if (isPlaceholder(attribute)) {
-    result.placeholderFields.attribute = true;
-  } else {
-    result.constantFields.attribute = attribute as string;
-  }
-
-  if (isVariable(value)) {
-    result.variableNames[value as string] = "value";
-    result.variableFields.value = value as string;
-  } else if (isPlaceholder(value)) {
-    result.placeholderFields.value = true;
-  } else {
-    result.constantFields.value = value as any;
-  }
-
-  return result;
 }
 
 // Memoize so conditions are be compared later.
 // Converts condition `toJSON` for caching. Might not be worth the memory.
-const memoizedParseCondition = memoize(baseParseCondition);
+const memoizedParseCondition = memoize(ParsedCondition.create);
 
 export function parseCondition(c: AccumulatorCondition): AccumulatorCondition;
-export function parseCondition(c: ICondition): IParsedCondition;
+export function parseCondition(c: ICondition): ParsedCondition;
 export function parseCondition(
   c: ICondition | AccumulatorCondition,
-): IParsedCondition | AccumulatorCondition {
+): ParsedCondition | AccumulatorCondition {
   if (c instanceof AccumulatorCondition) {
     return c;
   }
@@ -103,13 +111,13 @@ export function parseCondition(
 }
 
 export function getJoinTestsFromCondition(
-  c: IParsedCondition | AccumulatorCondition,
-  earlierConditions: Array<IParsedCondition | AccumulatorCondition>,
-): IList<ITestAtJoinNode> {
-  const variableNames =
+  c: ParsedCondition | AccumulatorCondition,
+  earlierConditions: Array<ParsedCondition | AccumulatorCondition>,
+): TestAtJoinNode[] {
+  const variableNames: IVariableNames =
     c instanceof AccumulatorCondition ? {} : c.variableNames;
 
-  let results: IList<ITestAtJoinNode> = null;
+  const results: TestAtJoinNode[] = [];
 
   // `variableNames` has no prototype, so we don't need this test.
   // tslint:disable-next-line:forin
@@ -127,9 +135,8 @@ export function getJoinTestsFromCondition(
           ? earlierCondition.bindingName
           : earlierCondition.variableNames[variableName];
 
-      results = addToListHead(
-        results,
-        makeTestAtJoinNode(fieldArg1, earlierCondition, fieldArg2),
+      results.unshift(
+        TestAtJoinNode.create(fieldArg1, earlierCondition, fieldArg2),
       );
     }
   }
@@ -139,8 +146,8 @@ export function getJoinTestsFromCondition(
 
 export function findVariableInEarlierConditions(
   variableName: string,
-  earlierConditions: Array<IParsedCondition | AccumulatorCondition>,
-): IParsedCondition | AccumulatorCondition | undefined {
+  earlierConditions: Array<ParsedCondition | AccumulatorCondition>,
+): ParsedCondition | AccumulatorCondition | undefined {
   for (let i = 0; i < earlierConditions.length; i++) {
     const c = earlierConditions[i];
 
@@ -163,7 +170,7 @@ export function cleanVariableNamePure(variableName: string): string {
 export const cleanVariableName = memoize(cleanVariableNamePure);
 
 export function extractBindingsFromCondition(
-  c: IParsedCondition | AccumulatorCondition,
+  c: ParsedCondition | AccumulatorCondition,
   f: IFact,
   b: IVariableBindings,
 ): IVariableBindings {

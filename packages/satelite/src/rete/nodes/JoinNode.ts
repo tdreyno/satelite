@@ -1,49 +1,50 @@
 import {
   cleanVariableName,
   extractBindingsFromCondition,
-  IParsedCondition,
+  ParsedCondition,
 } from "../Condition";
 import { IFact } from "../Fact";
-import { compareTokens, IToken, IVariableBindings, makeToken } from "../Token";
+import { compareTokens, IVariableBindings, Token } from "../Token";
 import {
-  addToListHead,
   findInList,
-  IList,
   removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  updateNewNodeWithMatchesFromAbove,
 } from "../util";
 import { AccumulatorCondition } from "./AccumulatorNode";
-import { IAlphaMemoryNode } from "./AlphaMemoryNode";
-import { IReteNode } from "./ReteNode";
+import { AlphaMemoryNode } from "./AlphaMemoryNode";
+import { ReteNode } from "./ReteNode";
 
-export interface ITestAtJoinNode {
+export class TestAtJoinNode {
+  static create(
+    fieldArg1: string,
+    condition: ParsedCondition | AccumulatorCondition,
+    fieldArg2: string,
+  ): TestAtJoinNode {
+    return new TestAtJoinNode(fieldArg1, condition, fieldArg2);
+  }
+
   fieldArg1: string;
-  condition: IParsedCondition | AccumulatorCondition;
+  condition: ParsedCondition | AccumulatorCondition;
   fieldArg2: string;
-}
 
-export function makeTestAtJoinNode(
-  fieldArg1: string,
-  condition: IParsedCondition | AccumulatorCondition,
-  fieldArg2: string,
-): ITestAtJoinNode {
-  const tajn: ITestAtJoinNode = Object.create(null);
-
-  tajn.fieldArg1 = fieldArg1;
-  tajn.condition = condition;
-  tajn.fieldArg2 = fieldArg2;
-
-  return tajn;
+  constructor(
+    fieldArg1: string,
+    condition: ParsedCondition | AccumulatorCondition,
+    fieldArg2: string,
+  ) {
+    this.fieldArg1 = fieldArg1;
+    this.condition = condition;
+    this.fieldArg2 = fieldArg2;
+  }
 }
 
 export function performJoinTests(
-  tests: IList<ITestAtJoinNode>,
-  t: IToken,
+  tests: TestAtJoinNode[],
+  t: Token,
   f: IFact,
 ): false | IVariableBindings {
-  if (!tests) {
+  if (tests.length <= 0) {
     return t.bindings;
   }
 
@@ -68,110 +69,97 @@ export function performJoinTests(
   return bindings;
 }
 
-export interface IJoinNode extends IReteNode {
-  type: "join";
-  parent: IReteNode;
-  items: IList<IToken>;
-  alphaMemory: IAlphaMemoryNode;
-  tests: IList<ITestAtJoinNode>;
-}
+export class JoinNode extends ReteNode {
+  static create(
+    parent: ReteNode,
+    alphaMemory: AlphaMemoryNode,
+    tests: TestAtJoinNode[],
+  ): JoinNode {
+    const node = new JoinNode(parent, alphaMemory, tests);
 
-export function makeJoinNode(
-  parent: IReteNode,
-  alphaMemory: IAlphaMemoryNode,
-  tests: IList<ITestAtJoinNode>,
-): IJoinNode {
-  const node: IJoinNode = Object.create(null);
+    parent.children.unshift(node);
+    alphaMemory.successors.unshift(node);
 
-  node.type = "join";
-  node.parent = parent;
-  node.items = null;
-  node.alphaMemory = alphaMemory;
-  node.tests = tests;
+    node.updateNewNodeWithMatchesFromAbove();
 
-  node.children = null;
+    return node;
+  }
 
-  return node;
-}
+  type = "join";
+  items: Token[] = [];
+  alphaMemory: AlphaMemoryNode;
+  tests: TestAtJoinNode[];
 
-function executeLeft(
-  node: IJoinNode,
-  t: IToken,
-  action: (children: IList<IReteNode>, t: IToken) => void,
-) {
-  if (node.alphaMemory.facts) {
-    for (let i = 0; i < node.alphaMemory.facts.length; i++) {
-      const fact = node.alphaMemory.facts[i];
-      const bindings = performJoinTests(node.tests, t, fact);
+  constructor(
+    parent: ReteNode,
+    alphaMemory: AlphaMemoryNode,
+    tests: TestAtJoinNode[],
+  ) {
+    super();
+
+    this.parent = parent;
+    this.alphaMemory = alphaMemory;
+    this.tests = tests;
+  }
+
+  leftActivate(t: Token): void {
+    if (findInList(this.items, t, compareTokens) !== -1) {
+      return;
+    }
+
+    this.items.unshift(t);
+
+    this.executeLeft(t, runLeftActivateOnNodes);
+  }
+
+  leftRetract(t: Token): void {
+    const foundIndex = findInList(this.items, t, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    removeIndexFromList(this.items, foundIndex);
+
+    this.executeLeft(t, runLeftRetractOnNodes);
+  }
+
+  rightRetract(f: IFact): void {
+    this.executeRight(f, runLeftRetractOnNodes);
+  }
+
+  rightActivate(f: IFact): void {
+    this.executeRight(f, runLeftActivateOnNodes);
+  }
+
+  private executeRight(
+    f: IFact,
+    action: (children: ReteNode[], t: Token) => void,
+  ) {
+    for (let i = 0; i < this.items.length; i++) {
+      const token = this.items[i];
+      const bindings = performJoinTests(this.tests, token, f);
 
       if (bindings) {
-        const newToken = makeToken(node, t, fact, bindings);
-        action(node.children, newToken);
+        const newToken = Token.create(this, token, f, bindings);
+
+        action(this.children, newToken);
       }
     }
   }
-}
 
-export function joinNodeLeftActivate(node: IJoinNode, t: IToken): void {
-  if (findInList(node.items, t, compareTokens) !== -1) {
-    return;
-  }
-
-  node.items = addToListHead(node.items, t);
-
-  executeLeft(node, t, runLeftActivateOnNodes);
-}
-
-export function joinNodeLeftRetract(node: IJoinNode, t: IToken): void {
-  const foundIndex = findInList(node.items, t, compareTokens);
-
-  if (foundIndex === -1) {
-    return;
-  }
-
-  node.items = removeIndexFromList(node.items, foundIndex);
-
-  executeLeft(node, t, runLeftRetractOnNodes);
-}
-
-function executeRight(
-  node: IJoinNode,
-  f: IFact,
-  action: (children: IList<IReteNode>, t: IToken) => void,
-) {
-  if (node.items) {
-    for (let i = 0; i < node.items.length; i++) {
-      const token = node.items[i];
-      const bindings = performJoinTests(node.tests, token, f);
+  private executeLeft(
+    t: Token,
+    action: (children: ReteNode[], t: Token) => void,
+  ): void {
+    for (let i = 0; i < this.alphaMemory.facts.length; i++) {
+      const fact = this.alphaMemory.facts[i];
+      const bindings = performJoinTests(this.tests, t, fact);
 
       if (bindings) {
-        const newToken = makeToken(node, token, f, bindings);
-
-        action(node.children, newToken);
+        const newToken = Token.create(this, t, fact, bindings);
+        action(this.children, newToken);
       }
     }
   }
-}
-
-export function joinNodeRightRetract(node: IJoinNode, f: IFact): void {
-  executeRight(node, f, runLeftRetractOnNodes);
-}
-
-export function joinNodeRightActivate(node: IJoinNode, f: IFact): void {
-  executeRight(node, f, runLeftActivateOnNodes);
-}
-
-export function buildOrShareJoinNode(
-  parent: IReteNode,
-  alphaMemory: IAlphaMemoryNode,
-  tests: IList<ITestAtJoinNode>,
-): IJoinNode {
-  const node = makeJoinNode(parent, alphaMemory, tests);
-
-  parent.children = addToListHead(parent.children, node);
-  alphaMemory.successors = addToListHead(alphaMemory.successors, node);
-
-  updateNewNodeWithMatchesFromAbove(node);
-
-  return node;
 }

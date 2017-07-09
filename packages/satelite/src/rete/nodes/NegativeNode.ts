@@ -1,125 +1,109 @@
 import { IFact } from "../Fact";
-import { compareTokens, IToken } from "../Token";
+import { compareTokens, Token } from "../Token";
 import {
-  addToListHead,
   findInList,
-  IList,
   removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  updateNewNodeWithMatchesFromAbove,
 } from "../util";
-import { IAlphaMemoryNode } from "./AlphaMemoryNode";
-import { ITestAtJoinNode, performJoinTests } from "./JoinNode";
-import { IReteNode } from "./ReteNode";
+import { AlphaMemoryNode } from "./AlphaMemoryNode";
+import { performJoinTests, TestAtJoinNode } from "./JoinNode";
+import { ReteNode } from "./ReteNode";
 
-export interface INegativeNode extends IReteNode {
-  type: "negative";
-  parent: IReteNode;
-  items: IList<IToken>;
-  alphaMemory: IAlphaMemoryNode;
-  tests: IList<ITestAtJoinNode>;
-}
+export class NegativeNode extends ReteNode {
+  static create(
+    parent: ReteNode,
+    alphaMemory: AlphaMemoryNode,
+    tests: TestAtJoinNode[],
+  ): NegativeNode {
+    const node = new NegativeNode(parent, alphaMemory, tests);
 
-export function makeNegativeNode(
-  parent: IReteNode,
-  alphaMemory: IAlphaMemoryNode,
-  tests: IList<ITestAtJoinNode>,
-): INegativeNode {
-  const node: INegativeNode = Object.create(null);
+    parent.children.unshift(node);
+    alphaMemory.successors.unshift(node);
 
-  node.type = "negative";
-  node.parent = parent;
-  node.items = null;
-  node.alphaMemory = alphaMemory;
-  node.tests = tests;
+    node.updateNewNodeWithMatchesFromAbove();
 
-  node.children = null;
+    return node;
+  }
 
-  return node;
-}
+  type = "negative";
+  items: Token[] = [];
+  alphaMemory: AlphaMemoryNode;
+  tests: TestAtJoinNode[];
 
-export function executeLeft(
-  node: INegativeNode,
-  t: IToken,
-  action: (children: IList<IReteNode>, t: IToken) => void,
-) {
-  let didMatch = false;
+  constructor(
+    parent: ReteNode,
+    alphaMemory: AlphaMemoryNode,
+    tests: TestAtJoinNode[],
+  ) {
+    super();
 
-  if (node.alphaMemory.facts) {
-    for (let i = 0; i < node.alphaMemory.facts.length; i++) {
-      const fact = node.alphaMemory.facts[i];
+    this.parent = parent;
+    this.alphaMemory = alphaMemory;
+    this.tests = tests;
+  }
 
-      if (performJoinTests(node.tests, t, fact)) {
+  leftActivate(t: Token): void {
+    if (findInList(this.items, t, compareTokens) !== -1) {
+      return;
+    }
+
+    this.items.unshift(t);
+
+    this.executeLeft(t, runLeftActivateOnNodes);
+  }
+
+  leftRetract(t: Token): void {
+    const foundIndex = findInList(this.items, t, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    this.items = removeIndexFromList(this.items, foundIndex);
+
+    this.executeLeft(t, runLeftRetractOnNodes);
+  }
+
+  rightRetract(f: IFact): void {
+    this.executeRight(f, runLeftRetractOnNodes);
+  }
+
+  rightActivate(f: IFact): void {
+    this.executeRight(f, runLeftActivateOnNodes);
+  }
+
+  private executeLeft(
+    t: Token,
+    action: (children: ReteNode[], t: Token) => void,
+  ) {
+    let didMatch = false;
+
+    for (let i = 0; i < this.alphaMemory.facts.length; i++) {
+      const fact = this.alphaMemory.facts[i];
+
+      if (performJoinTests(this.tests, t, fact)) {
         didMatch = true;
         break;
       }
     }
+
+    if (!didMatch) {
+      action(this.children, t);
+    }
   }
 
-  if (!didMatch) {
-    action(node.children, t);
-  }
-}
+  private executeRight(
+    f: IFact,
+    action: (children: ReteNode[], f: Token) => void,
+  ) {
+    for (let i = 0; i < this.items.length; i++) {
+      const t = this.items[i];
 
-export function negativeNodeLeftActivate(node: INegativeNode, t: IToken): void {
-  if (findInList(node.items, t, compareTokens) !== -1) {
-    return;
-  }
-
-  node.items = addToListHead(node.items, t);
-
-  executeLeft(node, t, runLeftActivateOnNodes);
-}
-
-export function negativeNodeLeftRetract(node: INegativeNode, t: IToken): void {
-  const foundIndex = findInList(node.items, t, compareTokens);
-
-  if (foundIndex === -1) {
-    return;
-  }
-
-  node.items = removeIndexFromList(node.items, foundIndex);
-
-  executeLeft(node, t, runLeftRetractOnNodes);
-}
-
-export function executeRight(
-  node: INegativeNode,
-  f: IFact,
-  action: (children: IList<IReteNode>, f: IToken) => void,
-) {
-  if (node.items) {
-    for (let i = 0; i < node.items.length; i++) {
-      const t = node.items[i];
-
-      if (!performJoinTests(node.tests, t, f)) {
-        action(node.children, t);
+      if (!performJoinTests(this.tests, t, f)) {
+        action(this.children, t);
         continue;
       }
     }
   }
-}
-
-export function negativeNodeRightRetract(node: INegativeNode, f: IFact): void {
-  executeRight(node, f, runLeftRetractOnNodes);
-}
-
-export function negativeNodeRightActivate(node: INegativeNode, f: IFact): void {
-  executeRight(node, f, runLeftActivateOnNodes);
-}
-
-export function buildOrShareNegativeNode(
-  parent: IReteNode,
-  alphaMemory: IAlphaMemoryNode,
-  tests: IList<ITestAtJoinNode>,
-): INegativeNode {
-  const node = makeNegativeNode(parent, alphaMemory, tests);
-
-  parent.children = addToListHead(parent.children, node);
-  alphaMemory.successors = addToListHead(alphaMemory.successors, node);
-
-  updateNewNodeWithMatchesFromAbove(node);
-
-  return node;
 }

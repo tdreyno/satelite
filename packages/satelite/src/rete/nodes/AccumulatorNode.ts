@@ -1,15 +1,12 @@
 import { cleanVariableName, IParsedCondition } from "../Condition";
-import { compareTokens, IToken, makeToken } from "../Token";
+import { compareTokens, Token } from "../Token";
 import {
-  addToListHead,
   findInList,
-  IList,
   reduceList,
   removeIndexFromList,
   runLeftActivateOnNodes,
-  updateNewNodeWithMatchesFromAbove,
 } from "../util";
-import { IReteNode } from "./ReteNode";
+import { ReteNode } from "./ReteNode";
 
 export interface IAccumulator<T> {
   reducer: IAccumulatorReducer<T>;
@@ -32,77 +29,64 @@ export class AccumulatorCondition<T = any> {
   }
 }
 
-export type IAccumulatorReducer<T> = (acc: T, t: IToken) => T;
+export type IAccumulatorReducer<T> = (acc: T, t: Token) => T;
 
-export interface IAccumulatorNode extends IReteNode {
-  type: "accumulator";
-  items: IList<IToken>;
+export class AccumulatorNode extends ReteNode {
+  static create(parent: ReteNode, c: AccumulatorCondition): AccumulatorNode {
+    const node = new AccumulatorNode(c);
+
+    node.parent = parent;
+    parent.children.unshift(node);
+
+    node.updateNewNodeWithMatchesFromAbove();
+
+    return node;
+  }
+
+  type = "accumulator";
+  items: Token[] = [];
   accumulator: AccumulatorCondition;
-}
 
-export function makeAccumulatorNode(
-  accumulator: AccumulatorCondition,
-): IAccumulatorNode {
-  const node: IAccumulatorNode = Object.create(null);
+  constructor(accumulator: AccumulatorCondition) {
+    super();
 
-  node.type = "accumulator";
-  node.items = null;
-  node.accumulator = accumulator;
-
-  return node;
-}
-
-export function buildOrShareAccumulatorNode(
-  parent: IReteNode,
-  c: AccumulatorCondition,
-): IAccumulatorNode {
-  const node = makeAccumulatorNode(c);
-
-  node.parent = parent;
-  parent.children = addToListHead(parent.children, node);
-
-  updateNewNodeWithMatchesFromAbove(node);
-
-  return node;
-}
-
-export function executeAccumulator(node: IAccumulatorNode): void {
-  const result = reduceList(
-    node.items,
-    node.accumulator.accumulator.reducer,
-    node.accumulator.accumulator.initialValue,
-  );
-
-  const cleanedVariableName = cleanVariableName(node.accumulator.bindingName);
-  const t = makeToken(node, null, result, { [cleanedVariableName]: result });
-
-  runLeftActivateOnNodes(node.children, t);
-}
-
-export function accumulatorNodeLeftActivate(
-  node: IAccumulatorNode,
-  t: IToken,
-): void {
-  if (findInList(node.items, t, compareTokens) !== -1) {
-    return;
+    this.accumulator = accumulator;
   }
 
-  node.items = addToListHead(node.items, t);
+  executeAccumulator(): void {
+    const result = reduceList(
+      this.items,
+      this.accumulator.accumulator.reducer,
+      this.accumulator.accumulator.initialValue,
+    );
 
-  executeAccumulator(node);
-}
+    const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
+    const t = Token.create(this, null, result, {
+      [cleanedVariableName]: result,
+    });
 
-export function accumulatorNodeLeftRetract(
-  node: IAccumulatorNode,
-  t: IToken,
-): void {
-  const foundIndex = findInList(node.items, t, compareTokens);
-
-  if (foundIndex === -1) {
-    return;
+    runLeftActivateOnNodes(this.children, t);
   }
 
-  node.items = removeIndexFromList(node.items, foundIndex);
+  leftActivate(t: Token): void {
+    if (findInList(this.items, t, compareTokens) !== -1) {
+      return;
+    }
 
-  executeAccumulator(node);
+    this.items.unshift(t);
+
+    this.executeAccumulator();
+  }
+
+  leftRetract(t: Token): void {
+    const foundIndex = findInList(this.items, t, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    this.items = removeIndexFromList(this.items, foundIndex);
+
+    this.executeAccumulator();
+  }
 }

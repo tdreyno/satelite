@@ -1,41 +1,34 @@
 import { IFact } from "../Fact";
-import { makeToken } from "../Token";
-import {
-  addToListHead,
-  runLeftActivateOnNodes,
-  runLeftRetractOnNodes,
-} from "../util";
-import { IAlphaMemoryNode } from "./AlphaMemoryNode";
-import { IReteNode } from "./ReteNode";
+import { Token } from "../Token";
+import { runLeftActivateOnNodes, runLeftRetractOnNodes } from "../util";
+import { AlphaMemoryNode } from "./AlphaMemoryNode";
+import { ReteNode } from "./ReteNode";
 
-export interface IRootJoinNode extends IReteNode {
-  type: "root-join";
-  alphaMemory: IAlphaMemoryNode;
-}
+export class RootJoinNode extends ReteNode {
+  static create(parent: ReteNode, alphaMemory: AlphaMemoryNode) {
+    return new RootJoinNode(parent, alphaMemory);
+  }
 
-export function makeRootJoinNode(
-  parent: IReteNode,
-  alphaMemory: IAlphaMemoryNode,
-): IRootJoinNode {
-  const node: IRootJoinNode = Object.create(null);
+  type = "root-join";
+  alphaMemory: AlphaMemoryNode;
 
-  node.type = "root-join";
-  node.parent = parent;
-  node.children = null;
-  node.alphaMemory = alphaMemory;
+  constructor(parent: ReteNode, alphaMemory: AlphaMemoryNode) {
+    super();
 
-  parent.children = addToListHead(parent.children, node);
-  alphaMemory.successors = addToListHead(alphaMemory.successors, node);
+    this.parent = parent;
+    this.alphaMemory = alphaMemory;
 
-  return node;
-}
+    this.parent.children.unshift(this);
+    this.alphaMemory.successors.unshift(this);
+  }
 
-export function rootJoinNodeRightActivate(node: IRootJoinNode, f: IFact): void {
-  const t = makeToken(node, null, f);
-  runLeftActivateOnNodes(node.children, t);
-}
+  rightActivate(f: IFact): void {
+    const t = Token.create(this, null, f);
+    runLeftActivateOnNodes(this.children, t);
+  }
 
-export function rootJoinNodeRightRetract(node: IRootJoinNode, f: IFact): void {
-  const t = makeToken(node, null, f);
-  runLeftRetractOnNodes(node.children, t);
+  rightRetract(f: IFact): void {
+    const t = Token.create(this, null, f);
+    runLeftRetractOnNodes(this.children, t);
+  }
 }

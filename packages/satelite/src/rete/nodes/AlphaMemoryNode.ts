@@ -1,34 +1,12 @@
-import { memoize } from "interstelar/dist-es5";
-import { IParsedCondition, isConstant, isPlaceholder } from "../Condition";
+import { memoize } from "interstelar";
+import { isConstant, isPlaceholder, ParsedCondition } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
 import { Rete } from "../Rete";
-import {
-  addToListHead,
-  IList,
-  removeFromList,
-  runRightActivateOnNode,
-  runRightRetractOnNode,
-} from "../util";
-import { IReteNode } from "./ReteNode";
+import { removeFromList } from "../util";
+import { ReteNode } from "./ReteNode";
 
-export interface IAlphaMemoryNode {
-  name: string;
-  facts: IList<IFact>;
-  successors: IList<IReteNode>;
-}
-
-export function makeAlphaMemoryNode(name: string): IAlphaMemoryNode {
-  const am: IAlphaMemoryNode = Object.create(null);
-
-  am.name = name;
-  am.facts = null;
-  am.successors = null;
-
-  return am;
-}
-
-export type IExhaustiveHashTable = Map<number, IAlphaMemoryNode>;
+export type IExhaustiveHashTable = Map<number, AlphaMemoryNode>;
 
 let nextHashCode = 0;
 // tslint:disable:variable-name
@@ -46,7 +24,7 @@ export function lookupInHashTable(
   identifier: IPrimitive | IIdentifier | null,
   attribute: string | null,
   value: IValue | null,
-): IAlphaMemoryNode | undefined {
+): AlphaMemoryNode | undefined {
   const hashCode = getHashCode(identifier, attribute, value);
 
   return hashTable.get(hashCode);
@@ -57,8 +35,8 @@ export function addToHashTable(
   identifier: IPrimitive | IIdentifier | null,
   attribute: string | null,
   value: IValue | null,
-): IAlphaMemoryNode {
-  const node = makeAlphaMemoryNode(
+): AlphaMemoryNode {
+  const node = new AlphaMemoryNode(
     `${identifier || "_"} ${attribute || "_"} ${value || "_"}`,
   );
 
@@ -72,78 +50,81 @@ export function createExhaustiveHashTable(): IExhaustiveHashTable {
   return new Map();
 }
 
-export function alphaMemoryNodeActivate(
-  node: IAlphaMemoryNode,
-  f: IFact,
-): void {
-  node.facts = addToListHead(node.facts, f);
+export class AlphaMemoryNode extends ReteNode {
+  static create(rete: Rete, c: ParsedCondition): AlphaMemoryNode {
+    const identifierTest = isConstant(c.identifier) ? c.identifier : null;
+    const attributeTest = isConstant(c.attribute) ? c.attribute : null;
+    const valueTest = isConstant(c.value) ? c.value : null;
 
-  if (node.successors) {
-    for (let j = 0; j < node.successors.length; j++) {
-      const successor = node.successors[j];
-      runRightActivateOnNode(successor, f);
+    const identifierIsPlaceholder = isPlaceholder(c.identifier);
+    const attributeIsPlaceholder = isPlaceholder(c.attribute);
+    const valueIsPlaceholder = isPlaceholder(c.value);
+
+    let alphaMemory = lookupInHashTable(
+      rete.hashTable,
+      identifierTest,
+      attributeTest,
+      valueTest,
+    );
+
+    if (alphaMemory) {
+      return alphaMemory;
     }
-  }
-}
 
-export function alphaMemoryNodeRetract(node: IAlphaMemoryNode, f: IFact): void {
-  if (node.successors) {
-    for (let j = 0; j < node.successors.length; j++) {
-      const successor = node.successors[j];
+    alphaMemory = addToHashTable(
+      rete.hashTable,
+      identifierTest,
+      attributeTest,
+      valueTest,
+    );
 
-      runRightRetractOnNode(successor, f);
+    for (const f of rete.facts) {
+      const matchesIdentifier =
+        !identifierTest ||
+        identifierIsPlaceholder ||
+        f.identifier === identifierTest;
+
+      const matchesAttribute =
+        !attributeTest ||
+        attributeIsPlaceholder ||
+        f.attribute === attributeTest;
+
+      const matchesValue =
+        !valueTest || valueIsPlaceholder || f.value === valueTest;
+
+      if (matchesIdentifier && matchesAttribute && matchesValue) {
+        alphaMemory.activate(f);
+      }
     }
-  }
 
-  node.facts = removeFromList(node.facts, f);
-}
-
-export function buildOrShareAlphaMemoryNode(
-  rete: Rete,
-  c: IParsedCondition,
-): IAlphaMemoryNode {
-  const identifierTest = isConstant(c.identifier) ? c.identifier : null;
-  const attributeTest = isConstant(c.attribute) ? c.attribute : null;
-  const valueTest = isConstant(c.value) ? c.value : null;
-
-  const identifierIsPlaceholder = isPlaceholder(c.identifier);
-  const attributeIsPlaceholder = isPlaceholder(c.attribute);
-  const valueIsPlaceholder = isPlaceholder(c.value);
-
-  let alphaMemory = lookupInHashTable(
-    rete.hashTable,
-    identifierTest,
-    attributeTest,
-    valueTest,
-  );
-
-  if (alphaMemory) {
     return alphaMemory;
   }
 
-  alphaMemory = addToHashTable(
-    rete.hashTable,
-    identifierTest,
-    attributeTest,
-    valueTest,
-  );
+  name: string;
+  facts: IFact[] = [];
+  successors: ReteNode[] = [];
 
-  for (const f of rete.facts) {
-    const matchesIdentifier =
-      !identifierTest ||
-      identifierIsPlaceholder ||
-      f.identifier === identifierTest;
+  constructor(name: string) {
+    super();
 
-    const matchesAttribute =
-      !attributeTest || attributeIsPlaceholder || f.attribute === attributeTest;
+    this.name = name;
+  }
 
-    const matchesValue =
-      !valueTest || valueIsPlaceholder || f.value === valueTest;
+  activate(f: IFact): void {
+    this.facts.unshift(f);
 
-    if (matchesIdentifier && matchesAttribute && matchesValue) {
-      alphaMemoryNodeActivate(alphaMemory as IAlphaMemoryNode, f);
+    for (let j = 0; j < this.successors.length; j++) {
+      const successor = this.successors[j];
+      successor.rightActivate(f);
     }
   }
 
-  return alphaMemory;
+  retract(f: IFact): void {
+    for (let j = 0; j < this.successors.length; j++) {
+      const successor = this.successors[j];
+      successor.rightRetract(f);
+    }
+
+    removeFromList(this.facts, f);
+  }
 }

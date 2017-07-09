@@ -1,9 +1,6 @@
 import { memoize } from "interstelar";
 import { IIdentifier, IPrimitive } from "./Identifier";
-import { IAlphaMemoryNode } from "./nodes/AlphaMemoryNode";
-// import { INegativeJoinResult } from "./nodes/NegativeNode";
-// import { IToken } from "./Token";
-import { IList } from "./util";
+import { AlphaMemoryNode } from "./nodes/AlphaMemoryNode";
 
 export type IValue = any;
 
@@ -16,11 +13,8 @@ export interface IFact {
   attribute: string;
   value: IValue;
 
-  alphaMemories: IList<IAlphaMemoryNode>;
+  alphaMemories: AlphaMemoryNode[];
   [key: string]: any;
-  // tokens: IList<IToken>;
-
-  // negativeJoinResults: IList<INegativeJoinResult>;
 }
 
 export function makeFactPure(
@@ -33,9 +27,6 @@ export function makeFactPure(
   f.identifier = identifier;
   f.attribute = attribute;
   f.value = value;
-
-  // f.tokens = null;
-  // f.negativeJoinResults = null;
 
   return f;
 }

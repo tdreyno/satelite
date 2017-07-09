@@ -1,5 +1,5 @@
 import { IFactTuple } from "./Fact";
-import { IProductionNode } from "./nodes/ProductionNode";
+import { ProductionNode } from "./nodes/ProductionNode";
 import { IVariableBindings } from "./Token";
 
 export type IAddFactsSignature = (facts: IFactTuple | IFactTuple[]) => void;
@@ -17,24 +17,24 @@ export type IInternalActivateCallback = (
   addProducedFact: IAddFactsSignature,
 ) => any;
 
-export interface IProduction {
-  productionNode: IProductionNode;
+export class Production {
+  static create(onActivation: IActivateCallback) {
+    return new Production(onActivation);
+  }
+
+  productionNode: ProductionNode;
   onActivation: IInternalActivateCallback;
-}
 
-export function makeProduction(onActivation: IActivateCallback): IProduction {
-  const node: IProduction = Object.create(null);
-
-  node.onActivation = (
-    f: IFactTuple,
-    b: IVariableBindings,
-    addProducedFact: (facts: IFactTuple | IFactTuple[]) => void,
-  ): void => {
-    onActivation(b, {
-      fact: f,
-      addProducedFact,
-    });
-  };
-
-  return node;
+  constructor(onActivation: IActivateCallback) {
+    this.onActivation = (
+      f: IFactTuple,
+      b: IVariableBindings,
+      addProducedFact: (facts: IFactTuple | IFactTuple[]) => void,
+    ): void => {
+      onActivation(b, {
+        fact: f,
+        addProducedFact,
+      });
+    };
+  }
 }

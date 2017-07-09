@@ -1,53 +1,45 @@
 import { IFact } from "../Fact";
-import { IQuery } from "../Query";
-import { compareTokens, IToken } from "../Token";
-import {
-  addToListHead,
-  findInList,
-  IList,
-  removeFromList,
-  removeIndexFromList,
-} from "../util";
-import { IReteNode } from "./ReteNode";
+import { Query } from "../Query";
+import { compareTokens, Token } from "../Token";
+import { findInList, removeFromList, removeIndexFromList } from "../util";
+import { ReteNode } from "./ReteNode";
 
-export interface IQueryNode extends IReteNode {
-  type: "query";
-  items: IList<IToken>;
-  query: IQuery;
-  facts: IList<IFact>;
-}
-
-export function makeQueryNode(query: IQuery): IQueryNode {
-  const node: IQueryNode = Object.create(null);
-
-  node.type = "query";
-  node.items = null;
-  node.facts = null;
-  node.query = query;
-
-  return node;
-}
-
-export function queryNodeLeftActivate(node: IQueryNode, t: IToken): void {
-  if (findInList(node.items, t, compareTokens) !== -1) {
-    return;
+export class QueryNode extends ReteNode {
+  static create(query: Query) {
+    return new QueryNode(query);
   }
 
-  node.items = addToListHead(node.items, t);
-  node.facts = addToListHead(node.facts, t.fact);
+  type = "query";
+  items: Token[] = [];
+  query: Query;
+  facts: IFact[] = [];
 
-  node.query.didChange();
-}
-
-export function queryNodeLeftRetract(node: IQueryNode, t: IToken): void {
-  const foundIndex = findInList(node.items, t, compareTokens);
-
-  if (foundIndex === -1) {
-    return;
+  constructor(query: Query) {
+    super();
+    this.query = query;
   }
 
-  node.items = removeIndexFromList(node.items, foundIndex);
-  node.facts = removeFromList(node.facts, t.fact);
+  leftActivate(t: Token): void {
+    if (findInList(this.items, t, compareTokens) !== -1) {
+      return;
+    }
 
-  node.query.didChange();
+    this.items.unshift(t);
+    this.facts.unshift(t.fact);
+
+    this.query.didChange();
+  }
+
+  leftRetract(t: Token): void {
+    const foundIndex = findInList(this.items, t, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    removeIndexFromList(this.items, foundIndex);
+    removeFromList(this.facts, t.fact);
+
+    this.query.didChange();
+  }
 }

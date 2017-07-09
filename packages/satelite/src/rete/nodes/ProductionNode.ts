@@ -1,113 +1,106 @@
 import { extractBindingsFromCondition, IParsedCondition } from "../Condition";
 import { IFactTuple, makeFactTuple } from "../Fact";
-import { IProduction } from "../Production";
+import { Production } from "../Production";
 import { Rete } from "../Rete";
-import { compareTokens, IToken } from "../Token";
-import { addToListHead, findInList, IList, removeIndexFromList } from "../util";
-import { IReteNode } from "./ReteNode";
+import { compareTokens, Token } from "../Token";
+import { findInList, removeIndexFromList } from "../util";
+import { ReteNode } from "./ReteNode";
 
 export interface IResultingFacts {
-  token: IToken;
+  token: Token;
   facts: IFactTuple[];
 }
 
-export interface IProductionNode extends IReteNode {
-  type: "production";
-  rete: Rete;
-  items: IList<IToken>;
-  production: IProduction;
-  conditions: IParsedCondition[];
-  resultingFacts: IList<IResultingFacts>;
-}
-
-export function makeProductionNode(
-  r: Rete,
-  production: IProduction,
-  conditions: IParsedCondition[],
-): IProductionNode {
-  const node: IProductionNode = Object.create(null);
-
-  node.type = "production";
-  node.rete = r;
-  node.items = null;
-  node.production = production;
-  node.conditions = conditions;
-  node.resultingFacts = null;
-
-  return node;
-}
-
-export function productionNodeLeftActivate(
-  node: IProductionNode,
-  t: IToken,
-): void {
-  if (findInList(node.items, t, compareTokens) !== -1) {
-    return;
+export class ProductionNode extends ReteNode {
+  static create(
+    r: Rete,
+    production: Production,
+    conditions: IParsedCondition[],
+  ): ProductionNode {
+    return new ProductionNode(r, production, conditions);
   }
 
-  node.items = addToListHead(node.items, t);
+  type = "production";
+  rete: Rete;
+  items: Token[] = [];
+  production: Production;
+  conditions: IParsedCondition[];
+  resultingFacts: IResultingFacts[] = [];
 
-  function addProducedFacts(factOrFacts: IFactTuple | IFactTuple[]) {
-    const facts: IFactTuple[] =
-      factOrFacts[1] && typeof factOrFacts[1] === "string"
-        ? [factOrFacts]
-        : factOrFacts as any;
+  constructor(r: Rete, production: Production, conditions: IParsedCondition[]) {
+    super();
 
-    for (let i = 0; i < facts.length; i++) {
-      node.rete.addFact(facts[i]);
+    this.rete = r;
+    this.production = production;
+    this.conditions = conditions;
+  }
+
+  leftActivate(t: Token): void {
+    if (findInList(this.items, t, compareTokens) !== -1) {
+      return;
     }
 
-    node.resultingFacts = addToListHead(node.resultingFacts, {
-      token: t,
-      facts,
-    });
-  }
+    this.items.unshift(t);
 
-  const lastCondition = node.conditions[node.conditions.length - 1];
-
-  let bindings = t.bindings;
-  if (lastCondition) {
-    bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
-  }
-
-  node.production.onActivation(
-    makeFactTuple(t.fact),
-    bindings,
-    addProducedFacts,
-  );
-}
-
-export function productionNodeLeftRetract(
-  node: IProductionNode,
-  t: IToken,
-): void {
-  const foundIndex = findInList(node.items, t, compareTokens);
-
-  if (foundIndex === -1) {
-    return;
-  }
-
-  node.items = removeIndexFromList(node.items, foundIndex);
-
-  if (node.resultingFacts) {
-    const foundResultingFactIndex = findInList(
-      node.resultingFacts,
-      t,
-      (resultingFact, token) => {
-        return compareTokens(resultingFact.token, token);
-      },
-    );
-
-    if (foundResultingFactIndex !== -1) {
-      const facts = node.resultingFacts[foundResultingFactIndex].facts;
-
-      node.resultingFacts = removeIndexFromList(
-        node.resultingFacts,
-        foundResultingFactIndex,
-      );
+    const addProducedFacts = (factOrFacts: IFactTuple | IFactTuple[]) => {
+      const facts: IFactTuple[] =
+        factOrFacts[1] && typeof factOrFacts[1] === "string"
+          ? [factOrFacts]
+          : factOrFacts as any;
 
       for (let i = 0; i < facts.length; i++) {
-        node.rete.removeFact(facts[i]);
+        this.rete.addFact(facts[i]);
+      }
+
+      this.resultingFacts.unshift({
+        token: t,
+        facts,
+      });
+    };
+
+    const lastCondition = this.conditions[this.conditions.length - 1];
+
+    let bindings = t.bindings;
+    if (lastCondition) {
+      bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
+    }
+
+    this.production.onActivation(
+      makeFactTuple(t.fact),
+      bindings,
+      addProducedFacts,
+    );
+  }
+
+  leftRetract(t: Token): void {
+    const foundIndex = findInList(this.items, t, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    this.items = removeIndexFromList(this.items, foundIndex);
+
+    if (this.resultingFacts) {
+      const foundResultingFactIndex = findInList(
+        this.resultingFacts,
+        t,
+        (resultingFact, token) => {
+          return compareTokens(resultingFact.token, token);
+        },
+      );
+
+      if (foundResultingFactIndex !== -1) {
+        const facts = this.resultingFacts[foundResultingFactIndex].facts;
+
+        this.resultingFacts = removeIndexFromList(
+          this.resultingFacts,
+          foundResultingFactIndex,
+        );
+
+        for (let i = 0; i < facts.length; i++) {
+          this.rete.removeFact(facts[i]);
+        }
       }
     }
   }

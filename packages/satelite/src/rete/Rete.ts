@@ -1,43 +1,34 @@
 import {
   getJoinTestsFromCondition,
   ICondition,
-  IParsedCondition,
   parseCondition,
+  ParsedCondition,
 } from "./Condition";
 import { IFact, IFactTuple, makeFact } from "./Fact";
 import {
   AccumulatorCondition,
-  buildOrShareAccumulatorNode,
+  AccumulatorNode,
   IAccumulator,
 } from "./nodes/AccumulatorNode";
 import {
-  alphaMemoryNodeActivate,
-  alphaMemoryNodeRetract,
-  buildOrShareAlphaMemoryNode,
+  AlphaMemoryNode,
   createExhaustiveHashTable,
-  IAlphaMemoryNode,
   IExhaustiveHashTable,
   lookupInHashTable,
 } from "./nodes/AlphaMemoryNode";
-import { buildOrShareJoinNode } from "./nodes/JoinNode";
-import { buildOrShareNegativeNode } from "./nodes/NegativeNode";
-import { makeProductionNode } from "./nodes/ProductionNode";
-import { makeQueryNode } from "./nodes/QueryNode";
-import { IReteNode, RootNode } from "./nodes/ReteNode";
-import { makeRootJoinNode } from "./nodes/RootJoinNode";
-import { IActivateCallback, IProduction, makeProduction } from "./Production";
-import { IQuery, makeQuery } from "./Query";
-import { IToken } from "./Token";
-import {
-  addToListHead,
-  IList,
-  runRightRetractOnNode,
-  updateNewNodeWithMatchesFromAbove,
-} from "./util";
+import { JoinNode } from "./nodes/JoinNode";
+import { NegativeNode } from "./nodes/NegativeNode";
+import { ProductionNode } from "./nodes/ProductionNode";
+import { QueryNode } from "./nodes/QueryNode";
+import { ReteNode, RootNode } from "./nodes/ReteNode";
+import { RootJoinNode } from "./nodes/RootJoinNode";
+import { IActivateCallback, Production } from "./Production";
+import { Query } from "./Query";
+import { Token } from "./Token";
 
 // tslint:disable:max-classes-per-file
 
-export type ITerminalNode = IProduction | IQuery;
+export type ITerminalNode = Production | Query;
 
 export { IIdentifier } from "./Identifier";
 
@@ -92,7 +83,7 @@ export function max(
   return acc(
     bindingName,
     {
-      reducer: (acc: number, item: IToken): number => {
+      reducer: (acc: number, item: Token): number => {
         const value = item.fact.value;
         return value > acc ? value : acc;
       },
@@ -110,8 +101,8 @@ export class Rete {
     addProduction: (
       conditions: Array<ICondition | AccumulatorCondition>,
       callback: IActivateCallback,
-    ) => IProduction;
-    addQuery: (conditions: Array<ICondition | AccumulatorCondition>) => IQuery;
+    ) => Production;
+    addQuery: (conditions: Array<ICondition | AccumulatorCondition>) => Query;
   } {
     const r = new Rete();
 
@@ -125,7 +116,7 @@ export class Rete {
   }
 
   root = RootNode.create();
-  terminalNodes: IList<ITerminalNode> = null;
+  terminalNodes: ITerminalNode[] = [];
   facts: Set<IFact> = new Set();
   hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
 
@@ -142,7 +133,7 @@ export class Rete {
     if (!this.facts.has(f)) {
       this.facts.add(f);
 
-      this.dispatchToAlphaMemories(f, alphaMemoryNodeActivate);
+      this.dispatchToAlphaMemories(f, "activate");
     }
   }
 
@@ -150,117 +141,83 @@ export class Rete {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     if (this.facts.has(f)) {
-      this.dispatchToAlphaMemories(f, alphaMemoryNodeRetract);
+      this.dispatchToAlphaMemories(f, "retract");
 
       this.facts.delete(f);
     }
 
-    runRightRetractOnNode(this.root, f);
+    this.root.rightRetract(f);
   }
 
   addProduction(
     conditions: Array<ICondition | AccumulatorCondition>,
     callback: IActivateCallback,
-  ): IProduction {
+  ): Production {
     const parsedConditions = conditions.map(parseCondition);
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
       [],
     );
 
-    const production = makeProduction(callback);
-    production.productionNode = makeProductionNode(
+    const production = Production.create(callback);
+    production.productionNode = ProductionNode.create(
       this,
       production,
       parsedConditions,
     );
 
-    currentNode.children = addToListHead(
-      currentNode.children,
-      production.productionNode,
-    );
+    currentNode.children.unshift(production.productionNode);
 
     production.productionNode.parent = currentNode;
 
-    updateNewNodeWithMatchesFromAbove(production.productionNode);
+    production.productionNode.updateNewNodeWithMatchesFromAbove();
 
-    this.terminalNodes = addToListHead(this.terminalNodes, production);
+    this.terminalNodes.unshift(production);
 
     return production;
   }
 
-  addQuery(conditions: Array<ICondition | AccumulatorCondition>): IQuery {
+  addQuery(conditions: Array<ICondition | AccumulatorCondition>): Query {
     const parsedConditions = conditions.map(parseCondition);
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
       [],
     );
 
-    const query = makeQuery(parsedConditions);
-    query.queryNode = makeQueryNode(query);
-    currentNode.children = addToListHead(currentNode.children, query.queryNode);
+    const query = Query.create(parsedConditions);
+    query.queryNode = QueryNode.create(query);
+    currentNode.children.unshift(query.queryNode);
 
     query.queryNode.parent = currentNode;
 
-    updateNewNodeWithMatchesFromAbove(query.queryNode);
+    query.queryNode.updateNewNodeWithMatchesFromAbove();
 
-    this.terminalNodes = addToListHead(this.terminalNodes, query);
+    this.terminalNodes.unshift(query);
 
     return query;
   }
 
   private dispatchToAlphaMemories(
     f: IFact,
-    fn: (am: IAlphaMemoryNode, f: IFact) => void,
+    fnName: "activate" | "retract",
   ): void {
-    let am;
+    const fn = (am?: AlphaMemoryNode) => am && am[fnName](f);
 
-    am = lookupInHashTable(this.hashTable, f.identifier, f.attribute, f.value);
-    if (am) {
-      fn(am, f);
-    }
-
-    am = lookupInHashTable(this.hashTable, f.identifier, f.attribute, null);
-    if (am) {
-      fn(am, f);
-    }
-
-    am = lookupInHashTable(this.hashTable, null, f.attribute, f.value);
-    if (am) {
-      fn(am, f);
-    }
-
-    am = lookupInHashTable(this.hashTable, f.identifier, null, f.value);
-    if (am) {
-      fn(am, f);
-    }
-
-    am = lookupInHashTable(this.hashTable, null, null, f.value);
-    if (am) {
-      fn(am, f);
-    }
-
-    am = lookupInHashTable(this.hashTable, null, f.attribute, null);
-    if (am) {
-      fn(am, f);
-    }
-
-    am = lookupInHashTable(this.hashTable, f.identifier, null, null);
-    if (am) {
-      fn(am, f);
-    }
-
-    am = lookupInHashTable(this.hashTable, null, null, null);
-    if (am) {
-      fn(am, f);
-    }
+    fn(lookupInHashTable(this.hashTable, f.identifier, f.attribute, f.value));
+    fn(lookupInHashTable(this.hashTable, f.identifier, f.attribute, null));
+    fn(lookupInHashTable(this.hashTable, null, f.attribute, f.value));
+    fn(lookupInHashTable(this.hashTable, f.identifier, null, f.value));
+    fn(lookupInHashTable(this.hashTable, null, null, f.value));
+    fn(lookupInHashTable(this.hashTable, null, f.attribute, null));
+    fn(lookupInHashTable(this.hashTable, f.identifier, null, null));
+    fn(lookupInHashTable(this.hashTable, null, null, null));
   }
 
   private buildOrShareNetworkForConditions(
-    conditions: Array<IParsedCondition | AccumulatorCondition>,
-    earlierConditions: Array<IParsedCondition | AccumulatorCondition>,
-    currentNode: IReteNode = this.root,
-  ): IReteNode {
+    conditions: Array<ParsedCondition | AccumulatorCondition>,
+    earlierConditions: Array<ParsedCondition | AccumulatorCondition>,
+    currentNode: ReteNode = this.root,
+  ): ReteNode {
     const conditionsHigherUp = [...earlierConditions];
 
     for (let i = 0; i < conditions.length; i++) {
@@ -275,25 +232,22 @@ export class Rete {
           );
 
           subNetwork.parent = currentNode;
-          currentNode.children = addToListHead(
-            currentNode.children,
-            subNetwork,
-          );
+          currentNode.children.unshift(subNetwork);
 
           currentNode = subNetwork;
-          updateNewNodeWithMatchesFromAbove(currentNode);
+          currentNode.updateNewNodeWithMatchesFromAbove();
         }
 
-        currentNode = buildOrShareAccumulatorNode(currentNode, c);
+        currentNode = AccumulatorNode.create(currentNode, c);
       } else if (currentNode === this.root) {
-        const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
-        currentNode = makeRootJoinNode(currentNode, alphaMemory);
+        const alphaMemory = AlphaMemoryNode.create(this, c);
+        currentNode = RootJoinNode.create(currentNode, alphaMemory);
       } else {
-        const alphaMemory = buildOrShareAlphaMemoryNode(this, c);
+        const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
         currentNode = c.isNegated
-          ? buildOrShareNegativeNode(currentNode, alphaMemory, joinTests)
-          : buildOrShareJoinNode(currentNode, alphaMemory, joinTests);
+          ? NegativeNode.create(currentNode, alphaMemory, joinTests)
+          : JoinNode.create(currentNode, alphaMemory, joinTests);
       }
 
       conditionsHigherUp.push(c);

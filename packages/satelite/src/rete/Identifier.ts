@@ -2,7 +2,7 @@ import { memoize } from "interstelar";
 
 export type IPrimitive = string | number;
 
-export interface IIdentifier {
+export class IIdentifier {
   attribute: string;
   value: IPrimitive;
 }
