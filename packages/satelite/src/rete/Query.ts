@@ -1,4 +1,4 @@
-import { extractBindingsFromCondition, IParsedCondition } from "./Condition";
+import { extractBindingsFromCondition, ParsedCondition } from "./Condition";
 import { IFact, IFactTuple, makeFactTuple } from "./Fact";
 import { QueryNode } from "./nodes/QueryNode";
 import { IVariableBindings } from "./Token";
@@ -9,23 +9,23 @@ export type IQueryChangeFn = (
 ) => any;
 
 export class Query {
-  static create(conditions: IParsedCondition[]) {
+  static create(conditions: ParsedCondition[]) {
     return new Query(conditions);
   }
 
   queryNode: QueryNode | null;
   callbacks: Set<IQueryChangeFn> = new Set();
-  conditions: IParsedCondition[] = [];
-  lastCondition: IParsedCondition;
+  conditions: ParsedCondition[] = [];
+  lastCondition: ParsedCondition;
 
-  constructor(conditions: IParsedCondition[]) {
+  constructor(conditions: ParsedCondition[]) {
     this.conditions = conditions;
     this.lastCondition = this.conditions[this.conditions.length - 1];
   }
 
   getFacts(): IFactTuple[] {
     return this.queryNode && this.queryNode.facts
-      ? (this.queryNode.facts as IFact[]).map(f => makeFactTuple(f))
+      ? (this.queryNode.facts as IFact[]).map(makeFactTuple)
       : [];
   }
 

@@ -12,29 +12,33 @@ export type IActivateCallback = (
 ) => any;
 
 export type IInternalActivateCallback = (
-  f: IFactTuple,
   v: IVariableBindings,
-  addProducedFact: IAddFactsSignature,
+  extra: {
+    fact: IFactTuple;
+    addProducedFact: IAddFactsSignature;
+  },
 ) => any;
 
 export class Production {
-  static create(onActivation: IActivateCallback) {
-    return new Production(onActivation);
+  static create(onActivationCallback: IActivateCallback) {
+    return new Production(onActivationCallback);
   }
 
   productionNode: ProductionNode;
-  onActivation: IInternalActivateCallback;
+  onActivationCallback: IInternalActivateCallback;
 
-  constructor(onActivation: IActivateCallback) {
-    this.onActivation = (
-      f: IFactTuple,
-      b: IVariableBindings,
-      addProducedFact: (facts: IFactTuple | IFactTuple[]) => void,
-    ): void => {
-      onActivation(b, {
-        fact: f,
-        addProducedFact,
-      });
-    };
+  constructor(onActivationCallback: IActivateCallback) {
+    this.onActivationCallback = onActivationCallback;
+  }
+
+  onActivation(
+    f: IFactTuple,
+    b: IVariableBindings,
+    addProducedFact: (facts: IFactTuple | IFactTuple[]) => void,
+  ): void {
+    this.onActivationCallback(b, {
+      fact: f,
+      addProducedFact,
+    });
   }
 }

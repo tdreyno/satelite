@@ -1,4 +1,4 @@
-import { extractBindingsFromCondition, IParsedCondition } from "../Condition";
+import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFactTuple, makeFactTuple } from "../Fact";
 import { Production } from "../Production";
 import { Rete } from "../Rete";
@@ -15,7 +15,7 @@ export class ProductionNode extends ReteNode {
   static create(
     r: Rete,
     production: Production,
-    conditions: IParsedCondition[],
+    conditions: ParsedCondition[],
   ): ProductionNode {
     return new ProductionNode(r, production, conditions);
   }
@@ -24,10 +24,10 @@ export class ProductionNode extends ReteNode {
   rete: Rete;
   items: Token[] = [];
   production: Production;
-  conditions: IParsedCondition[];
+  conditions: ParsedCondition[];
   resultingFacts: IResultingFacts[] = [];
 
-  constructor(r: Rete, production: Production, conditions: IParsedCondition[]) {
+  constructor(r: Rete, production: Production, conditions: ParsedCondition[]) {
     super();
 
     this.rete = r;

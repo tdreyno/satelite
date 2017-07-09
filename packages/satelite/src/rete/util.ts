@@ -2,11 +2,7 @@ import { IFact } from "./Fact";
 import { ReteNode } from "./nodes/ReteNode";
 import { Token } from "./Token";
 
-export function removeFromList<T>(list: T[] | null, item: T): T[] | null {
-  if (!list) {
-    return null;
-  }
-
+export function removeFromList<T>(list: T[], item: T): T[] {
   const i = list.indexOf(item);
 
   return removeIndexFromList(list, i);

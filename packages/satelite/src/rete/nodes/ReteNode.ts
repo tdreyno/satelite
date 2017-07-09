@@ -82,6 +82,6 @@ export class RootNode extends ReteNode {
 
   type = "root";
 
-  // tslint:disable-next-line:no-empty
-  rightRetract() {}
+  // tslint:disable-next-line:no-empty variable-name
+  rightRetract(_f: IFact) {}
 }

@@ -1,4 +1,4 @@
-import { cleanVariableName, IParsedCondition } from "../Condition";
+import { cleanVariableName, ParsedCondition } from "../Condition";
 import { compareTokens, Token } from "../Token";
 import {
   findInList,
@@ -16,12 +16,12 @@ export interface IAccumulator<T> {
 export class AccumulatorCondition<T = any> {
   bindingName: string;
   accumulator: IAccumulator<T>;
-  conditions?: Array<IParsedCondition | AccumulatorCondition>;
+  conditions?: Array<ParsedCondition | AccumulatorCondition>;
 
   constructor(
     bindingName: string,
     accumulator: IAccumulator<T>,
-    conditions?: Array<IParsedCondition | AccumulatorCondition>,
+    conditions?: Array<ParsedCondition | AccumulatorCondition>,
   ) {
     this.bindingName = bindingName;
     this.accumulator = accumulator;
