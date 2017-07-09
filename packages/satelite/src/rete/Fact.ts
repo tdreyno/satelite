@@ -2,7 +2,6 @@ import { memoize } from "interstelar";
 import { IIdentifier, IPrimitive } from "./Identifier";
 
 export type IValue = any;
-
 export type IFact = [IIdentifier | IPrimitive, string, IValue];
 export type IFactFields = "0" | "1" | "2";
 

@@ -1,5 +1,5 @@
 import { memoize } from "interstelar";
-import { IFactFields, IFact, IValue } from "./Fact";
+import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { TestAtJoinNode } from "./nodes/JoinNode";
