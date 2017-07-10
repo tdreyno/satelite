@@ -1,3 +1,4 @@
+import { isArray } from "lodash";
 import {
   getJoinTestsFromCondition,
   ICondition,
@@ -98,6 +99,8 @@ export class Rete {
     self: Rete;
     addFact: (factTuple: IFact) => void;
     removeFact: (factTuple: IFact) => void;
+    addFacts: (factTuple: IFact | IFact[]) => void;
+    removeFacts: (factTuple: IFact | IFact[]) => void;
     addProduction: (
       conditions: Array<ICondition | AccumulatorCondition>,
       callback: IActivateCallback,
@@ -110,6 +113,8 @@ export class Rete {
       self: r,
       addFact: r.addFact,
       removeFact: r.removeFact,
+      addFacts: r.addFacts,
+      removeFacts: r.removeFacts,
       addProduction: r.addProduction,
       addQuery: r.addQuery,
     };
@@ -122,7 +127,9 @@ export class Rete {
 
   constructor() {
     this.addFact = this.addFact.bind(this);
+    this.addFacts = this.addFacts.bind(this);
     this.removeFact = this.removeFact.bind(this);
+    this.removeFacts = this.removeFacts.bind(this);
     this.addProduction = this.addProduction.bind(this);
     this.addQuery = this.addQuery.bind(this);
   }
@@ -137,6 +144,12 @@ export class Rete {
     }
   }
 
+  addFacts(facts: IFact | IFact[]): void {
+    const items = isArray(facts) ? [facts] : facts;
+
+    items.forEach(this.addFact);
+  }
+
   removeFact(fact: IFact): void {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
@@ -147,6 +160,12 @@ export class Rete {
     }
 
     this.root.rightRetract(f);
+  }
+
+  removeFacts(facts: IFact | IFact[]): void {
+    const items = isArray(facts) ? [facts] : facts;
+
+    items.forEach(this.removeFact);
   }
 
   addProduction(
