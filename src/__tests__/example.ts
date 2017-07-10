@@ -7,18 +7,23 @@ const {
   addQuery: query,
 } = Rete.create();
 
-const articleModeratorLoader = makeIdentifier("loader/id", "articleModerators");
 const hasData = (v: boolean): IFact => [
-  articleModeratorLoader,
+  "articleModerators",
   "loader/hasData",
   v,
 ];
 const isFetching = (v: boolean): IFact => [
-  articleModeratorLoader,
+  "articleModerators",
   "loader/isFetching",
   v,
 ];
 const articleIdent = (id: string) => makeIdentifier("article/id", id);
+
+const articleModeratorsScope = (id: string) => (v: string): IFact => [
+  articleIdent(id),
+  "article/moderators",
+  v,
+];
 
 // Action.
 export async function load() {
@@ -30,34 +35,24 @@ export async function load() {
 
   assert(isFetching(false));
 
-  Object.keys(json).forEach(articleId => {
+  const insertions = Object.keys(json).reduce((sum, articleId) => {
     const userIds = json[articleId];
+    return sum.concat(userIds.map(articleModeratorsScope(articleId)));
+  }, [] as IFact[]);
 
-    const articleModeratorsScope = (v: string): IFact => [
-      articleIdent(articleId),
-      "article/moderators",
-      v,
-    ];
-
-    assert(userIds.map(articleModeratorsScope));
-  });
-
+  assert(insertions);
   assert(hasData(true));
 }
 
 export function updateArticleModerators(articleId: string, userIds: string[]) {
-  const articleModeratorsScope = (v: string | typeof _): IFact => [
-    articleIdent(articleId),
-    "article/moderators",
-    v,
-  ];
-
   // Find all moderators for this article (`_` is the wildcard character)
-  const currentModerators = query(articleModeratorsScope(_)).getFacts();
+  const currentModerators = query(
+    articleModeratorsScope(articleId)(_),
+  ).getFacts();
 
   // Remove them.
   retract(currentModerators);
 
   // Add the new values.
-  assert(userIds.map(articleModeratorsScope));
+  assert(userIds.map(articleModeratorsScope(articleId)));
 }
