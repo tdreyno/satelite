@@ -6,6 +6,17 @@ import { ReteNode } from "./ReteNode";
 
 export class RootJoinNode extends ReteNode {
   static create(parent: ReteNode, alphaMemory: AlphaMemoryNode) {
+    for (let i = 0; i < parent.children.length; i++) {
+      const sibling = parent.children[i];
+
+      if (
+        sibling instanceof RootJoinNode &&
+        sibling.alphaMemory === alphaMemory
+      ) {
+        return sibling;
+      }
+    }
+
     return new RootJoinNode(parent, alphaMemory);
   }
 

@@ -177,6 +177,22 @@ describe("Rete", () => {
     expect(coolFacts[0][0]).toBe(thomas);
   });
 
+  it("should make sure 2 queries for the same conditions return the same object", () => {
+    const { self, addFact, addQuery } = Rete.create();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      addFact(DATA_SET[i]);
+    }
+
+    const query1 = addQuery([["?e", "isLady", true]]);
+    const query2 = addQuery([["?e", "isLady", true]]);
+
+    expect(self.root.children).toHaveLength(1);
+    expect(query1 === query2).toBeFalsy();
+    expect(query1.queryNode === query2.queryNode).toBeFalsy();
+    expect(query1.queryNode.parent === query2.queryNode.parent).toBeTruthy();
+  });
+
   it("should be able to accumulate facts", () => {
     expect.assertions(2);
 
