@@ -7,7 +7,7 @@ import {
   runLeftRetractOnNodes,
 } from "../util";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
-import { performJoinTests, TestAtJoinNode } from "./JoinNode";
+import { performJoinTests, sameTests, TestAtJoinNode } from "./JoinNode";
 import { ReteNode } from "./ReteNode";
 
 export class NegativeNode extends ReteNode {
@@ -16,6 +16,19 @@ export class NegativeNode extends ReteNode {
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
   ): NegativeNode {
+    for (let i = 0; i < parent.children.length; i++) {
+      const sibling = parent.children[i];
+
+      if (
+        sibling instanceof NegativeNode &&
+        sibling.alphaMemory === alphaMemory
+      ) {
+        if (sameTests(sibling.tests, tests)) {
+          return sibling;
+        }
+      }
+    }
+
     const node = new NegativeNode(parent, alphaMemory, tests);
 
     parent.children.unshift(node);
