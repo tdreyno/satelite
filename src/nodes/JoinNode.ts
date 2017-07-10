@@ -1,3 +1,4 @@
+import { memoize } from "interstelar";
 import {
   cleanVariableName,
   extractBindingsFromCondition,
@@ -39,6 +40,8 @@ export class TestAtJoinNode {
   }
 }
 
+export const createTestAtJoinNode = memoize(TestAtJoinNode.create);
+
 export function performJoinTests(
   tests: TestAtJoinNode[],
   t: Token,
@@ -69,12 +72,36 @@ export function performJoinTests(
   return bindings;
 }
 
+export function sameTests(a: TestAtJoinNode[], b: TestAtJoinNode[]): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export class JoinNode extends ReteNode {
   static create(
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
   ): JoinNode {
+    for (let i = 0; i < parent.children.length; i++) {
+      const sibling = parent.children[i];
+
+      if (sibling instanceof JoinNode && sibling.alphaMemory === alphaMemory) {
+        if (sameTests(sibling.tests, tests)) {
+          return sibling;
+        }
+      }
+    }
+
     const node = new JoinNode(parent, alphaMemory, tests);
 
     parent.children.unshift(node);

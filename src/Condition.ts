@@ -2,7 +2,7 @@ import { memoize } from "interstelar";
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition } from "./nodes/AccumulatorNode";
-import { TestAtJoinNode } from "./nodes/JoinNode";
+import { createTestAtJoinNode, TestAtJoinNode } from "./nodes/JoinNode";
 import { getVariablePrefix, placeholder } from "./Rete";
 import { IVariableBindings } from "./Token";
 
@@ -136,7 +136,7 @@ export function getJoinTestsFromCondition(
           : earlierCondition.variableNames[variableName];
 
       results.unshift(
-        TestAtJoinNode.create(fieldArg1, earlierCondition, fieldArg2),
+        createTestAtJoinNode(fieldArg1, earlierCondition, fieldArg2),
       );
     }
   }
