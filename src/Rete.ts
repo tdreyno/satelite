@@ -106,6 +106,9 @@ export class Rete {
       callback: IActivateCallback,
     ) => Production;
     addQuery: (conditions: Array<ICondition | AccumulatorCondition>) => Query;
+    queryImmediately: (
+      conditions: Array<ICondition | AccumulatorCondition>,
+    ) => IFact[];
   } {
     const r = new Rete();
 
@@ -117,6 +120,7 @@ export class Rete {
       removeFacts: r.removeFacts,
       addProduction: r.addProduction,
       addQuery: r.addQuery,
+      queryImmediately: r.queryImmediately,
     };
   }
 
@@ -132,6 +136,7 @@ export class Rete {
     this.removeFacts = this.removeFacts.bind(this);
     this.addProduction = this.addProduction.bind(this);
     this.addQuery = this.addQuery.bind(this);
+    this.queryImmediately = this.queryImmediately.bind(this);
   }
 
   addFact(factTuple: IFact): void {
@@ -214,6 +219,13 @@ export class Rete {
     this.terminalNodes.unshift(query);
 
     return query;
+  }
+
+  queryImmediately(
+    conditions: Array<ICondition | AccumulatorCondition>,
+  ): IFact[] {
+    const q = this.addQuery(conditions);
+    return q.getFacts();
   }
 
   private dispatchToAlphaMemories(

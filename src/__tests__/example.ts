@@ -4,7 +4,7 @@ declare const fetch: (path: string) => Promise<any>;
 const {
   addFacts: assert,
   removeFacts: retract,
-  addQuery: query,
+  queryImmediately: query,
 } = Rete.create();
 
 const hasData = (v: boolean): IFact => [
@@ -46,9 +46,7 @@ export async function load() {
 
 export function updateArticleModerators(articleId: string, userIds: string[]) {
   // Find all moderators for this article (`_` is the wildcard character)
-  const currentModerators = query(
-    articleModeratorsScope(articleId)(_),
-  ).getFacts();
+  const currentModerators = query(articleModeratorsScope(articleId)(_));
 
   // Remove them.
   retract(currentModerators);
