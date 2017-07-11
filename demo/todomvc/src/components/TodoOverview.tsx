@@ -1,16 +1,26 @@
 import * as React from "react";
+import { inject } from "../../../../src/react";
 import { ACTIVE_TODOS, COMPLETED_TODOS } from "../constants";
-import { TodoStore } from "../stores/TodoStore";
-import { ViewStore } from "../stores/ViewStore";
+import {
+  activeTodoCount,
+  ITodoIdentifier,
+  ITodoModel,
+  todoFilter,
+} from "../models/TodoModel";
 import { TodoItem } from "./TodoItem";
 
-export class TodoOverview extends React.Component<{
-  viewStore: ViewStore;
-  todoStore: TodoStore;
-}> {
+export interface ITodoOverviewProps {
+  todoFilter: string;
+  activeTodoCount: number;
+  todos: ITodoIdentifier[];
+  completedTodos: ITodoIdentifier[];
+  toggleAll: (checked: boolean) => any;
+}
+
+class TodoOverviewPure extends React.Component<ITodoOverviewProps> {
   render() {
-    const { todoStore, viewStore } = this.props;
-    if (todoStore.todos.length === 0) {
+    const { activeTodoCount, todos } = this.props;
+    if (todos.length === 0) {
       return null;
     }
     return (
@@ -19,11 +29,11 @@ export class TodoOverview extends React.Component<{
           className="toggle-all"
           type="checkbox"
           onChange={this.toggleAll.bind(this)}
-          checked={todoStore.activeTodoCount === 0}
+          checked={activeTodoCount === 0}
         />
         <ul className="todo-list">
           {this.getVisibleTodos().map(todo =>
-            <TodoItem key={todo.id} todo={todo} viewStore={viewStore} />,
+            <TodoItem key={todo.value} todo={todo} />,
           )}
         </ul>
       </section>
@@ -31,12 +41,14 @@ export class TodoOverview extends React.Component<{
   }
 
   getVisibleTodos() {
-    return this.props.todoStore.todos.filter(todo => {
-      switch (this.props.viewStore.todoFilter) {
+    const { completedTodos, todos, todoFilter } = this.props;
+
+    return todos.filter(todo => {
+      switch (todoFilter) {
         case ACTIVE_TODOS:
-          return !todo.completed;
+          return completedTodos.indexOf(todo) === -1;
         case COMPLETED_TODOS:
-          return todo.completed;
+          return completedTodos.indexOf(todo) !== -1;
         default:
           return true;
       }
@@ -45,6 +57,22 @@ export class TodoOverview extends React.Component<{
 
   toggleAll(event: React.ChangeEvent<HTMLInputElement>) {
     const checked = event.target.checked;
-    this.props.todoStore.toggleAll(checked);
+    this.props.toggleAll(checked);
   }
 }
+
+export const TodoOverview = inject(
+  ({ self, queryImmediately, removeFact, _ }) => {
+    const todos = queryImmediately([["global", "todos", _]]).map(f => f[2]);
+
+    return {
+      todoFilter: todoFilter(self),
+      completedTodos: queryImmediately([[_, "todo/completed", true]]).map(
+        f => f[0],
+      ),
+      activeTodoCount: activeTodoCount(self),
+      todos,
+      toggleAll: (checked: boolean) => null,
+    };
+  },
+)(TodoOverviewPure);

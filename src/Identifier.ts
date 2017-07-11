@@ -2,15 +2,15 @@ import { memoize } from "interstelar";
 
 export type IPrimitive = string | number;
 
-export class IIdentifier {
+export class IIdentifier<T = IPrimitive> {
   attribute: string;
-  value: IPrimitive;
+  value: T;
 }
 
-export function baseMakeIdentifier(
+export function baseMakeIdentifier<T = IPrimitive>(
   attribute: string,
-  value: IPrimitive,
-): IIdentifier {
+  value: T,
+): IIdentifier<T> {
   const i = Object.create(null);
 
   i.attribute = attribute;

@@ -1,32 +1,40 @@
 import * as React from "react";
+import { inject } from "../../../../src/react";
 import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "../constants";
+import {
+  activeTodoCount,
+  completedTodoCount,
+  todoFilter,
+} from "../models/TodoModel";
 import { TodoStore } from "../stores/TodoStore";
-import { ViewStore } from "../stores/ViewStore";
 import { pluralize } from "../utils";
 
-export class TodoFooter extends React.Component<{
-  viewStore: ViewStore;
-  todoStore: TodoStore;
+class TodoFooterPure extends React.Component<{
+  todoFilter: string;
+  activeTodoCount: number;
+  completedCount: number;
+  clearCompleted: () => any;
 }> {
   render() {
-    const todoStore = this.props.todoStore;
-    if (!todoStore.activeTodoCount && !todoStore.completedCount) {
+    const { activeTodoCount, completedCount } = this.props;
+    if (!activeTodoCount && !completedCount) {
       return null;
     }
 
-    const activeTodoWord = pluralize(todoStore.activeTodoCount, "item");
+    const activeTodoWord = pluralize(activeTodoCount, "item");
 
     return (
       <footer className="footer">
         <span className="todo-count">
-          <strong>{todoStore.activeTodoCount}</strong> {activeTodoWord} left
+          <strong>{activeTodoCount}</strong> {activeTodoWord} left
         </span>
         <ul className="filters">
           {this.renderFilterLink(ALL_TODOS, "", "All")}
           {this.renderFilterLink(ACTIVE_TODOS, "active", "Active")}
           {this.renderFilterLink(COMPLETED_TODOS, "completed", "Completed")}
         </ul>
-        {todoStore.completedCount === 0
+
+        {completedCount === 0
           ? null
           : <button
               className="clear-completed"
@@ -43,9 +51,7 @@ export class TodoFooter extends React.Component<{
       <li>
         <a
           href={"#/" + url}
-          className={
-            filterName === this.props.viewStore.todoFilter ? "selected" : ""
-          }
+          className={filterName === this.props.todoFilter ? "selected" : ""}
         >
           {caption}
         </a>{" "}
@@ -54,6 +60,13 @@ export class TodoFooter extends React.Component<{
   }
 
   clearCompleted() {
-    this.props.todoStore.clearCompleted();
+    this.props.clearCompleted();
   }
 }
+
+export const TodoFooter = inject(({ self, queryImmediately, _ }) => ({
+  todoFilter: todoFilter(self),
+  activeTodoCount: activeTodoCount(self),
+  completedCount: completedTodoCount(self),
+  clearCompleted: () => null,
+}))(TodoFooterPure);

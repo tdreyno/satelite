@@ -1,11 +1,14 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { inject } from "../../../../src/react";
+import { Todo } from "../models/TodoModel";
 import { TodoStore } from "../stores/TodoStore";
+import { uuid } from "../utils";
 
 const ENTER_KEY = 13;
 
-export class TodoEntry extends React.Component<{
-  todoStore: TodoStore;
+class TodoEntryPure extends React.Component<{
+  addTodo: (text: string) => any;
 }> {
   render() {
     return (
@@ -31,8 +34,16 @@ export class TodoEntry extends React.Component<{
     ) as HTMLInputElement).value.trim();
 
     if (val) {
-      this.props.todoStore.addTodo(val);
+      this.props.addTodo(val);
       (ReactDOM.findDOMNode(this.refs.newField) as HTMLInputElement).value = "";
     }
   }
 }
+
+export const TodoEntry = inject(({ addFact }) => ({
+  addTodo: (text: string) => {
+    const id = Todo(uuid());
+    addFact([id, "todo/text", text]);
+    addFact([id, "todo/completed", false]);
+  },
+}))(TodoEntryPure);

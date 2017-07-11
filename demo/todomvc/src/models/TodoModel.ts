@@ -1,23 +1,26 @@
-export class TodoModel {
-  id: string;
+import { count, IIdentifier, makeIdentifier, Rete } from "../../../../src";
+
+export type ITodoIdentifier = IIdentifier<string>;
+export const Todo = (id: string): ITodoIdentifier => makeIdentifier("todo", id);
+
+export interface ITodoModel {
+  id: ITodoIdentifier;
   title: string;
   completed: boolean;
+}
 
-  constructor(id: string, title: string, completed: boolean) {
-    this.id = id;
-    this.title = title;
-    this.completed = completed;
-  }
+export function todoFilter({ queryImmediately, _ }: Rete): string {
+  return queryImmediately([["global", "ui/filter", _]])[2] as any;
+}
 
-  toggle() {
-    this.completed = !this.completed;
-  }
+export function activeTodoCount({ queryImmediately, _ }: Rete): number {
+  return queryImmediately([
+    count("?count", [[_, "todo/completed", false]]),
+  ])[0] as any;
+}
 
-  // tslint:disable-next-line:no-empty
-  destroy() {
-  }
-
-  setTitle(title: string) {
-    this.title = title;
-  }
+export function completedTodoCount({ queryImmediately, _ }: Rete): number {
+  return queryImmediately([
+    count("?count", [[_, "todo/completed", true]]),
+  ])[0] as any;
 }

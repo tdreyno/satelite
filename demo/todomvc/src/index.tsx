@@ -1,13 +1,14 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { Rete } from "../../../src";
+import { Provider } from "../../../src/react";
 import { TodoApp } from "./components/TodoApp";
-import { TodoStore } from "./stores/TodoStore";
-import { ViewStore } from "./stores/ViewStore";
 
-const todoStore = new TodoStore();
-const viewStore = new ViewStore();
+const { self: rete } = Rete.create();
 
 ReactDOM.render(
-  <TodoApp todoStore={todoStore} viewStore={viewStore} />,
+  <Provider rete={rete}>
+    <TodoApp />
+  </Provider>,
   document.getElementById("todoapp"),
 );

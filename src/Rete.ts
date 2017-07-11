@@ -128,6 +128,8 @@ export class Rete {
   terminalNodes: ITerminalNode[] = [];
   facts: Set<IFact> = new Set();
   hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
+  _ = placeholder;
+  self = this;
 
   constructor() {
     this.addFact = this.addFact.bind(this);

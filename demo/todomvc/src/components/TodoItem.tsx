@@ -1,34 +1,42 @@
 import * as React from "react";
-import { TodoModel } from "../models/TodoModel";
-import { ViewStore } from "../stores/ViewStore";
+import { inject } from "../../../../src/react";
+import { ITodoIdentifier } from "../models/TodoModel";
 
 const ESCAPE_KEY = 27;
 const ENTER_KEY = 13;
 
-export class TodoItem extends React.Component<{
-  todo: TodoModel;
-  viewStore: ViewStore;
-}> {
+export interface ITodoOverviewProps {
+  todo: ITodoIdentifier;
+  isCompleted: boolean;
+  title: string;
+  isBeingEdited: boolean;
+  setIsBeingEdited: (isBeingEdited: boolean) => any;
+  setTitle: (title: string) => any;
+  toggleTodo: () => any;
+  destroyTodo: () => any;
+}
+
+class TodoItemPure extends React.Component<ITodoOverviewProps> {
   editText: string = "";
 
   render() {
-    const { viewStore, todo } = this.props;
+    const { isBeingEdited, isCompleted, title } = this.props;
     return (
       <li
         className={[
-          todo.completed ? "completed" : "",
-          todo === viewStore.todoBeingEdited ? "editing" : "",
+          isCompleted ? "completed" : "",
+          isBeingEdited ? "editing" : "",
         ].join(" ")}
       >
         <div className="view">
           <input
             className="toggle"
             type="checkbox"
-            checked={todo.completed}
+            checked={isCompleted}
             onChange={this.handleToggle.bind(this)}
           />
           <label onDoubleClick={this.handleEdit}>
-            {todo.title}
+            {title}
           </label>
           <button className="destroy" onClick={this.handleDestroy.bind(this)} />
         </div>
@@ -47,29 +55,28 @@ export class TodoItem extends React.Component<{
   handleSubmit() {
     const val = this.editText.trim();
     if (val) {
-      this.props.todo.setTitle(val);
+      this.props.setTitle(val);
       this.editText = val;
     } else {
       this.handleDestroy();
     }
-    this.props.viewStore.todoBeingEdited = null;
+    this.props.setIsBeingEdited(false);
   }
 
   handleDestroy() {
-    this.props.todo.destroy();
-    this.props.viewStore.todoBeingEdited = null;
+    this.props.destroyTodo();
+    this.props.setIsBeingEdited(false);
   }
 
   handleEdit() {
-    const todo = this.props.todo;
-    this.props.viewStore.todoBeingEdited = todo;
-    this.editText = todo.title;
+    this.props.setIsBeingEdited(true);
+    this.editText = this.props.title;
   }
 
   handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.which === ESCAPE_KEY) {
-      this.editText = this.props.todo.title;
-      this.props.viewStore.todoBeingEdited = null;
+      this.editText = this.props.title;
+      this.props.setIsBeingEdited(false);
     } else if (event.which === ENTER_KEY) {
       this.handleSubmit();
     }
@@ -80,6 +87,41 @@ export class TodoItem extends React.Component<{
   }
 
   handleToggle() {
-    this.props.todo.toggle();
+    this.props.toggleTodo();
   }
 }
+
+export type ITodoOverviewOwnProps = Pick<ITodoOverviewProps, "todo">;
+export type ITodoOverviewReteProps = Pick<
+  ITodoOverviewProps,
+  | "isBeingEdited"
+  | "setIsBeingEdited"
+  | "destroyTodo"
+  | "setTitle"
+  | "title"
+  | "toggleTodo"
+  | "isCompleted"
+>;
+
+export const TodoItem = inject<
+  ITodoOverviewReteProps,
+  ITodoOverviewOwnProps
+>(({ addFact, removeFact, queryImmediately, _ }, { todo }) => {
+  const isCompleted =
+    queryImmediately([[todo, "todo/completed", true]]).length > 0;
+  return {
+    isCompleted,
+    title: queryImmediately([[todo, "todo/title", _]])[0][2],
+    isBeingEdited:
+      queryImmediately([[todo, "todo/isBeingEdited", true]]).length > 0,
+    setIsBeingEdited: (isBeingEdited: boolean) => {
+      addFact([todo, "todo/isBeingEdited", isBeingEdited]);
+    },
+    destroyTodo: () => removeFact([todo, _, _]),
+    setTitle: (title: string) => addFact([todo, "todo/title", title]),
+    toggleTodo: () =>
+      isCompleted
+        ? addFact([todo, "todo/completed", true])
+        : removeFact([todo, "todo/completed", true]),
+  };
+})(TodoItemPure);
