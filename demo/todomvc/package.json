@@ -1,0 +1,30 @@
+{
+  "name": "todomvc",
+  "version": "1.0.0",
+  "description": "TodoMVC reference implementation",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "NODE_ENVIRONMENT=production webpack -p"
+  },
+  "devDependencies": {
+    "@types/react": "^15.0.37",
+    "@types/react-dom": "^15.5.1",
+    "awesome-typescript-loader": "^3.2.1",
+    "css-loader": "^0.28.4",
+    "file-loader": "^0.11.2",
+    "style-loader": "^0.18.2",
+    "ts-loader": "^2.2.1",
+    "typescript": "^2.4.1",
+    "webpack": "^3.0.0",
+    "webpack-dev-middleware": "^1.11.0",
+    "webpack-dev-server": "^2.5.0"
+  },
+  "dependencies": {
+    "classnames": "^2.2.5",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "todomvc-app-css": "^2.1.0",
+    "todomvc-common": "^1.0.3",
+    "url-loader": "^0.5.9"
+  }
+}
