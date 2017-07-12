@@ -6,15 +6,14 @@ import { Token } from "./Token";
 export function acc<T>(
   bindingName: string,
   accumulator: IAccumulator<T>,
-  conditions?: IConditions,
+  ...conditions: IConditions,
 ): AccumulatorCondition<T> {
-  const parsedConditions = conditions
-    ? conditions.map(parseCondition)
-    : undefined;
+  const parsedConditions =
+    conditions.length > 0 ? conditions.map(parseCondition) : undefined;
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
 }
 
-export function count(bindingName: string, conditions?: IConditions) {
+export function count(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
@@ -23,11 +22,11 @@ export function count(bindingName: string, conditions?: IConditions) {
       },
       initialValue: 0,
     },
-    conditions,
+    ...conditions,
   );
 }
 
-export function max(bindingName: string, conditions?: IConditions) {
+export function max(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
@@ -37,6 +36,6 @@ export function max(bindingName: string, conditions?: IConditions) {
       },
       initialValue: 0,
     },
-    conditions,
+    ...conditions,
   );
 }

@@ -9,18 +9,14 @@ export interface ITodoModel {
   completed: boolean;
 }
 
-export function todoFilter({ queryImmediately, _ }: Rete): string {
-  return queryImmediately([["global", "ui/filter", _]])[2] as any;
+export function todoFilter({ findOne }: Rete): string {
+  return findOne(["global", "ui/filter", "?filter"]).filter;
 }
 
-export function activeTodoCount({ queryImmediately, _ }: Rete): number {
-  return queryImmediately([
-    count("?count", [[_, "todo/completed", false]]),
-  ])[0] as any;
+export function activeTodoCount({ findOne, _ }: Rete): number {
+  return findOne(count("?count", ["?e", "todo/completed", false])).count;
 }
 
-export function completedTodoCount({ queryImmediately, _ }: Rete): number {
-  return queryImmediately([
-    count("?count", [[_, "todo/completed", true]]),
-  ])[0] as any;
+export function completedTodoCount({ findOne, _ }: Rete): number {
+  return findOne(count("?count", ["?e", "todo/completed", false])).count;
 }

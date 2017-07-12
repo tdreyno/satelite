@@ -6,7 +6,6 @@ import {
   completedTodoCount,
   todoFilter,
 } from "../models/TodoModel";
-import { TodoStore } from "../stores/TodoStore";
 import { pluralize } from "../utils";
 
 class TodoFooterPure extends React.Component<{
@@ -64,7 +63,7 @@ class TodoFooterPure extends React.Component<{
   }
 }
 
-export const TodoFooter = inject(({ self, queryImmediately, _ }) => ({
+export const TodoFooter = inject(({ self, _ }) => ({
   todoFilter: todoFilter(self),
   activeTodoCount: activeTodoCount(self),
   completedCount: completedTodoCount(self),

@@ -1,8 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { inject } from "../../../../src/react";
-import { Todo } from "../models/TodoModel";
-import { TodoStore } from "../stores/TodoStore";
 import { uuid } from "../utils";
 
 const ENTER_KEY = 13;
@@ -40,10 +38,9 @@ class TodoEntryPure extends React.Component<{
   }
 }
 
-export const TodoEntry = inject(({ addFact }) => ({
+export const TodoEntry = inject(({ assert }) => ({
   addTodo: (text: string) => {
-    const id = Todo(uuid());
-    addFact([id, "todo/text", text]);
-    addFact([id, "todo/completed", false]);
+    const id = uuid();
+    assert([id, "todo/text", text], [id, "todo/completed", false]);
   },
 }))(TodoEntryPure);

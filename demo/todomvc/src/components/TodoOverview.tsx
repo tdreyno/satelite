@@ -61,18 +61,14 @@ class TodoOverviewPure extends React.Component<ITodoOverviewProps> {
   }
 }
 
-export const TodoOverview = inject(
-  ({ self, queryImmediately, removeFact, _ }) => {
-    const todos = queryImmediately([["global", "todos", _]]).map(f => f[2]);
+export const TodoOverview = inject(({ self, findAll, removeFact, _ }) => {
+  const todos = findAll(["global", "todos", "?v"]).map(({ v }) => v);
 
-    return {
-      todoFilter: todoFilter(self),
-      completedTodos: queryImmediately([[_, "todo/completed", true]]).map(
-        f => f[0],
-      ),
-      activeTodoCount: activeTodoCount(self),
-      todos,
-      toggleAll: (checked: boolean) => null,
-    };
-  },
-)(TodoOverviewPure);
+  return {
+    todoFilter: todoFilter(self),
+    completedTodos: findAll(["?e", "todo/completed", true]).map(({ e }) => e),
+    activeTodoCount: activeTodoCount(self),
+    todos,
+    toggleAll: (checked: boolean) => null,
+  };
+})(TodoOverviewPure);

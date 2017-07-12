@@ -26,7 +26,7 @@ import { ReteNode, RootNode } from "./nodes/ReteNode";
 import { RootJoinNode } from "./nodes/RootJoinNode";
 import { IActivateCallback, Production } from "./Production";
 import { IQueryChangeFn, Query } from "./Query";
-import { Token } from "./Token";
+import { IVariableBindings, Token } from "./Token";
 
 // tslint:disable:max-classes-per-file
 
@@ -54,6 +54,11 @@ export interface IThenCreateProduction {
   then: (callback: IActivateCallback) => Production;
 }
 
+export interface IEntityResult {
+  facts: Set<IFact>;
+  attributes: { [attribute: string]: IValue };
+}
+
 export class Rete {
   static create(): Rete {
     return new Rete();
@@ -65,10 +70,7 @@ export class Rete {
 
   private terminalNodes: ITerminalNode[] = [];
   private facts: Set<IFact> = new Set();
-  private entities: Map<
-    IIdentifier | IPrimitive,
-    { [attribute: string]: IValue }
-  > = new Map();
+  private entities: Map<IIdentifier | IPrimitive, IEntityResult> = new Map();
   private hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
 
   constructor() {
@@ -86,6 +88,7 @@ export class Rete {
     this.findAll = this.findAll.bind(this);
     this.findOne = this.findOne.bind(this);
     this.entity = this.entity.bind(this);
+    this.retractEntity = this.retractEntity.bind(this);
   }
 
   // External API.
@@ -102,16 +105,27 @@ export class Rete {
     return this.addQuery(...conditions);
   }
 
-  findAll(...conditions: IConditions): IFact[] {
-    return this.addQuery(...conditions).getFacts();
+  findAll(...conditions: IConditions): IVariableBindings[] {
+    return this.addQuery(...conditions).getVariableBindings();
   }
 
-  findOne(...conditions: IConditions): IFact[] {
-    return this.addQuery(...conditions).getFacts()[0];
+  findOne(...conditions: IConditions): IVariableBindings {
+    return this.addQuery(...conditions).getVariableBindings()[0];
   }
 
-  entity(id: IIdentifier | IPrimitive): IValue | undefined {
-    return this.entities.get(id);
+  entity(
+    id: IIdentifier | IPrimitive,
+  ): { [attribute: string]: IValue } | undefined {
+    const entity = this.entities.get(id);
+    return entity && entity.attributes;
+  }
+
+  retractEntity(id: IIdentifier | IPrimitive): void {
+    const e = this.entity(id);
+
+    if (e) {
+      this.retract(e.facts);
+    }
   }
 
   // Internal API.
@@ -129,8 +143,13 @@ export class Rete {
     if (!this.facts.has(f)) {
       this.facts.add(f);
 
-      const existingEntity = this.entities.get(f[0]) || {};
-      existingEntity[f[1]] = f[2];
+      const existingEntity: IEntityResult = this.entities.get(f[0]) || {
+        facts: new Set(),
+        attributes: {},
+      };
+
+      existingEntity.facts.add(f);
+      existingEntity.attributes[f[1]] = f[2];
       this.entities.set(f[0], existingEntity);
 
       this.dispatchToAlphaMemories(f, "activate");
@@ -143,13 +162,17 @@ export class Rete {
     if (this.facts.has(f)) {
       this.facts.delete(f);
 
-      const existingEntity = this.entities.get(f[0]) || {};
-      delete existingEntity[f[1]];
+      const existingEntity = this.entities.get(f[0]);
 
-      if (Object.keys(existingEntity).length > 0) {
-        this.entities.set(f[0], existingEntity);
-      } else {
-        this.entities.delete(f[0]);
+      if (existingEntity) {
+        existingEntity.facts.delete(f);
+
+        if (existingEntity.facts.size > 0) {
+          delete existingEntity.attributes[f[1]];
+          this.entities.set(f[0], existingEntity);
+        } else {
+          this.entities.delete(f[0]);
+        }
       }
 
       this.dispatchToAlphaMemories(f, "retract");

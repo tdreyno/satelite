@@ -231,7 +231,7 @@ describe("Rete", () => {
     assert([1, "gender", "M"]);
 
     const maxQuery = query(
-      max("?max", [[_, "age", _]]),
+      max("?max", [_, "age", _]),
       ["?e", "age", "?max"],
       ["?e", "name", "?v"],
     );
@@ -242,7 +242,7 @@ describe("Rete", () => {
 
     const maxMaleQuery = query(
       ["?e", "gender", "M"],
-      max("?max", [["?e", "age", _]]),
+      max("?max", ["?e", "age", _]),
       ["?e2", "age", "?max"],
       ["?e2", "name", "?v"],
     );
@@ -252,7 +252,7 @@ describe("Rete", () => {
     expect(maxMaleFacts[0][2]).toBe("Medium");
 
     const maxMaleQuery2 = query(
-      max("?max", [["?e", "gender", "M"], ["?e", "age", _]]),
+      max("?max", ["?e", "gender", "M"], ["?e", "age", _]),
       ["?e2", "age", "?max"],
       ["?e2", "name", "?v"],
     );
@@ -271,25 +271,25 @@ describe("Rete", () => {
 
     const thomasDefinition1 = entity(thomas);
 
-    expect(thomasDefinition1.name).toEqual("Thomas");
-    expect(thomasDefinition1.gender).toEqual("M");
-    expect(thomasDefinition1.team).toEqual("WW");
+    expect(thomasDefinition1!.name).toEqual("Thomas");
+    expect(thomasDefinition1!.gender).toEqual("M");
+    expect(thomasDefinition1!.team).toEqual("WW");
 
     retract([thomas, "gender", "M"]);
 
     const thomasDefinition2 = entity(thomas);
 
-    expect(thomasDefinition2.name).toEqual("Thomas");
-    expect(thomasDefinition2.gender).toBeUndefined();
-    expect(thomasDefinition2.team).toEqual("WW");
+    expect(thomasDefinition2!.name).toEqual("Thomas");
+    expect(thomasDefinition2!.gender).toBeUndefined();
+    expect(thomasDefinition2!.team).toEqual("WW");
 
     retract([thomas, "team", "WW"]);
 
     const thomasDefinition3 = entity(thomas);
 
-    expect(thomasDefinition3.name).toEqual("Thomas");
-    expect(thomasDefinition3.gender).toBeUndefined();
-    expect(thomasDefinition3.team).toBeUndefined();
+    expect(thomasDefinition3!.name).toEqual("Thomas");
+    expect(thomasDefinition3!.gender).toBeUndefined();
+    expect(thomasDefinition3!.team).toBeUndefined();
 
     retract([thomas, "name", "Thomas"]);
 

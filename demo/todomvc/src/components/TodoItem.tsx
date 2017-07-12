@@ -106,22 +106,19 @@ export type ITodoOverviewReteProps = Pick<
 export const TodoItem = inject<
   ITodoOverviewReteProps,
   ITodoOverviewOwnProps
->(({ addFact, removeFact, queryImmediately, _ }, { todo }) => {
-  const isCompleted =
-    queryImmediately([[todo, "todo/completed", true]]).length > 0;
+>(({ assert, retract, findOne, retractEntity }, { todo }) => {
+  const isCompleted = !!findOne([todo, "todo/completed", true]);
+
   return {
     isCompleted,
-    title: queryImmediately([[todo, "todo/title", _]])[0][2],
-    isBeingEdited:
-      queryImmediately([[todo, "todo/isBeingEdited", true]]).length > 0,
-    setIsBeingEdited: (isBeingEdited: boolean) => {
-      addFact([todo, "todo/isBeingEdited", isBeingEdited]);
-    },
-    destroyTodo: () => removeFact([todo, _, _]),
-    setTitle: (title: string) => addFact([todo, "todo/title", title]),
+    title: findOne([todo, "todo/title", "?title"]).title,
+    isBeingEdited: !!findOne([todo, "todo/isBeingEdited", true]),
+    setIsBeingEdited: (v: boolean) => assert([todo, "todo/isBeingEdited", v]),
+    destroyTodo: () => retractEntity(todo),
+    setTitle: (title: string) => assert([todo, "todo/title", title]),
     toggleTodo: () =>
       isCompleted
-        ? addFact([todo, "todo/completed", true])
-        : removeFact([todo, "todo/completed", true]),
+        ? assert([todo, "todo/completed", true])
+        : retract([todo, "todo/completed", true]),
   };
 })(TodoItemPure);

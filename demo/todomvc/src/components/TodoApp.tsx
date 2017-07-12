@@ -9,9 +9,12 @@ export class TodoApp extends React.Component {
       <div>
         <header className="header">
           <h1>todos</h1>
+
           <TodoEntry />
         </header>
+
         <TodoOverview />
+
         <TodoFooter />
       </div>
     );
