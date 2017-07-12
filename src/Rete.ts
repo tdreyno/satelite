@@ -49,7 +49,8 @@ export function not(c: ICondition) {
   return c;
 }
 
-export type IConditions = Array<ICondition | AccumulatorCondition>;
+export type IAnyCondition = ICondition | AccumulatorCondition;
+export type IConditions = IAnyCondition[];
 export interface IThenCreateProduction {
   then: (callback: IActivateCallback) => Production;
 }
@@ -67,11 +68,11 @@ export class Rete {
   _ = placeholder;
   self = this;
   root = RootNode.create();
+  hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
+  facts: Set<IFact> = new Set();
 
   private terminalNodes: ITerminalNode[] = [];
-  private facts: Set<IFact> = new Set();
   private entities: Map<IIdentifier | IPrimitive, IEntityResult> = new Map();
-  private hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
 
   constructor() {
     this.addFact = this.addFact.bind(this);

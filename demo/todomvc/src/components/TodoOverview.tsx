@@ -1,19 +1,14 @@
 import * as React from "react";
-import { inject } from "../../../../src/react";
+import { collect } from "../../../../src";
+import { subscribe } from "../../../../src/react";
 import { ACTIVE_TODOS, COMPLETED_TODOS } from "../constants";
-import {
-  activeTodoCount,
-  ITodoIdentifier,
-  ITodoModel,
-  todoFilter,
-} from "../models/TodoModel";
+import { ITodoIdentifier, ITodoModel } from "../models/TodoModel";
 import { TodoItem } from "./TodoItem";
 
 export interface ITodoOverviewProps {
   todoFilter: string;
   activeTodoCount: number;
   todos: ITodoIdentifier[];
-  completedTodos: ITodoIdentifier[];
   toggleAll: (checked: boolean) => any;
 }
 
@@ -32,27 +27,10 @@ class TodoOverviewPure extends React.Component<ITodoOverviewProps> {
           checked={activeTodoCount === 0}
         />
         <ul className="todo-list">
-          {this.getVisibleTodos().map(todo =>
-            <TodoItem key={todo.value} todo={todo} />,
-          )}
+          {todos.map(todo => <TodoItem key={todo.value} todo={todo} />)}
         </ul>
       </section>
     );
-  }
-
-  getVisibleTodos() {
-    const { completedTodos, todos, todoFilter } = this.props;
-
-    return todos.filter(todo => {
-      switch (todoFilter) {
-        case ACTIVE_TODOS:
-          return completedTodos.indexOf(todo) === -1;
-        case COMPLETED_TODOS:
-          return completedTodos.indexOf(todo) !== -1;
-        default:
-          return true;
-      }
-    });
   }
 
   toggleAll(event: React.ChangeEvent<HTMLInputElement>) {
@@ -61,14 +39,14 @@ class TodoOverviewPure extends React.Component<ITodoOverviewProps> {
   }
 }
 
-export const TodoOverview = inject(({ self, findAll, removeFact, _ }) => {
-  const todos = findAll(["global", "todos", "?v"]).map(({ v }) => v);
+export const TodoOverview = subscribe(
+  ["global", "ui/filter", "?todoFilter"],
+  ["global", "activeCount", "?activeTodoCount"],
+  collect("?todos", ["?e", "todo/visible", true]),
+).then(({ todoFilter, activeTodoCount, todos }) => ({
+  todoFilter,
+  activeTodoCount,
+  todos,
 
-  return {
-    todoFilter: todoFilter(self),
-    completedTodos: findAll(["?e", "todo/completed", true]).map(({ e }) => e),
-    activeTodoCount: activeTodoCount(self),
-    todos,
-    toggleAll: (checked: boolean) => null,
-  };
-})(TodoOverviewPure);
+  toggleAll: (checked: boolean) => null,
+}))(TodoOverviewPure);

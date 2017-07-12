@@ -1,5 +1,6 @@
 import * as React from "react";
-import { inject } from "../../../../src/react";
+import { exists } from "../../../../src";
+import { subscribe } from "../../../../src/react";
 import { ITodoIdentifier } from "../models/TodoModel";
 
 const ESCAPE_KEY = 27;
@@ -103,22 +104,33 @@ export type ITodoOverviewReteProps = Pick<
   | "isCompleted"
 >;
 
-export const TodoItem = inject<
+export const TodoItem = subscribe<
   ITodoOverviewReteProps,
   ITodoOverviewOwnProps
->(({ assert, retract, findOne, retractEntity }, { todo }) => {
-  const isCompleted = !!findOne([todo, "todo/completed", true]);
-
-  return {
+>(
+  ({ todo }) => exists("?isCompleted", [todo, "todo/completed", true]),
+  ({ todo }) => [todo, "todo/title", "?title"],
+  ({ todo }) => exists("?isBeingEdited", [todo, "todo/isBeingEdited", true]),
+).then(
+  (
+    {
+      isCompleted,
+      title,
+      isBeingEdited,
+    }: { isCompleted: boolean; title: string; isBeingEdited: boolean },
+    { assert, retract, retractEntity },
+    { todo }: ITodoOverviewOwnProps,
+  ) => ({
     isCompleted,
-    title: findOne([todo, "todo/title", "?title"]).title,
-    isBeingEdited: !!findOne([todo, "todo/isBeingEdited", true]),
+    title,
+    isBeingEdited,
+
     setIsBeingEdited: (v: boolean) => assert([todo, "todo/isBeingEdited", v]),
     destroyTodo: () => retractEntity(todo),
-    setTitle: (title: string) => assert([todo, "todo/title", title]),
+    setTitle: (t: string) => assert([todo, "todo/title", t]),
     toggleTodo: () =>
       isCompleted
         ? assert([todo, "todo/completed", true])
         : retract([todo, "todo/completed", true]),
-  };
-})(TodoItemPure);
+  }),
+)(TodoItemPure);

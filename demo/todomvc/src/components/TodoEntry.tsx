@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { inject } from "../../../../src/react";
+import { subscribe } from "../../../../src/react";
 import { uuid } from "../utils";
 
 const ENTER_KEY = 13;
@@ -38,9 +38,6 @@ class TodoEntryPure extends React.Component<{
   }
 }
 
-export const TodoEntry = inject(({ assert }) => ({
-  addTodo: (text: string) => {
-    const id = uuid();
-    assert([id, "todo/text", text], [id, "todo/completed", false]);
-  },
+export const TodoEntry = subscribe().then((_, { assert }) => ({
+  addTodo: (text: string) => assert([uuid(), "todo/text", text]),
 }))(TodoEntryPure);

@@ -1,4 +1,5 @@
 import { parseCondition } from "./Condition";
+import { IFact } from "./Fact";
 import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
 import { IConditions } from "./Rete";
 import { Token } from "./Token";
@@ -35,6 +36,31 @@ export function max(bindingName: string, ...conditions: IConditions) {
         return value > acc ? value : acc;
       },
       initialValue: 0,
+    },
+    ...conditions,
+  );
+}
+
+export function exists(bindingName: string, ...conditions: IConditions) {
+  return acc(
+    bindingName,
+    {
+      reducer: (acc: boolean): boolean => true,
+      initialValue: false,
+    },
+    ...conditions,
+  );
+}
+
+export function collect(bindingName: string, ...conditions: IConditions) {
+  return acc(
+    bindingName,
+    {
+      reducer: (acc: any[], item: Token): any[] => {
+        acc.unshift(item.fact);
+        return acc;
+      },
+      initialValue: [] as any[],
     },
     ...conditions,
   );

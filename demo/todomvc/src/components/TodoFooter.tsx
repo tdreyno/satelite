@@ -1,11 +1,6 @@
 import * as React from "react";
-import { inject } from "../../../../src/react";
+import { subscribe } from "../../../../src/react";
 import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "../constants";
-import {
-  activeTodoCount,
-  completedTodoCount,
-  todoFilter,
-} from "../models/TodoModel";
 import { pluralize } from "../utils";
 
 class TodoFooterPure extends React.Component<{
@@ -63,9 +58,13 @@ class TodoFooterPure extends React.Component<{
   }
 }
 
-export const TodoFooter = inject(({ self, _ }) => ({
-  todoFilter: todoFilter(self),
-  activeTodoCount: activeTodoCount(self),
-  completedCount: completedTodoCount(self),
+export const TodoFooter = subscribe(
+  ["global", "ui/filter", "?filter"],
+  ["global", "doneCount", "?done"],
+  ["global", "activeCount", "?active"],
+).then(({ filter, done, active }) => ({
+  todoFilter: filter,
+  activeTodoCount: active,
+  completedCount: done,
   clearCompleted: () => null,
 }))(TodoFooterPure);
