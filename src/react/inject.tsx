@@ -35,6 +35,9 @@ export function inject<ReteProps, OwnProps>(
 
       executeReteToProps(props: OwnProps) {
         const fromFn = storesToProps(this.context.rete, props, this.context);
+
+        // TODO: track created bindings/listeners/queries
+
         this.setState(prevState => Object.assign({}, prevState, fromFn));
       }
 
@@ -42,6 +45,8 @@ export function inject<ReteProps, OwnProps>(
         if (!this.context || !this.context.rete) {
           return;
         }
+
+        // TODO: cleanup created bindings/listeners/queries
       }
 
       render() {

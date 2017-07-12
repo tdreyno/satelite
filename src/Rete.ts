@@ -24,7 +24,7 @@ import { QueryNode } from "./nodes/QueryNode";
 import { ReteNode, RootNode } from "./nodes/ReteNode";
 import { RootJoinNode } from "./nodes/RootJoinNode";
 import { IActivateCallback, Production } from "./Production";
-import { Query } from "./Query";
+import { IQueryChangeFn, Query } from "./Query";
 import { Token } from "./Token";
 
 // tslint:disable:max-classes-per-file
@@ -50,78 +50,14 @@ export function not(c: ICondition) {
   return c;
 }
 
-export function acc<T>(
-  bindingName: string,
-  accumulator: IAccumulator<T>,
-  conditions?: Array<ICondition | AccumulatorCondition>,
-): AccumulatorCondition<T> {
-  const parsedConditions = conditions
-    ? conditions.map(parseCondition)
-    : undefined;
-  return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
-}
-
-export function count(
-  bindingName: string,
-  conditions?: Array<ICondition | AccumulatorCondition>,
-) {
-  return acc(
-    bindingName,
-    {
-      reducer: (acc: number): number => {
-        return acc + 1;
-      },
-      initialValue: 0,
-    },
-    conditions,
-  );
-}
-
-export function max(
-  bindingName: string,
-  conditions?: Array<ICondition | AccumulatorCondition>,
-) {
-  return acc(
-    bindingName,
-    {
-      reducer: (acc: number, item: Token): number => {
-        const value = item.fact[2] as number;
-        return value > acc ? value : acc;
-      },
-      initialValue: 0,
-    },
-    conditions,
-  );
+export type IConditions = Array<ICondition | AccumulatorCondition>;
+export interface IThenCreateProduction {
+  then: (callback: IActivateCallback) => Production;
 }
 
 export class Rete {
-  static create(): {
-    self: Rete;
-    addFact: (factTuple: IFact) => void;
-    removeFact: (factTuple: IFact) => void;
-    addFacts: (factTuple: IFact | IFact[]) => void;
-    removeFacts: (factTuple: IFact | IFact[]) => void;
-    addProduction: (
-      conditions: Array<ICondition | AccumulatorCondition>,
-      callback: IActivateCallback,
-    ) => Production;
-    addQuery: (conditions: Array<ICondition | AccumulatorCondition>) => Query;
-    queryImmediately: (
-      conditions: Array<ICondition | AccumulatorCondition>,
-    ) => IFact[];
-  } {
-    const r = new Rete();
-
-    return {
-      self: r,
-      addFact: r.addFact,
-      removeFact: r.removeFact,
-      addFacts: r.addFacts,
-      removeFacts: r.removeFacts,
-      addProduction: r.addProduction,
-      addQuery: r.addQuery,
-      queryImmediately: r.queryImmediately,
-    };
+  static create(): Rete {
+    return new Rete();
   }
 
   root = RootNode.create();
@@ -138,10 +74,47 @@ export class Rete {
     this.removeFacts = this.removeFacts.bind(this);
     this.addProduction = this.addProduction.bind(this);
     this.addQuery = this.addQuery.bind(this);
-    this.queryImmediately = this.queryImmediately.bind(this);
+
+    this.assert = this.assert.bind(this);
+    this.retract = this.retract.bind(this);
+    this.rule = this.rule.bind(this);
+    this.query = this.query.bind(this);
+    this.findAll = this.findAll.bind(this);
+    this.findOne = this.findOne.bind(this);
   }
 
-  addFact(factTuple: IFact): void {
+  // External API.
+  assert(...facts: IFact[]): void {
+    return this.addFacts(...facts);
+  }
+  retract(...facts: IFact[]): void {
+    return this.removeFacts(...facts);
+  }
+  rule(...conditions: IConditions): IThenCreateProduction {
+    return this.addProduction(...conditions);
+  }
+  query(...conditions: IConditions): Query {
+    return this.addQuery(...conditions);
+  }
+
+  findAll(...conditions: IConditions): IFact[] {
+    return this.addQuery(...conditions).getFacts();
+  }
+
+  findOne(...conditions: IConditions): IFact[] {
+    return this.addQuery(...conditions).getFacts()[0];
+  }
+
+  // Internal API.
+  private addFacts(...facts: IFact[]): void {
+    facts.forEach(this.addFact);
+  }
+
+  private removeFacts(...facts: IFact[]): void {
+    facts.forEach(this.removeFact);
+  }
+
+  private addFact(factTuple: IFact): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     if (!this.facts.has(f)) {
@@ -151,13 +124,7 @@ export class Rete {
     }
   }
 
-  addFacts(facts: IFact | IFact[]): void {
-    const items = isArray(facts) ? [facts] : facts;
-
-    items.forEach(this.addFact);
-  }
-
-  removeFact(fact: IFact): void {
+  private removeFact(fact: IFact): void {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     if (this.facts.has(f)) {
@@ -169,41 +136,36 @@ export class Rete {
     this.root.rightRetract(f);
   }
 
-  removeFacts(facts: IFact | IFact[]): void {
-    const items = isArray(facts) ? [facts] : facts;
+  private addProduction(...conditions: IConditions): IThenCreateProduction {
+    return {
+      then: (callback: IActivateCallback) => {
+        const parsedConditions = conditions.map(parseCondition);
+        const currentNode = this.buildOrShareNetworkForConditions(
+          parsedConditions,
+          [],
+        );
 
-    items.forEach(this.removeFact);
+        const production = Production.create(callback);
+        production.productionNode = ProductionNode.create(
+          this,
+          production,
+          parsedConditions,
+        );
+
+        currentNode.children.unshift(production.productionNode);
+
+        production.productionNode.parent = currentNode;
+
+        production.productionNode.updateNewNodeWithMatchesFromAbove();
+
+        this.terminalNodes.unshift(production);
+
+        return production;
+      },
+    };
   }
 
-  addProduction(
-    conditions: Array<ICondition | AccumulatorCondition>,
-    callback: IActivateCallback,
-  ): Production {
-    const parsedConditions = conditions.map(parseCondition);
-    const currentNode = this.buildOrShareNetworkForConditions(
-      parsedConditions,
-      [],
-    );
-
-    const production = Production.create(callback);
-    production.productionNode = ProductionNode.create(
-      this,
-      production,
-      parsedConditions,
-    );
-
-    currentNode.children.unshift(production.productionNode);
-
-    production.productionNode.parent = currentNode;
-
-    production.productionNode.updateNewNodeWithMatchesFromAbove();
-
-    this.terminalNodes.unshift(production);
-
-    return production;
-  }
-
-  addQuery(conditions: Array<ICondition | AccumulatorCondition>): Query {
+  private addQuery(...conditions: IConditions): Query {
     const parsedConditions = conditions.map(parseCondition);
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
@@ -221,13 +183,6 @@ export class Rete {
     this.terminalNodes.unshift(query);
 
     return query;
-  }
-
-  queryImmediately(
-    conditions: Array<ICondition | AccumulatorCondition>,
-  ): IFact[] {
-    const q = this.addQuery(conditions);
-    return q.getFacts();
   }
 
   private dispatchToAlphaMemories(

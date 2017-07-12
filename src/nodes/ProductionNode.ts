@@ -49,7 +49,7 @@ export class ProductionNode extends ReteNode {
           : factOrFacts as any;
 
       for (let i = 0; i < facts.length; i++) {
-        this.rete.addFact(facts[i]);
+        this.rete.assert(facts[i]);
       }
 
       this.resultingFacts.unshift({
@@ -95,7 +95,7 @@ export class ProductionNode extends ReteNode {
         );
 
         for (let i = 0; i < facts.length; i++) {
-          this.rete.removeFact(facts[i]);
+          this.rete.retract(facts[i]);
         }
       }
     }

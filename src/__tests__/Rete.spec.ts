@@ -1,6 +1,7 @@
+import { count, max } from "../accumulators";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
-import { count, max, not, placeholder as _, Rete } from "../Rete";
+import { not, placeholder as _, Rete } from "../Rete";
 
 const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
@@ -29,71 +30,74 @@ describe("Rete", () => {
   it("should add a production", () => {
     expect.assertions(4);
 
-    const { addFact, addProduction } = Rete.create();
+    const { assert, rule } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(DATA_SET[i]);
+      assert(DATA_SET[i]);
     }
 
-    addProduction(
-      [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
-      ({ e, v }) => {
-        expect(e).toBe(grace);
-        expect(v).toBe("Grace");
-      },
-    );
+    rule(
+      ["?e", "gender", "F"],
+      ["?e", "team", "Fun"],
+      ["?e", "name", "?v"],
+    ).then(({ e, v }) => {
+      expect(e).toBe(grace);
+      expect(v).toBe("Grace");
+    });
 
-    addProduction(
-      [["?e", "gender", "M"], ["?e", "team", "WW"], ["?e", "name", "?v"]],
-      ({ e, v }) => {
-        expect(e).toBe(thomas);
-        expect(v).toBe("Thomas");
-      },
-    );
+    rule(
+      ["?e", "gender", "M"],
+      ["?e", "team", "WW"],
+      ["?e", "name", "?v"],
+    ).then(({ e, v }) => {
+      expect(e).toBe(thomas);
+      expect(v).toBe("Thomas");
+    });
   });
 
   it("should allow negative conditions", () => {
     expect.assertions(2);
 
-    const { addFact, addProduction } = Rete.create();
+    const { assert, rule } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(DATA_SET[i]);
+      assert(DATA_SET[i]);
     }
 
-    addProduction(
-      [["?e", "gender", "F"], not(["?e", "team", "Fun"]), ["?e", "name", "?v"]],
-      ({ e, v }) => {
-        expect(e).toBe(violet);
-        expect(v).toBe("Violet");
-      },
-    );
+    rule(["?e", "gender", "F"], not(["?e", "team", "Fun"]), [
+      "?e",
+      "name",
+      "?v",
+    ]).then(({ e, v }) => {
+      expect(e).toBe(violet);
+      expect(v).toBe("Violet");
+    });
   });
 
   it("should be able to remove fact", () => {
     expect.assertions(3);
 
-    const { addFact, removeFact, addProduction } = Rete.create();
+    const { assert, retract, rule } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(DATA_SET[i]);
+      assert(DATA_SET[i]);
     }
 
-    addProduction(
-      [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      ({ e, v }, { addProducedFact }) => {
-        if (e === violet) {
-          expect(v).toBe("Violet");
-          addProducedFact([e, "isLady", true]);
-        } else {
-          expect(v).toBe("Grace");
-        }
-      },
-    );
+    rule(
+      ["?e", "gender", "F"],
+      ["?e", "name", "?v"],
+    ).then(({ e, v }, { addProducedFact }) => {
+      if (e === violet) {
+        expect(v).toBe("Violet");
+        addProducedFact([e, "isLady", true]);
+      } else {
+        expect(v).toBe("Grace");
+      }
+    });
 
-    removeFact(DATA_SET[4]);
+    retract(DATA_SET[4]);
 
-    addProduction([["?e", "gender", "F"], ["?e", "name", "?v"]], ({ v }) => {
+    rule(["?e", "gender", "F"], ["?e", "name", "?v"]).then(({ v }) => {
       expect(v).toBe("Grace");
     });
   });
@@ -101,45 +105,45 @@ describe("Rete", () => {
   it("should be able to have dependent facts", () => {
     expect.assertions(4);
 
-    const { addFact, addProduction } = Rete.create();
+    const { assert, rule } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(DATA_SET[i]);
+      assert(DATA_SET[i]);
     }
 
-    addProduction([["?e", "isLady", true]], ({ e }, { fact }) => {
+    rule(["?e", "isLady", true]).then(({ e }, { fact }) => {
       expect(fact).toEqual([violet, "isLady", true]);
       expect(e).toBe(violet);
     });
 
-    addProduction(
-      [["?e", "gender", "F"], ["?e", "name", "?v"]],
-      ({ e, v }, { addProducedFact }) => {
-        if (e === violet) {
-          expect(v).toBe("Violet");
-          addProducedFact([e, "isLady", true]);
-        } else {
-          expect(v).toBe("Grace");
-        }
-      },
-    );
+    rule(
+      ["?e", "gender", "F"],
+      ["?e", "name", "?v"],
+    ).then(({ e, v }, { addProducedFact }) => {
+      if (e === violet) {
+        expect(v).toBe("Violet");
+        addProducedFact([e, "isLady", true]);
+      } else {
+        expect(v).toBe("Grace");
+      }
+    });
   });
 
   it("should allow queries", () => {
-    const { addFact, removeFact, addProduction, addQuery } = Rete.create();
+    const { assert, retract, rule, query } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(DATA_SET[i]);
+      assert(DATA_SET[i]);
     }
 
-    addProduction([["?e", "gender", "F"]], ({ e }, { addProducedFact }) => {
+    rule(["?e", "gender", "F"]).then(({ e }, { addProducedFact }) => {
       addProducedFact([e, "isLady", true]);
 
-      addFact([thomas, "superCool", true]);
+      assert([thomas, "superCool", true]);
     });
 
-    const coolQuery = addQuery([["?e", "superCool", true]]);
-    const ladyQuery = addQuery([["?e", "isLady", true]]);
+    const coolQuery = query(["?e", "superCool", true]);
+    const ladyQuery = query(["?e", "isLady", true]);
 
     let coolFacts;
     let ladyFacts;
@@ -158,7 +162,7 @@ describe("Rete", () => {
     expect(ladyVariableBindings[0].e).toBe(grace);
     expect(ladyVariableBindings[1].e).toBe(violet);
 
-    removeFact(DATA_SET[10] as any);
+    retract(DATA_SET[10] as any);
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(1);
@@ -167,7 +171,7 @@ describe("Rete", () => {
     ladyVariableBindings = ladyQuery.getVariableBindings();
     expect(ladyVariableBindings[0].e).toBe(violet);
 
-    removeFact(DATA_SET[4] as any);
+    retract(DATA_SET[4] as any);
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(0);
@@ -178,14 +182,14 @@ describe("Rete", () => {
   });
 
   it("should make sure 2 queries for the same conditions return the same object", () => {
-    const { self, addFact, addQuery } = Rete.create();
+    const { self, assert, query } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(DATA_SET[i]);
+      assert(DATA_SET[i]);
     }
 
-    const query1 = addQuery([["?e", "isLady", true]]);
-    const query2 = addQuery([["?e", "isLady", true]]);
+    const query1 = query(["?e", "isLady", true]);
+    const query2 = query(["?e", "isLady", true]);
 
     expect(self.root.children).toHaveLength(1);
     expect(query1 === query2).toBeFalsy();
@@ -196,62 +200,62 @@ describe("Rete", () => {
   it("should be able to accumulate facts", () => {
     expect.assertions(2);
 
-    const { addFact, addProduction } = Rete.create();
+    const { assert, rule } = Rete.create();
 
     for (let i = 0; i < DATA_SET.length; i++) {
-      addFact(DATA_SET[i]);
+      assert(DATA_SET[i]);
     }
 
-    addProduction([["?e", "gender", "F"], count("?count")], ({ count }) => {
+    rule(["?e", "gender", "F"], count("?count")).then(({ count }) => {
       expect(count).toBe(2);
     });
 
-    addProduction([["?e", "team", "Fun"], count("?count")], ({ count }) => {
+    rule(["?e", "team", "Fun"], count("?count")).then(({ count }) => {
       expect(count).toBe(1);
     });
   });
 
   it("should be able to query a max accumulator", () => {
-    const { addFact, addQuery } = Rete.create();
+    const { assert, query } = Rete.create();
 
-    addFact([3, "name", "Older"]);
-    addFact([2, "name", "Medium"]);
-    addFact([1, "name", "Young"]);
+    assert([3, "name", "Older"]);
+    assert([2, "name", "Medium"]);
+    assert([1, "name", "Young"]);
 
-    addFact([3, "age", 15]);
-    addFact([2, "age", 10]);
-    addFact([1, "age", 5]);
+    assert([3, "age", 15]);
+    assert([2, "age", 10]);
+    assert([1, "age", 5]);
 
-    addFact([3, "gender", "F"]);
-    addFact([2, "gender", "M"]);
-    addFact([1, "gender", "M"]);
+    assert([3, "gender", "F"]);
+    assert([2, "gender", "M"]);
+    assert([1, "gender", "M"]);
 
-    const maxQuery = addQuery([
+    const maxQuery = query(
       max("?max", [[_, "age", _]]),
       ["?e", "age", "?max"],
       ["?e", "name", "?v"],
-    ]);
+    );
 
     const maxFacts = maxQuery.getFacts();
     expect(maxFacts).toHaveLength(1);
     expect(maxFacts[0][2]).toBe("Older");
 
-    const maxMaleQuery = addQuery([
+    const maxMaleQuery = query(
       ["?e", "gender", "M"],
       max("?max", [["?e", "age", _]]),
       ["?e2", "age", "?max"],
       ["?e2", "name", "?v"],
-    ]);
+    );
 
     const maxMaleFacts = maxMaleQuery.getFacts();
     expect(maxMaleFacts).toHaveLength(1);
     expect(maxMaleFacts[0][2]).toBe("Medium");
 
-    const maxMaleQuery2 = addQuery([
+    const maxMaleQuery2 = query(
       max("?max", [["?e", "gender", "M"], ["?e", "age", _]]),
       ["?e2", "age", "?max"],
       ["?e2", "name", "?v"],
-    ]);
+    );
 
     const maxMaleFacts2 = maxMaleQuery2.getFacts();
     expect(maxMaleFacts2).toHaveLength(1);

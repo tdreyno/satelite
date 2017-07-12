@@ -17,7 +17,7 @@ function makeFakePerson(): IFact[] {
   ] as any;
 }
 
-const { addFact, addProduction } = Rete.create();
+const { assert, rule } = Rete.create();
 
 console.time("Generating Data");
 const fakePeople: IFact[][] = [];
@@ -29,17 +29,18 @@ console.timeEnd("Generating Data");
 console.time("Adding Facts");
 for (let i = 0; i < fakePeople.length; i++) {
   for (let j = 0; j < fakePeople[i].length; j++) {
-    addFact(fakePeople[i][j]);
+    assert(fakePeople[i][j]);
   }
 }
 console.timeEnd("Adding Facts");
 
 console.time("Adding production");
-addProduction(
-  [["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]],
-  () => {
-    // expect(f[2]).toBe("Grace");
-    // console.log(f[2]);
-  },
-);
+rule(
+  ["?e", "gender", "F"],
+  ["?e", "team", "Fun"],
+  ["?e", "name", "?v"],
+).then(() => {
+  // expect(f[2]).toBe("Grace");
+  // console.log(f[2]);
+});
 console.timeEnd("Adding production");

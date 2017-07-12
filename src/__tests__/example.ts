@@ -1,11 +1,7 @@
 import { IFact, makeIdentifier, placeholder as _, Rete } from "../index";
 declare const fetch: (path: string) => Promise<any>;
 
-const {
-  addFacts: assert,
-  removeFacts: retract,
-  queryImmediately: query,
-} = Rete.create();
+const { assert, retract, findAll } = Rete.create();
 
 const hasData = (v: boolean): IFact => [
   "articleModerators",
@@ -40,17 +36,17 @@ export async function load() {
     return sum.concat(userIds.map(articleModeratorsScope(articleId)));
   }, [] as IFact[]);
 
-  assert(insertions);
+  assert(...insertions);
   assert(hasData(true));
 }
 
 export function updateArticleModerators(articleId: string, userIds: string[]) {
   // Find all moderators for this article (`_` is the wildcard character)
-  const currentModerators = query(articleModeratorsScope(articleId)(_));
+  const currentModerators = findAll(articleModeratorsScope(articleId)(_));
 
   // Remove them.
-  retract(currentModerators);
+  retract(...currentModerators);
 
   // Add the new values.
-  assert(userIds.map(articleModeratorsScope(articleId)));
+  assert(...userIds.map(articleModeratorsScope(articleId)));
 }

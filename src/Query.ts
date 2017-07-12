@@ -52,15 +52,15 @@ export class Query {
     }
   }
 
-  onChange(
-    cb: (facts: IFact[], variableBindings: IVariableBindings[]) => any,
-  ): void {
+  onChange(cb: IQueryChangeFn): void {
     this.callbacks.add(cb);
   }
 
-  offChange(
-    cb: (facts: IFact[], variableBindings: IVariableBindings[]) => any,
-  ): void {
+  then(cb: IQueryChangeFn): void {
+    this.onChange(cb);
+  }
+
+  offChange(cb: IQueryChangeFn): void {
     this.callbacks.delete(cb);
   }
 }
