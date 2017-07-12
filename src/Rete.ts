@@ -5,7 +5,8 @@ import {
   parseCondition,
   ParsedCondition,
 } from "./Condition";
-import { IFact, makeFact } from "./Fact";
+import { IFact, IValue, makeFact } from "./Fact";
+import { IIdentifier, IPrimitive } from "./Identifier";
 import {
   AccumulatorCondition,
   AccumulatorNode,
@@ -30,8 +31,6 @@ import { Token } from "./Token";
 // tslint:disable:max-classes-per-file
 
 export type ITerminalNode = Production | Query;
-
-export { IIdentifier } from "./Identifier";
 
 let variablePrefix = "?";
 
@@ -60,12 +59,17 @@ export class Rete {
     return new Rete();
   }
 
-  root = RootNode.create();
-  terminalNodes: ITerminalNode[] = [];
-  facts: Set<IFact> = new Set();
-  hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
   _ = placeholder;
   self = this;
+  root = RootNode.create();
+
+  private terminalNodes: ITerminalNode[] = [];
+  private facts: Set<IFact> = new Set();
+  private entities: Map<
+    IIdentifier | IPrimitive,
+    { [attribute: string]: IValue }
+  > = new Map();
+  private hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
 
   constructor() {
     this.addFact = this.addFact.bind(this);
@@ -81,6 +85,7 @@ export class Rete {
     this.query = this.query.bind(this);
     this.findAll = this.findAll.bind(this);
     this.findOne = this.findOne.bind(this);
+    this.entity = this.entity.bind(this);
   }
 
   // External API.
@@ -105,6 +110,10 @@ export class Rete {
     return this.addQuery(...conditions).getFacts()[0];
   }
 
+  entity(id: IIdentifier | IPrimitive): IValue | undefined {
+    return this.entities.get(id);
+  }
+
   // Internal API.
   private addFacts(...facts: IFact[]): void {
     facts.forEach(this.addFact);
@@ -120,6 +129,10 @@ export class Rete {
     if (!this.facts.has(f)) {
       this.facts.add(f);
 
+      const existingEntity = this.entities.get(f[0]) || {};
+      existingEntity[f[1]] = f[2];
+      this.entities.set(f[0], existingEntity);
+
       this.dispatchToAlphaMemories(f, "activate");
     }
   }
@@ -128,9 +141,18 @@ export class Rete {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     if (this.facts.has(f)) {
-      this.dispatchToAlphaMemories(f, "retract");
-
       this.facts.delete(f);
+
+      const existingEntity = this.entities.get(f[0]) || {};
+      delete existingEntity[f[1]];
+
+      if (Object.keys(existingEntity).length > 0) {
+        this.entities.set(f[0], existingEntity);
+      } else {
+        this.entities.delete(f[0]);
+      }
+
+      this.dispatchToAlphaMemories(f, "retract");
     }
 
     this.root.rightRetract(f);

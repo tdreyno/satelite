@@ -261,4 +261,40 @@ describe("Rete", () => {
     expect(maxMaleFacts2).toHaveLength(1);
     expect(maxMaleFacts2[0][2]).toBe("Medium");
   });
+
+  it("should have an entity cache", () => {
+    const { assert, retract, entity } = Rete.create();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      assert(DATA_SET[i]);
+    }
+
+    const thomasDefinition1 = entity(thomas);
+
+    expect(thomasDefinition1.name).toEqual("Thomas");
+    expect(thomasDefinition1.gender).toEqual("M");
+    expect(thomasDefinition1.team).toEqual("WW");
+
+    retract([thomas, "gender", "M"]);
+
+    const thomasDefinition2 = entity(thomas);
+
+    expect(thomasDefinition2.name).toEqual("Thomas");
+    expect(thomasDefinition2.gender).toBeUndefined();
+    expect(thomasDefinition2.team).toEqual("WW");
+
+    retract([thomas, "team", "WW"]);
+
+    const thomasDefinition3 = entity(thomas);
+
+    expect(thomasDefinition3.name).toEqual("Thomas");
+    expect(thomasDefinition3.gender).toBeUndefined();
+    expect(thomasDefinition3.team).toBeUndefined();
+
+    retract([thomas, "name", "Thomas"]);
+
+    const thomasDefinition4 = entity(thomas);
+
+    expect(thomasDefinition4).toBeUndefined();
+  });
 });
