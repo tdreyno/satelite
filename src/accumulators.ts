@@ -1,7 +1,8 @@
-import { parseCondition } from "./Condition";
-import { IFact } from "./Fact";
+import { IConstantTest, parseCondition } from "./Condition";
+import { IFact, IValue } from "./Fact";
+import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
-import { IConditions } from "./Rete";
+import { IConditions, placeholder as _ } from "./Rete";
 import { Token } from "./Token";
 
 export function acc<T>(
@@ -63,5 +64,32 @@ export function collect(bindingName: string, ...conditions: IConditions) {
       initialValue: [] as any[],
     },
     ...conditions,
+  );
+}
+
+export interface IEntity {
+  id: IPrimitive | IIdentifier | IConstantTest;
+  attributes: {
+    [attribute: string]: IValue;
+  };
+}
+
+export function entity(
+  bindingName: string,
+  entityId: IPrimitive | IIdentifier | IConstantTest,
+) {
+  return acc(
+    bindingName,
+    {
+      reducer: (acc: IEntity, item: Token): IEntity => {
+        const f = item.fact;
+        acc.id = item.fact[0];
+        acc.attributes[f[1]] = f[2];
+        return acc;
+      },
+      initialValue: { id: entityId, attributes: {} },
+      tokenPerBindingMatch: true,
+    },
+    [entityId, _, _],
   );
 }

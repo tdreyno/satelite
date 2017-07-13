@@ -9,6 +9,8 @@ export interface IVariableBindings {
   [variableName: string]: any;
 }
 
+let nextTokenId = 0;
+
 export class Token {
   static create(
     node: RootJoinNode | JoinNode | AccumulatorNode,
@@ -25,6 +27,7 @@ export class Token {
     return token;
   }
 
+  id: number = nextTokenId++;
   parent: Token | null;
   fact: ITokenValue;
   bindings: IVariableBindings;

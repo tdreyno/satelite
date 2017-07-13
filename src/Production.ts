@@ -2,7 +2,7 @@ import { IFact } from "./Fact";
 import { ProductionNode } from "./nodes/ProductionNode";
 import { IVariableBindings } from "./Token";
 
-export type IAddFactsSignature = (facts: IFact | IFact[]) => void;
+export type IAddFactsSignature = (...facts: IFact[]) => void;
 export type IActivateCallback = (
   variableBindings: IVariableBindings,
   extra: {
@@ -34,7 +34,7 @@ export class Production {
   onActivation(
     f: IFact,
     b: IVariableBindings,
-    addProducedFact: (facts: IFact | IFact[]) => void,
+    addProducedFact: (...facts: IFact[]) => void,
   ): void {
     this.onActivationCallback(b, {
       fact: f,

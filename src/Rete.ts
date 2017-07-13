@@ -88,7 +88,7 @@ export class Rete {
     this.query = this.query.bind(this);
     this.findAll = this.findAll.bind(this);
     this.findOne = this.findOne.bind(this);
-    this.entity = this.entity.bind(this);
+    this.findEntity = this.findEntity.bind(this);
     this.retractEntity = this.retractEntity.bind(this);
   }
 
@@ -114,7 +114,7 @@ export class Rete {
     return this.addQuery(...conditions).getVariableBindings()[0];
   }
 
-  entity(
+  findEntity(
     id: IIdentifier | IPrimitive,
   ): { [attribute: string]: IValue } | undefined {
     const entity = this.entities.get(id);
@@ -122,7 +122,7 @@ export class Rete {
   }
 
   retractEntity(id: IIdentifier | IPrimitive): void {
-    const e = this.entity(id);
+    const e = this.findEntity(id);
 
     if (e) {
       this.retract(e.facts);

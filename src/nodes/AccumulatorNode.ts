@@ -1,17 +1,38 @@
+import { memoize } from "interstelar";
+import { cloneDeep } from "lodash";
 import { cleanVariableName, ParsedCondition } from "../Condition";
 import { compareTokens, Token } from "../Token";
 import {
   findInList,
   reduceList,
+  removeFromList,
   removeIndexFromList,
   runLeftActivateOnNodes,
+  runLeftRetractOnNodes,
 } from "../util";
 import { ReteNode } from "./ReteNode";
 
 export interface IAccumulator<T> {
   reducer: IAccumulatorReducer<T>;
   initialValue: T;
+  tokenPerBindingMatch?: boolean;
 }
+
+let nextBindingId = 0;
+function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
+  const keys = Object.keys(bindings);
+
+  if (!compareValues) {
+    return getBindingIdByKeys(keys);
+  }
+
+  return getBindingIdByValues(keys, keys.map(k => bindings[k]));
+}
+
+const getBindingIdByKeys = memoize((keys: string[]) => nextBindingId++);
+const getBindingIdByValues = memoize(
+  (keys: string[], values: any[]) => nextBindingId++,
+);
 
 export class AccumulatorCondition<T = any> {
   bindingName: string;
@@ -44,7 +65,8 @@ export class AccumulatorNode extends ReteNode {
   }
 
   type = "accumulator";
-  items: Token[] = [];
+  items: Map<number, Token[]> = new Map();
+  results: Map<number, Token> = new Map();
   accumulator: AccumulatorCondition;
 
   constructor(accumulator: AccumulatorCondition) {
@@ -53,11 +75,16 @@ export class AccumulatorNode extends ReteNode {
     this.accumulator = accumulator;
   }
 
-  executeAccumulator(): void {
-    const result = reduceList(
-      this.items,
+  executeAccumulator(bindingId: number): void {
+    const tokens = this.items.get(bindingId);
+
+    if (!tokens) {
+      return this.accumulator.accumulator.initialValue;
+    }
+
+    const result = tokens.reduce(
       this.accumulator.accumulator.reducer,
-      this.accumulator.accumulator.initialValue,
+      cloneDeep(this.accumulator.accumulator.initialValue),
     );
 
     const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
@@ -65,36 +92,73 @@ export class AccumulatorNode extends ReteNode {
       [cleanedVariableName]: result,
     });
 
+    this.results.set(bindingId, t);
+
     runLeftActivateOnNodes(this.children, t);
   }
 
   leftActivate(t: Token): void {
-    if (findInList(this.items, t, compareTokens) !== -1) {
+    const bindingId = getBindingId(
+      t.bindings,
+      this.accumulator.accumulator.tokenPerBindingMatch,
+    );
+
+    let tokens = this.items.get(bindingId);
+
+    if (tokens && findInList(tokens, t, compareTokens) !== -1) {
       return;
     }
 
-    this.items.unshift(t);
+    if (!tokens) {
+      tokens = [];
+      this.items.set(bindingId, tokens);
+    }
 
-    this.executeAccumulator();
+    tokens.unshift(t);
+
+    this.executeAccumulator(bindingId);
   }
 
   leftRetract(t: Token): void {
-    const foundIndex = findInList(this.items, t, compareTokens);
+    const bindingId = getBindingId(
+      t.bindings,
+      this.accumulator.accumulator.tokenPerBindingMatch,
+    );
 
-    if (foundIndex === -1) {
+    const tokens = this.items.get(bindingId);
+
+    if (!tokens) {
       return;
     }
 
-    this.items = removeIndexFromList(this.items, foundIndex);
+    const i = findInList(tokens, t, compareTokens);
 
-    this.executeAccumulator();
+    if (i === -1) {
+      return;
+    }
+
+    removeIndexFromList(tokens, i);
+
+    const formerResult = this.results.get(bindingId);
+    if (formerResult) {
+      this.results.delete(bindingId);
+      runLeftRetractOnNodes(this.children, formerResult);
+    }
+
+    if (tokens.length > 0) {
+      this.executeAccumulator(bindingId);
+    }
   }
 
   rerunForChild(child: ReteNode) {
     const savedListOfChildren = this.children;
 
     this.children = [child];
-    this.executeAccumulator();
+
+    for (const [bindingId] of this.items) {
+      this.executeAccumulator(bindingId);
+    }
+
     this.children = savedListOfChildren;
   }
 }

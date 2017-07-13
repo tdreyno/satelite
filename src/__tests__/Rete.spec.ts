@@ -1,4 +1,4 @@
-import { count, max } from "../accumulators";
+import { count, entity, max } from "../accumulators";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
 import { not, placeholder as _, Rete } from "../Rete";
@@ -26,15 +26,21 @@ const DATA_SET: IFact[] = [
   [grace, "team", "Fun"],
 ] as any;
 
+function makeRete() {
+  const rete = Rete.create();
+
+  for (let i = 0; i < DATA_SET.length; i++) {
+    rete.assert(DATA_SET[i]);
+  }
+
+  return rete;
+}
+
 describe("Rete", () => {
   it("should add a production", () => {
     expect.assertions(4);
 
-    const { assert, rule } = Rete.create();
-
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
+    const { assert, rule } = makeRete();
 
     rule(
       ["?e", "gender", "F"],
@@ -58,11 +64,7 @@ describe("Rete", () => {
   it("should allow negative conditions", () => {
     expect.assertions(2);
 
-    const { assert, rule } = Rete.create();
-
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
+    const { assert, rule } = makeRete();
 
     rule(["?e", "gender", "F"], not(["?e", "team", "Fun"]), [
       "?e",
@@ -77,25 +79,17 @@ describe("Rete", () => {
   it("should be able to remove fact", () => {
     expect.assertions(3);
 
-    const { assert, retract, rule } = Rete.create();
+    const { self, assert, retract, rule } = makeRete();
 
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
-
-    rule(
-      ["?e", "gender", "F"],
-      ["?e", "name", "?v"],
-    ).then(({ e, v }, { addProducedFact }) => {
+    rule(["?e", "gender", "F"], ["?e", "name", "?v"]).then(({ e, v }) => {
       if (e === violet) {
         expect(v).toBe("Violet");
-        addProducedFact([e, "isLady", true]);
       } else {
         expect(v).toBe("Grace");
       }
     });
 
-    retract(DATA_SET[4]);
+    retract([violet, "gender", "F"]);
 
     rule(["?e", "gender", "F"], ["?e", "name", "?v"]).then(({ v }) => {
       expect(v).toBe("Grace");
@@ -105,11 +99,7 @@ describe("Rete", () => {
   it("should be able to have dependent facts", () => {
     expect.assertions(4);
 
-    const { assert, rule } = Rete.create();
-
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
+    const { assert, rule } = makeRete();
 
     rule(["?e", "isLady", true]).then(({ e }, { fact }) => {
       expect(fact).toEqual([violet, "isLady", true]);
@@ -130,11 +120,7 @@ describe("Rete", () => {
   });
 
   it("should allow queries", () => {
-    const { assert, retract, rule, query } = Rete.create();
-
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
+    const { assert, retract, rule, query } = makeRete();
 
     rule(["?e", "gender", "F"]).then(({ e }, { addProducedFact }) => {
       addProducedFact([e, "isLady", true]);
@@ -182,11 +168,7 @@ describe("Rete", () => {
   });
 
   it("should make sure 2 queries for the same conditions return the same object", () => {
-    const { self, assert, query } = Rete.create();
-
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
+    const { self, assert, query } = makeRete();
 
     const query1 = query(["?e", "isLady", true]);
     const query2 = query(["?e", "isLady", true]);
@@ -200,11 +182,7 @@ describe("Rete", () => {
   it("should be able to accumulate facts", () => {
     expect.assertions(2);
 
-    const { assert, rule } = Rete.create();
-
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
+    const { assert, rule } = makeRete();
 
     rule(["?e", "gender", "F"], count("?count")).then(({ count }) => {
       expect(count).toBe(2);
@@ -263,13 +241,9 @@ describe("Rete", () => {
   });
 
   it("should have an entity cache", () => {
-    const { assert, retract, entity } = Rete.create();
+    const { assert, retract, findEntity } = makeRete();
 
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
-
-    const thomasDefinition1 = entity(thomas);
+    const thomasDefinition1 = findEntity(thomas);
 
     expect(thomasDefinition1!.name).toEqual("Thomas");
     expect(thomasDefinition1!.gender).toEqual("M");
@@ -277,7 +251,7 @@ describe("Rete", () => {
 
     retract([thomas, "gender", "M"]);
 
-    const thomasDefinition2 = entity(thomas);
+    const thomasDefinition2 = findEntity(thomas);
 
     expect(thomasDefinition2!.name).toEqual("Thomas");
     expect(thomasDefinition2!.gender).toBeUndefined();
@@ -285,7 +259,7 @@ describe("Rete", () => {
 
     retract([thomas, "team", "WW"]);
 
-    const thomasDefinition3 = entity(thomas);
+    const thomasDefinition3 = findEntity(thomas);
 
     expect(thomasDefinition3!.name).toEqual("Thomas");
     expect(thomasDefinition3!.gender).toBeUndefined();
@@ -293,8 +267,36 @@ describe("Rete", () => {
 
     retract([thomas, "name", "Thomas"]);
 
-    const thomasDefinition4 = entity(thomas);
+    const thomasDefinition4 = findEntity(thomas);
 
     expect(thomasDefinition4).toBeUndefined();
+  });
+
+  it("should have entity level subscriptions", () => {
+    expect.assertions(4);
+
+    const { assert, retract, query } = Rete.create();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      assert(DATA_SET[i]);
+    }
+
+    const entityQuery = query(["?e", "gender", "M"], entity("?entity", "?e"));
+
+    entityQuery.getFacts().forEach((f: any) => {
+      if (f.id === marc) {
+        expect(f.attributes.name).toBe("Marc");
+      } else if (f.id === thomas) {
+        expect(f.attributes.name).toBe("Thomas");
+      }
+    });
+
+    retract([marc, "gender", "M"]);
+
+    const fewerFacts: any[] = entityQuery.getFacts();
+    expect(fewerFacts).toHaveLength(1);
+
+    // TODO: Time to start batching changes.
+    expect(fewerFacts[0].id).toBe(thomas);
   });
 });

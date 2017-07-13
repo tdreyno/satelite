@@ -42,12 +42,7 @@ export class ProductionNode extends ReteNode {
 
     this.items.unshift(t);
 
-    const addProducedFacts = (factOrFacts: IFact | IFact[]) => {
-      const facts: IFact[] =
-        factOrFacts[1] && typeof factOrFacts[1] === "string"
-          ? [factOrFacts]
-          : factOrFacts as any;
-
+    const addProducedFacts = (...facts: IFact[]) => {
       for (let i = 0; i < facts.length; i++) {
         this.rete.assert(facts[i]);
       }
@@ -77,26 +72,24 @@ export class ProductionNode extends ReteNode {
 
     this.items = removeIndexFromList(this.items, foundIndex);
 
-    if (this.resultingFacts) {
-      const foundResultingFactIndex = findInList(
+    const foundResultingFactIndex = findInList(
+      this.resultingFacts,
+      t,
+      (resultingFact, token) => {
+        return compareTokens(resultingFact.token, token);
+      },
+    );
+
+    if (foundResultingFactIndex !== -1) {
+      const facts = this.resultingFacts[foundResultingFactIndex].facts;
+
+      this.resultingFacts = removeIndexFromList(
         this.resultingFacts,
-        t,
-        (resultingFact, token) => {
-          return compareTokens(resultingFact.token, token);
-        },
+        foundResultingFactIndex,
       );
 
-      if (foundResultingFactIndex !== -1) {
-        const facts = this.resultingFacts[foundResultingFactIndex].facts;
-
-        this.resultingFacts = removeIndexFromList(
-          this.resultingFacts,
-          foundResultingFactIndex,
-        );
-
-        for (let i = 0; i < facts.length; i++) {
-          this.rete.retract(facts[i]);
-        }
+      for (let i = 0; i < facts.length; i++) {
+        this.rete.retract(facts[i]);
       }
     }
   }

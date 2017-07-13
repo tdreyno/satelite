@@ -136,7 +136,15 @@ export class JoinNode extends ReteNode {
 
     this.items.unshift(t);
 
-    this.executeLeft(t, runLeftActivateOnNodes);
+    for (let i = 0; i < this.alphaMemory.facts.length; i++) {
+      const fact = this.alphaMemory.facts[i];
+      const bindings = performJoinTests(this.tests, t, fact);
+
+      if (bindings) {
+        const newToken = Token.create(this, t, fact, bindings);
+        runLeftActivateOnNodes(this.children, newToken);
+      }
+    }
   }
 
   leftRetract(t: Token): void {
@@ -148,15 +156,48 @@ export class JoinNode extends ReteNode {
 
     removeIndexFromList(this.items, foundIndex);
 
-    this.executeLeft(t, runLeftRetractOnNodes);
+    // debugger;
+    for (let i = 0; i < this.alphaMemory.facts.length; i++) {
+      const fact = this.alphaMemory.facts[i];
+
+      const bindings = performJoinTests(this.tests, t, fact);
+
+      if (bindings) {
+        const newToken = Token.create(this, t, fact, bindings);
+        runLeftRetractOnNodes(this.children, newToken);
+      }
+    }
   }
 
   rightRetract(f: IFact): void {
-    this.executeRight(f, runLeftRetractOnNodes);
+    for (let i = 0; i < this.items.length; i++) {
+      const token = this.items[i];
+
+      if (f !== token.fact) {
+        continue;
+      }
+
+      const bindings = performJoinTests(this.tests, token, f);
+
+      if (bindings) {
+        const newToken = Token.create(this, token, f, bindings);
+
+        runLeftRetractOnNodes(this.children, newToken);
+      }
+    }
   }
 
   rightActivate(f: IFact): void {
-    this.executeRight(f, runLeftActivateOnNodes);
+    for (let i = 0; i < this.items.length; i++) {
+      const token = this.items[i];
+      const bindings = performJoinTests(this.tests, token, f);
+
+      if (bindings) {
+        const newToken = Token.create(this, token, f, bindings);
+
+        runLeftActivateOnNodes(this.children, newToken);
+      }
+    }
   }
 
   rerunForChild(child: ReteNode) {
@@ -184,21 +225,6 @@ export class JoinNode extends ReteNode {
       if (bindings) {
         const newToken = Token.create(this, token, f, bindings);
 
-        action(this.children, newToken);
-      }
-    }
-  }
-
-  private executeLeft(
-    t: Token,
-    action: (children: ReteNode[], t: Token) => void,
-  ): void {
-    for (let i = 0; i < this.alphaMemory.facts.length; i++) {
-      const fact = this.alphaMemory.facts[i];
-      const bindings = performJoinTests(this.tests, t, fact);
-
-      if (bindings) {
-        const newToken = Token.create(this, t, fact, bindings);
         action(this.children, newToken);
       }
     }
