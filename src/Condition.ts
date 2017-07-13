@@ -138,6 +138,8 @@ export function getJoinTestsFromCondition(
       results.unshift(
         createTestAtJoinNode(fieldArg1, earlierCondition, fieldArg2),
       );
+    } else {
+      results.unshift(createTestAtJoinNode(null, c, null));
     }
   }
 
@@ -177,7 +179,7 @@ export function extractBindingsFromCondition(
   const bindings = Object.assign({}, b);
 
   if (c instanceof AccumulatorCondition) {
-    bindings[c.bindingName] = f;
+    bindings[cleanVariableName(c.bindingName)] = f;
     return bindings;
   }
 

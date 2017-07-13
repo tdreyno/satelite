@@ -4,8 +4,6 @@ import { cleanVariableName, ParsedCondition } from "../Condition";
 import { compareTokens, Token } from "../Token";
 import {
   findInList,
-  reduceList,
-  removeFromList,
   removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
@@ -29,9 +27,12 @@ function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
   return getBindingIdByValues(keys, keys.map(k => bindings[k]));
 }
 
-const getBindingIdByKeys = memoize((keys: string[]) => nextBindingId++);
+// tslint:disable-next-line:variable-name
+const getBindingIdByKeys = memoize((_keys: string[]) => nextBindingId++);
+
 const getBindingIdByValues = memoize(
-  (keys: string[], values: any[]) => nextBindingId++,
+  // tslint:disable-next-line:variable-name
+  (_keys: string[], _values: any[]) => nextBindingId++,
 );
 
 export class AccumulatorCondition<T = any> {
@@ -73,28 +74,6 @@ export class AccumulatorNode extends ReteNode {
     super();
 
     this.accumulator = accumulator;
-  }
-
-  executeAccumulator(bindingId: number): void {
-    const tokens = this.items.get(bindingId);
-
-    if (!tokens) {
-      return this.accumulator.accumulator.initialValue;
-    }
-
-    const result = tokens.reduce(
-      this.accumulator.accumulator.reducer,
-      cloneDeep(this.accumulator.accumulator.initialValue),
-    );
-
-    const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
-    const t = Token.create(this, null, result, {
-      [cleanedVariableName]: result,
-    });
-
-    this.results.set(bindingId, t);
-
-    runLeftActivateOnNodes(this.children, t);
   }
 
   leftActivate(t: Token): void {
@@ -155,10 +134,37 @@ export class AccumulatorNode extends ReteNode {
 
     this.children = [child];
 
-    for (const [bindingId] of this.items) {
-      this.executeAccumulator(bindingId);
+    if (this.items.size > 0) {
+      for (const [bindingId] of this.items) {
+        this.executeAccumulator(bindingId);
+      }
+    } else {
+      this.executeAccumulator(-1);
     }
 
     this.children = savedListOfChildren;
+  }
+
+  private executeAccumulator(bindingId: number): void {
+    const tokens = this.items.get(bindingId);
+
+    let result;
+    if (!tokens) {
+      result = this.accumulator.accumulator.initialValue;
+    } else {
+      result = tokens.reduce(
+        this.accumulator.accumulator.reducer,
+        cloneDeep(this.accumulator.accumulator.initialValue),
+      );
+    }
+
+    const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
+    const t = Token.create(this, null, result, {
+      [cleanedVariableName]: result,
+    });
+
+    this.results.set(bindingId, t);
+
+    runLeftActivateOnNodes(this.children, t);
   }
 }

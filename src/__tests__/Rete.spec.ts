@@ -1,4 +1,4 @@
-import { count, entity, max } from "../accumulators";
+import { collect, count, entity, max } from "../accumulators";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
 import { not, placeholder as _, Rete } from "../Rete";
@@ -40,7 +40,7 @@ describe("Rete", () => {
   it("should add a production", () => {
     expect.assertions(4);
 
-    const { assert, rule } = makeRete();
+    const { rule } = makeRete();
 
     rule(
       ["?e", "gender", "F"],
@@ -64,7 +64,7 @@ describe("Rete", () => {
   it("should allow negative conditions", () => {
     expect.assertions(2);
 
-    const { assert, rule } = makeRete();
+    const { rule } = makeRete();
 
     rule(["?e", "gender", "F"], not(["?e", "team", "Fun"]), [
       "?e",
@@ -79,7 +79,7 @@ describe("Rete", () => {
   it("should be able to remove fact", () => {
     expect.assertions(3);
 
-    const { self, assert, retract, rule } = makeRete();
+    const { retract, rule } = makeRete();
 
     rule(["?e", "gender", "F"], ["?e", "name", "?v"]).then(({ e, v }) => {
       if (e === violet) {
@@ -99,7 +99,7 @@ describe("Rete", () => {
   it("should be able to have dependent facts", () => {
     expect.assertions(4);
 
-    const { assert, rule } = makeRete();
+    const { rule } = makeRete();
 
     rule(["?e", "isLady", true]).then(({ e }, { fact }) => {
       expect(fact).toEqual([violet, "isLady", true]);
@@ -168,7 +168,7 @@ describe("Rete", () => {
   });
 
   it("should make sure 2 queries for the same conditions return the same object", () => {
-    const { self, assert, query } = makeRete();
+    const { self, query } = makeRete();
 
     const query1 = query(["?e", "isLady", true]);
     const query2 = query(["?e", "isLady", true]);
@@ -182,7 +182,7 @@ describe("Rete", () => {
   it("should be able to accumulate facts", () => {
     expect.assertions(2);
 
-    const { assert, rule } = makeRete();
+    const { rule } = makeRete();
 
     rule(["?e", "gender", "F"], count("?count")).then(({ count }) => {
       expect(count).toBe(2);
@@ -241,7 +241,7 @@ describe("Rete", () => {
   });
 
   it("should have an entity cache", () => {
-    const { assert, retract, findEntity } = makeRete();
+    const { retract, findEntity } = makeRete();
 
     const thomasDefinition1 = findEntity(thomas);
 
@@ -275,11 +275,7 @@ describe("Rete", () => {
   it("should have entity level subscriptions", () => {
     expect.assertions(4);
 
-    const { assert, retract, query } = Rete.create();
-
-    for (let i = 0; i < DATA_SET.length; i++) {
-      assert(DATA_SET[i]);
-    }
+    const { retract, query } = makeRete();
 
     const entityQuery = query(["?e", "gender", "M"], entity("?entity", "?e"));
 
@@ -298,5 +294,21 @@ describe("Rete", () => {
 
     // TODO: Time to start batching changes.
     expect(fewerFacts[0].id).toBe(thomas);
+  });
+
+  it.only("should allow unrelated query items", () => {
+    const { query } = makeRete();
+
+    const multiQuery = query(
+      [grace, "team", "?fun"], // A team named fun.
+      ["?marc", "team", "Content"], // A person who is marc.
+      // collect("?men", [_, "gender", "M"]), // All The Men
+      // collect("?women", [_, "gender", "Q"]), // All The Men
+      ["?e", "team", "WW"],
+      ["?e", "?attr", "Thomas"], // A field called "name"
+    );
+
+    // console.log(multiQuery.getFacts());
+    console.log(multiQuery.getVariableBindings());
   });
 });

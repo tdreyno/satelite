@@ -1,4 +1,5 @@
-import { Component, PropTypes, ReactNode } from "react";
+import * as PropTypes from "prop-types";
+import { Component } from "react";
 import { Rete } from "../Rete";
 
 export class Provider extends Component<{
@@ -11,7 +12,7 @@ export class Provider extends Component<{
   };
 
   static childContextTypes = {
-    stores: PropTypes.object.isRequired,
+    rete: PropTypes.object.isRequired,
   };
 
   getChildContext() {

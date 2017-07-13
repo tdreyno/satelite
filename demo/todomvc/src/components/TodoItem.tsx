@@ -1,16 +1,19 @@
 import * as React from "react";
-import { exists } from "../../../../src";
+import { entity, IEntity } from "../../../../src";
 import { subscribe } from "../../../../src/react";
-import { ITodoIdentifier } from "../models/TodoModel";
 
 const ESCAPE_KEY = 27;
 const ENTER_KEY = 13;
 
-export interface ITodoOverviewProps {
-  todo: ITodoIdentifier;
-  isCompleted: boolean;
+export interface ITodo {
   title: string;
-  isBeingEdited: boolean;
+  completed?: boolean;
+  isBeingEdited?: boolean;
+}
+
+export interface ITodoOverviewProps {
+  todoId: string;
+  todo: ITodo;
   setIsBeingEdited: (isBeingEdited: boolean) => any;
   setTitle: (title: string) => any;
   toggleTodo: () => any;
@@ -21,11 +24,12 @@ class TodoItemPure extends React.Component<ITodoOverviewProps> {
   editText: string = "";
 
   render() {
-    const { isBeingEdited, isCompleted, title } = this.props;
+    const { isBeingEdited, completed, title } = this.props.todo;
+
     return (
       <li
         className={[
-          isCompleted ? "completed" : "",
+          completed ? "completed" : "",
           isBeingEdited ? "editing" : "",
         ].join(" ")}
       >
@@ -33,7 +37,7 @@ class TodoItemPure extends React.Component<ITodoOverviewProps> {
           <input
             className="toggle"
             type="checkbox"
-            checked={isCompleted}
+            checked={completed}
             onChange={this.handleToggle.bind(this)}
           />
           <label onDoubleClick={this.handleEdit}>
@@ -71,12 +75,12 @@ class TodoItemPure extends React.Component<ITodoOverviewProps> {
 
   handleEdit() {
     this.props.setIsBeingEdited(true);
-    this.editText = this.props.title;
+    this.editText = this.props.todo.title;
   }
 
   handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.which === ESCAPE_KEY) {
-      this.editText = this.props.title;
+      this.editText = this.props.todo.title;
       this.props.setIsBeingEdited(false);
     } else if (event.which === ENTER_KEY) {
       this.handleSubmit();
@@ -92,45 +96,31 @@ class TodoItemPure extends React.Component<ITodoOverviewProps> {
   }
 }
 
-export type ITodoOverviewOwnProps = Pick<ITodoOverviewProps, "todo">;
+export type ITodoOverviewOwnProps = Pick<ITodoOverviewProps, "todoId">;
 export type ITodoOverviewReteProps = Pick<
   ITodoOverviewProps,
-  | "isBeingEdited"
-  | "setIsBeingEdited"
-  | "destroyTodo"
-  | "setTitle"
-  | "title"
-  | "toggleTodo"
-  | "isCompleted"
+  "todo" | "setIsBeingEdited" | "destroyTodo" | "setTitle" | "toggleTodo"
 >;
 
 export const TodoItem = subscribe<
   ITodoOverviewReteProps,
   ITodoOverviewOwnProps
->(
-  ({ todo }) => exists("?isCompleted", [todo, "todo/completed", true]),
-  ({ todo }) => [todo, "todo/title", "?title"],
-  ({ todo }) => exists("?isBeingEdited", [todo, "todo/isBeingEdited", true]),
+>(({ todoId }) =>
+  entity("?todo", todoId),
 ).then(
   (
-    {
-      isCompleted,
-      title,
-      isBeingEdited,
-    }: { isCompleted: boolean; title: string; isBeingEdited: boolean },
+    { todo }: { todo: IEntity },
     { assert, retract, retractEntity },
-    { todo }: ITodoOverviewOwnProps,
+    { todoId }: ITodoOverviewOwnProps,
   ) => ({
-    isCompleted,
-    title,
-    isBeingEdited,
+    todo: todo.attributes as ITodo,
 
-    setIsBeingEdited: (v: boolean) => assert([todo, "todo/isBeingEdited", v]),
-    destroyTodo: () => retractEntity(todo),
-    setTitle: (t: string) => assert([todo, "todo/title", t]),
+    setIsBeingEdited: (v: boolean) => assert([todoId, "todo/isBeingEdited", v]),
+    destroyTodo: () => retractEntity(todoId),
+    setTitle: (t: string) => assert([todoId, "todo/title", t]),
     toggleTodo: () =>
-      isCompleted
-        ? assert([todo, "todo/completed", true])
-        : retract([todo, "todo/completed", true]),
+      todo.attributes.completed
+        ? assert([todoId, "todo/completed", true])
+        : retract([todoId, "todo/completed", true]),
   }),
 )(TodoItemPure);

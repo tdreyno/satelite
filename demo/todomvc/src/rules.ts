@@ -21,38 +21,32 @@ export const todoVisibility = ({ rule, _, assert }: Rete) =>
     ["?id", "todo/text", _],
     collect("?completed", ["?id", "todo/completed", true]),
     collect("?active", not(["?id", "todo/completed", true])),
-  ).then(
-    ({
-      filter,
-      completed,
-      active,
-    }: {
-      filter: string;
-      completed: IFact[];
-      active: IFact[];
-    }) => {
-      assert(
-        ...completed.map<IFact>(([id]) => {
-          switch (filter) {
-            case ACTIVE_TODOS:
-              return [id, "todo/visible", false];
-            case COMPLETED_TODOS:
-            default:
-              return [id, "todo/visible", true];
-          }
-        }),
-      );
+  ).then(({ // filter,
+    completed, active }: { filter: string; completed: IFact[]; active: IFact[] }) => {
+    debugger;
+    const filter = ACTIVE_TODOS;
 
-      assert(
-        ...active.map<IFact>(([id]) => {
-          switch (filter) {
-            case COMPLETED_TODOS:
-              return [id, "todo/visible", false];
-            case ACTIVE_TODOS:
-            default:
-              return [id, "todo/visible", true];
-          }
-        }),
-      );
-    },
-  );
+    assert(
+      ...completed.map<IFact>(([id]) => {
+        switch (filter) {
+          case ACTIVE_TODOS:
+            return [id, "todo/visible", false];
+          case COMPLETED_TODOS:
+          default:
+            return [id, "todo/visible", true];
+        }
+      }),
+    );
+
+    assert(
+      ...active.map<IFact>(([id]) => {
+        switch (filter) {
+          case COMPLETED_TODOS:
+            return [id, "todo/visible", false];
+          case ACTIVE_TODOS:
+          default:
+            return [id, "todo/visible", true];
+        }
+      }),
+    );
+  });

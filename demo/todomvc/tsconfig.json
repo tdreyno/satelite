@@ -3,6 +3,8 @@
     "target": "es6",
     "module": "commonjs",
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "jsx": "react"
   },
   "exclude": [

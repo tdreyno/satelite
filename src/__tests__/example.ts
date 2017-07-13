@@ -1,7 +1,7 @@
 import { IFact, makeIdentifier, placeholder as _, Rete } from "../index";
 declare const fetch: (path: string) => Promise<any>;
 
-const { assert, retract, findAll, query } = Rete.create();
+const { assert, retract, query } = Rete.create();
 
 const hasData = (v: boolean): IFact => [
   "articleModerators",

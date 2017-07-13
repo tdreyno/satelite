@@ -18,21 +18,21 @@ import { ReteNode } from "./ReteNode";
 
 export class TestAtJoinNode {
   static create(
-    fieldArg1: number,
+    fieldArg1: number | null,
     condition: ParsedCondition | AccumulatorCondition,
-    fieldArg2: string,
+    fieldArg2: string | null,
   ): TestAtJoinNode {
     return new TestAtJoinNode(fieldArg1, condition, fieldArg2);
   }
 
-  fieldArg1: number;
+  fieldArg1: number | null;
   condition: ParsedCondition | AccumulatorCondition;
-  fieldArg2: string;
+  fieldArg2: string | null;
 
   constructor(
-    fieldArg1: number,
+    fieldArg1: number | null,
     condition: ParsedCondition | AccumulatorCondition,
-    fieldArg2: string,
+    fieldArg2: string | null,
   ) {
     this.fieldArg1 = fieldArg1;
     this.condition = condition;
@@ -55,15 +55,18 @@ export function performJoinTests(
 
   for (let i = 0; i < tests.length; i++) {
     const test = tests[i];
-    const arg1: any = f[test.fieldArg1];
-    const arg2: any =
-      test.condition instanceof AccumulatorCondition
-        ? t.bindings[cleanVariableName(test.fieldArg2)]
-        : t.fact[parseInt(test.fieldArg2, 10)];
 
-    // TODO: Make this comparison any predicate
-    if (arg1 !== arg2) {
-      return false;
+    if (test.fieldArg1 !== null && test.fieldArg2 !== null) {
+      const arg1: any = f[test.fieldArg1];
+      const arg2: any =
+        test.condition instanceof AccumulatorCondition
+          ? t.bindings[cleanVariableName(test.fieldArg2)]
+          : t.fact[parseInt(test.fieldArg2, 10)];
+
+      // TODO: Make this comparison any predicate
+      if (arg1 !== arg2) {
+        return false;
+      }
     }
 
     bindings = extractBindingsFromCondition(test.condition, f, bindings);
@@ -138,6 +141,7 @@ export class JoinNode extends ReteNode {
 
     for (let i = 0; i < this.alphaMemory.facts.length; i++) {
       const fact = this.alphaMemory.facts[i];
+
       const bindings = performJoinTests(this.tests, t, fact);
 
       if (bindings) {
@@ -156,7 +160,6 @@ export class JoinNode extends ReteNode {
 
     removeIndexFromList(this.items, foundIndex);
 
-    // debugger;
     for (let i = 0; i < this.alphaMemory.facts.length; i++) {
       const fact = this.alphaMemory.facts[i];
 
@@ -212,21 +215,5 @@ export class JoinNode extends ReteNode {
     }
 
     this.children = savedListOfChildren;
-  }
-
-  private executeRight(
-    f: IFact,
-    action: (children: ReteNode[], t: Token) => void,
-  ) {
-    for (let i = 0; i < this.items.length; i++) {
-      const token = this.items[i];
-      const bindings = performJoinTests(this.tests, token, f);
-
-      if (bindings) {
-        const newToken = Token.create(this, token, f, bindings);
-
-        action(this.children, newToken);
-      }
-    }
   }
 }

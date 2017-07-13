@@ -1,10 +1,10 @@
 import { isFunction } from "lodash";
+import * as PropTypes from "prop-types";
 import * as React from "react";
 
 // import hoistStatics from "hoist-non-react-statics";
-import { IFact } from "../Fact";
 import { Query } from "../Query";
-import { IAnyCondition, IConditions, Rete } from "../Rete";
+import { IAnyCondition, Rete } from "../Rete";
 import { IVariableBindings } from "../Token";
 
 export type IReteToProps<ReteProps, OwnProps> = (
@@ -18,9 +18,12 @@ export type IPropConditions<OwnProps> = (props: OwnProps) => IAnyCondition;
 export type IConditionsOrPropConditions<OwnProps> =
   | IAnyCondition
   | IPropConditions<OwnProps>;
+export type IOneOrMore<T> = T | T[];
 
 export function subscribe<ReteProps, OwnProps>(
-  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>,
+  ...conditionsOrPropConditions: Array<
+    IOneOrMore<IConditionsOrPropConditions<OwnProps>>
+  >,
 ): {
   then: (
     storesToProps: IReteToProps<ReteProps, OwnProps>,
@@ -28,6 +31,16 @@ export function subscribe<ReteProps, OwnProps>(
     ComposedComponent: TFunction,
   ) => React.ComponentClass<OwnProps>);
 } {
+  const conditionSets = conditionsOrPropConditions.map(
+    (conditionSet: any[]) => {
+      if (conditionSet[1] && typeof conditionSet[1] === "string") {
+        return [conditionSet];
+      }
+
+      return conditionSet;
+    },
+  );
+
   return {
     then: storesToProps => {
       return ComposedComponent => {
@@ -36,10 +49,10 @@ export function subscribe<ReteProps, OwnProps>(
           static displayName = `Injected${ComposedComponent.displayName}`;
 
           static contextTypes = {
-            rete: React.PropTypes.instanceOf(Rete),
+            rete: PropTypes.instanceOf(Rete),
           };
 
-          query: Query | null = null;
+          queries: Set<Query> = new Set();
 
           constructor(props: OwnProps) {
             super(props);
@@ -56,7 +69,7 @@ export function subscribe<ReteProps, OwnProps>(
           }
 
           componentWillUnmount() {
-            this.tearDownQuery();
+            this.tearDownQueries();
           }
 
           buildQuery(props: OwnProps) {
@@ -64,37 +77,46 @@ export function subscribe<ReteProps, OwnProps>(
               return;
             }
 
-            if (this.query) {
-              this.tearDownQuery();
-            }
+            this.tearDownQueries();
 
-            const conditions = conditionsOrPropConditions.map(
-              conditionsOrPropCondition => {
-                if (!isFunction(conditionsOrPropCondition)) {
-                  return conditionsOrPropCondition;
-                }
+            const conditions = conditionSets.map(conditionsOrPropCondition => {
+              if (!isFunction(conditionsOrPropCondition)) {
+                return conditionsOrPropCondition;
+              }
 
-                return conditionsOrPropCondition(props);
-              },
-            );
+              return conditionsOrPropCondition(props);
+            });
 
-            this.query = (this.context.rete as Rete).query(...conditions);
-            this.query.onChange(this.executeReteToProps);
+            conditions.forEach(conditionSet => {
+              const q = (this.context.rete as Rete).query(conditionSet);
+              q.onChange(this.executeReteToProps);
+              this.queries.add(q);
+            });
+
+            this.executeReteToProps();
           }
 
-          tearDownQuery() {
-            if (!this.context || !this.context.rete || !this.query) {
+          tearDownQueries() {
+            if (!this.context || !this.context.rete) {
               return;
             }
 
-            this.query.offChange(this.executeReteToProps);
-            this.query = null;
+            for (const q of this.queries) {
+              q.offChange(this.executeReteToProps);
+              this.queries.delete(q);
+            }
           }
 
-          executeReteToProps(
-            facts: IFact[],
-            variableBindings: IVariableBindings[],
-          ) {
+          executeReteToProps() {
+            const variableBindings = Array.from(
+              this.queries,
+            ).reduce((bindings, query) => {
+              Object.assign(bindings, query.getVariableBindings());
+              return bindings;
+            }, {});
+
+            console.log(variableBindings);
+
             const fromFn = storesToProps(
               variableBindings,
               this.context.rete,

@@ -37,7 +37,8 @@ export function addToHashTable(
   value: IValue | null,
 ): AlphaMemoryNode {
   const node = new AlphaMemoryNode(
-    `${identifier || "_"} ${attribute || "_"} ${value || "_"}`,
+    `${identifier ? JSON.stringify(identifier) : "_"} ${attribute ||
+      "_"} ${value ? JSON.stringify(value) : "_"}`,
   );
 
   const hashCode = getHashCode(identifier, attribute, value);

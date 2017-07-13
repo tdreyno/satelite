@@ -1,5 +1,5 @@
 import { IConstantTest, parseCondition } from "./Condition";
-import { IFact, IValue } from "./Fact";
+import { IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
 import { IConditions, placeholder as _ } from "./Rete";
@@ -46,8 +46,9 @@ export function exists(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
-      reducer: (acc: boolean): boolean => true,
+      reducer: (acc: boolean): boolean => acc || true,
       initialValue: false,
+      tokenPerBindingMatch: true,
     },
     ...conditions,
   );

@@ -1,4 +1,3 @@
-import { isArray } from "lodash";
 import {
   getJoinTestsFromCondition,
   ICondition,
@@ -7,11 +6,7 @@ import {
 } from "./Condition";
 import { IFact, IValue, makeFact } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
-import {
-  AccumulatorCondition,
-  AccumulatorNode,
-  IAccumulator,
-} from "./nodes/AccumulatorNode";
+import { AccumulatorCondition, AccumulatorNode } from "./nodes/AccumulatorNode";
 import {
   AlphaMemoryNode,
   createExhaustiveHashTable,
@@ -25,10 +20,8 @@ import { QueryNode } from "./nodes/QueryNode";
 import { ReteNode, RootNode } from "./nodes/ReteNode";
 import { RootJoinNode } from "./nodes/RootJoinNode";
 import { IActivateCallback, Production } from "./Production";
-import { IQueryChangeFn, Query } from "./Query";
-import { IVariableBindings, Token } from "./Token";
-
-// tslint:disable:max-classes-per-file
+import { Query } from "./Query";
+import { IVariableBindings } from "./Token";
 
 export type ITerminalNode = Production | Query;
 

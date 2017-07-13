@@ -99,16 +99,17 @@ describe("Condition", () => {
         parseCondition,
       );
 
-      const tests = getJoinTestsFromCondition(
-        parseCondition(["?v", "relation", "?e"]),
-        conditions,
-      );
+      const baseCondition = parseCondition(["?v", "relation", "?e"]);
+      const tests = getJoinTestsFromCondition(baseCondition, conditions);
 
-      expect(tests).toHaveLength(1);
+      expect(tests).toHaveLength(2);
       if (tests) {
         expect(tests[0].fieldArg1).toBe(2);
         expect(tests[0].condition).toBe(conditions[1]);
         expect(tests[0].fieldArg2).toBe("0");
+        expect(tests[1].fieldArg1).toBe(null);
+        expect(tests[1].condition).toBe(baseCondition);
+        expect(tests[1].fieldArg2).toBe(null);
       }
     });
 
