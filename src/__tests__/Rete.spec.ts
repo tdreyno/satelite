@@ -301,14 +301,25 @@ describe("Rete", () => {
 
     const multiQuery = query(
       [grace, "team", "?fun"], // A team named fun.
+      collect("?men", [_, "gender", "M"]), // All The Men
       ["?marc", "team", "Content"], // A person who is marc.
-      // collect("?men", [_, "gender", "M"]), // All The Men
       // collect("?women", [_, "gender", "Q"]), // All The Men
-      ["?e", "team", "WW"],
-      ["?e", "?attr", "Thomas"], // A field called "name"
+      // ["?e", "team", "WW"],
+      // ["?e", "?attr", "Thomas"], // A field called "name"
     );
 
     // console.log(multiQuery.getFacts());
-    console.log(multiQuery.getVariableBindings());
+    const bindings = multiQuery.getVariableBindings();
+
+    console.log(JSON.stringify(bindings, undefined, 2));
+    expect(bindings[0].fun).toBe("Fun");
+
+    expect(bindings[0].men).toHaveLength(2);
+    expect(bindings[0].men[0][0]).toBe(marc);
+    expect(bindings[0].men[1][0]).toBe(thomas);
+
+    expect(bindings[0].marc).toBe(marc);
+    expect(bindings[0].e).toBe(thomas);
+    expect(bindings[0].attr).toBe("name");
   });
 });

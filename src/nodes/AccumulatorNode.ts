@@ -156,6 +156,8 @@ export class AccumulatorNode extends ReteNode {
         this.accumulator.accumulator.reducer,
         cloneDeep(this.accumulator.accumulator.initialValue),
       );
+
+      // console.log(tokens);
     }
 
     const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);

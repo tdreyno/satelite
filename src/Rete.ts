@@ -268,7 +268,8 @@ export class Rete {
         currentNode = AccumulatorNode.create(currentNode, c);
       } else if (currentNode === this.root) {
         const alphaMemory = AlphaMemoryNode.create(this, c);
-        currentNode = RootJoinNode.create(currentNode, alphaMemory);
+        const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
+        currentNode = RootJoinNode.create(currentNode, alphaMemory, joinTests);
       } else {
         const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
