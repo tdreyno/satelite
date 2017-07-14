@@ -36,30 +36,3 @@ export const todoVisibilityComplete = ({ rule, _ }: Rete) =>
   ).then(({ id }: { id: string }, { addProducedFact }) => {
     addProducedFact([id, "todo/visible", true]);
   });
-
-// export const todoVisibility = ({ rule, _, update }: Rete) =>
-//   rule(
-//     ["global", "ui/filter", "?filter"],
-//     ["?id", "todo/text", _],
-//     exists("?completed", ["?id", "todo/completed", true]),
-//   ).then(
-//     ({
-//       filter,
-//       id,
-//       completed,
-//     }: {
-//       filter: string;
-//       id: string;
-//       completed: boolean;
-//     }) => {
-//       console.log(completed);
-//       if (
-//         (completed && filter === ACTIVE_TODOS) ||
-//         (!completed && filter === COMPLETED_TODOS)
-//       ) {
-//         update([id, "todo/visible", false]);
-//       } else {
-//         update([id, "todo/visible", true]);
-//       }
-//     },
-//   );

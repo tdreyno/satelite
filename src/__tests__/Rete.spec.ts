@@ -312,7 +312,6 @@ describe("Rete", () => {
       collect("?grace", [_, "team", "?fun"]), // All The Men
     );
 
-    // console.log(multiQuery.getFacts());
     const bindings = multiQuery.getVariableBindings();
 
     expect(bindings[0].fun).toBe("Fun");

@@ -8,7 +8,7 @@ import { Token } from "./Token";
 export function acc<T>(
   bindingName: string,
   accumulator: IAccumulator<T>,
-  ...conditions: IConditions
+  ...conditions: IConditions,
 ): AccumulatorCondition<T> {
   const parsedConditions =
     conditions.length > 0 ? conditions.map(parseCondition) : undefined;
@@ -83,13 +83,16 @@ export function entity(
   return acc(
     bindingName,
     {
-      reducer: (acc: IEntity, item: Token): IEntity => {
+      reducer: (acc: IEntity | undefined, item: Token): IEntity => {
         const f = item.fact;
-        acc.id = item.fact[0];
-        acc.attributes[f[1]] = f[2];
-        return acc;
+
+        const result: IEntity = acc || { id: item.fact[0], attributes: {} };
+
+        result.attributes[f[1]] = f[2];
+
+        return result;
       },
-      initialValue: { id: entityId, attributes: {} },
+      initialValue: undefined,
       tokenPerBindingMatch: true,
     },
     [entityId, _, _],

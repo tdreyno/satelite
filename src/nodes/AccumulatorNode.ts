@@ -172,7 +172,7 @@ export class AccumulatorNode extends ReteNode {
   private cleanupOldResults(bindingId: number) {
     const formerResult = this.results.get(bindingId);
     if (formerResult) {
-      this.results.delete(-1);
+      this.results.delete(bindingId);
       runLeftRetractOnNodes(this.children, formerResult);
     }
   }
@@ -189,6 +189,11 @@ export class AccumulatorNode extends ReteNode {
         this.accumulator.accumulator.reducer,
         cloneDeep(this.accumulator.accumulator.initialValue),
       );
+    }
+
+    // If reducer has a non-value initial state.
+    if (typeof result === "undefined") {
+      return;
     }
 
     const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);

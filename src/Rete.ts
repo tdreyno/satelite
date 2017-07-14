@@ -146,7 +146,7 @@ export class Rete {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     if (!this.facts.has(f)) {
-      console.log("Asserting", f);
+      // console.log("Asserting", f);
       this.facts.add(f);
 
       const existingEntity: IEntityResult = this.entities.get(f[0]) || {
@@ -166,7 +166,7 @@ export class Rete {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     if (this.facts.has(f)) {
-      console.log("Retracting", f);
+      // console.log("Retracting", f);
       this.facts.delete(f);
 
       const existingEntity = this.entities.get(f[0]);
