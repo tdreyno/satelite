@@ -12,7 +12,7 @@ import {
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
 } from "../util";
-import { AccumulatorCondition } from "./AccumulatorNode";
+import { AccumulatorCondition, AccumulatorNode } from "./AccumulatorNode";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { ReteNode } from "./ReteNode";
 
@@ -58,10 +58,13 @@ export function performJoinTests(
 
     if (test.fieldArg1 !== null && test.fieldArg2 !== null) {
       const arg1: any = f[test.fieldArg1];
-      const arg2: any =
+
+      const bindingName: string =
         test.condition instanceof AccumulatorCondition
-          ? t.bindings[cleanVariableName(test.fieldArg2)]
-          : t.fact[parseInt(test.fieldArg2, 10)];
+          ? test.fieldArg2
+          : (test.condition.variableFields as any)[test.fieldArg2];
+
+      const arg2: any = t.bindings[cleanVariableName(bindingName)];
 
       // TODO: Make this comparison any predicate
       if (arg1 !== arg2) {
@@ -115,7 +118,6 @@ export class JoinNode extends ReteNode {
     return node;
   }
 
-  type = "join";
   items: Token[] = [];
   alphaMemory: AlphaMemoryNode;
   tests: TestAtJoinNode[];

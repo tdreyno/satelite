@@ -39,7 +39,6 @@ export class NegativeNode extends ReteNode {
     return node;
   }
 
-  type = "negative";
   items: Token[] = [];
   alphaMemory: AlphaMemoryNode;
   tests: TestAtJoinNode[];

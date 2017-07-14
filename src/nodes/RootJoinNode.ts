@@ -27,7 +27,6 @@ export class RootJoinNode extends ReteNode {
     return new RootJoinNode(parent, alphaMemory, tests);
   }
 
-  type = "root-join";
   alphaMemory: AlphaMemoryNode;
   tests: TestAtJoinNode[];
 

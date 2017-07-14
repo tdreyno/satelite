@@ -4,7 +4,6 @@ import { Token } from "../Token";
 let nextNodeId = 0;
 export abstract class ReteNode {
   id = nextNodeId++;
-  type: string;
   children: ReteNode[] = [];
   parent: ReteNode | null = null;
 
@@ -48,8 +47,6 @@ export class RootNode extends ReteNode {
   static create() {
     return new RootNode();
   }
-
-  type = "root";
 
   // tslint:disable-next-line:no-empty variable-name
   rightRetract(_f: IFact) {}

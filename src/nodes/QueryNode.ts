@@ -9,7 +9,6 @@ export class QueryNode extends ReteNode {
     return new QueryNode(query);
   }
 
-  type = "query";
   items: Token[] = [];
   query: Query;
   facts: IFact[] = [];

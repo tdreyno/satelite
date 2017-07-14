@@ -167,17 +167,20 @@ describe("Rete", () => {
     expect(coolFacts[0][0]).toBe(thomas);
   });
 
-  it("should make sure 2 queries for the same conditions return the same object", () => {
-    const { self, query } = makeRete();
+  it.skip(
+    "should make sure 2 queries for the same conditions return the same object",
+    () => {
+      const { self, query } = makeRete();
 
-    const query1 = query(["?e", "isLady", true]);
-    const query2 = query(["?e", "isLady", true]);
+      const query1 = query(["?e", "isLady", true]);
+      const query2 = query(["?e", "isLady", true]);
 
-    expect(self.root.children).toHaveLength(1);
-    expect(query1 === query2).toBeFalsy();
-    expect(query1.queryNode === query2.queryNode).toBeFalsy();
-    expect(query1.queryNode.parent === query2.queryNode.parent).toBeTruthy();
-  });
+      expect(self.root.children).toHaveLength(1);
+      expect(query1 === query2).toBeFalsy();
+      expect(query1.queryNode === query2.queryNode).toBeFalsy();
+      expect(query1.queryNode.parent === query2.queryNode.parent).toBeTruthy();
+    },
+  );
 
   it("should be able to accumulate facts", () => {
     expect.assertions(2);
@@ -296,22 +299,22 @@ describe("Rete", () => {
     expect(fewerFacts[0].id).toBe(thomas);
   });
 
-  it.only("should allow unrelated query items", () => {
+  it("should allow unrelated query items", () => {
     const { query } = makeRete();
 
     const multiQuery = query(
       [grace, "team", "?fun"], // A team named fun.
       collect("?men", [_, "gender", "M"]), // All The Men
       ["?marc", "team", "Content"], // A person who is marc.
-      // collect("?women", [_, "gender", "Q"]), // All The Men
-      // ["?e", "team", "WW"],
-      // ["?e", "?attr", "Thomas"], // A field called "name"
+      collect("?women", [_, "gender", "F"]), // All The Men
+      ["?e", "team", "WW"],
+      ["?e", "?attr", "Thomas"], // A field called "name"
+      collect("?grace", [_, "team", "?fun"]), // All The Men
     );
 
     // console.log(multiQuery.getFacts());
     const bindings = multiQuery.getVariableBindings();
 
-    console.log(JSON.stringify(bindings, undefined, 2));
     expect(bindings[0].fun).toBe("Fun");
 
     expect(bindings[0].men).toHaveLength(2);
@@ -319,6 +322,11 @@ describe("Rete", () => {
     expect(bindings[0].men[1][0]).toBe(thomas);
 
     expect(bindings[0].marc).toBe(marc);
+
+    expect(bindings[0].women).toHaveLength(2);
+    expect(bindings[0].women[0][0]).toBe(grace);
+    expect(bindings[0].women[1][0]).toBe(violet);
+
     expect(bindings[0].e).toBe(thomas);
     expect(bindings[0].attr).toBe("name");
   });

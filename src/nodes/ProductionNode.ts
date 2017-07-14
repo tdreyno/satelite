@@ -20,7 +20,6 @@ export class ProductionNode extends ReteNode {
     return new ProductionNode(r, production, conditions);
   }
 
-  type = "production";
   rete: Rete;
   items: Token[] = [];
   production: Production;

@@ -60,12 +60,12 @@ export class AccumulatorNode extends ReteNode {
     node.parent = parent;
     parent.children.unshift(node);
 
+    // debugger;
     node.updateNewNodeWithMatchesFromAbove();
 
     return node;
   }
 
-  type = "accumulator";
   items: Map<number, Token[]> = new Map();
   results: Map<number, Token> = new Map();
   accumulator: AccumulatorCondition;
@@ -156,13 +156,15 @@ export class AccumulatorNode extends ReteNode {
         this.accumulator.accumulator.reducer,
         cloneDeep(this.accumulator.accumulator.initialValue),
       );
-
-      // console.log(tokens);
     }
 
     const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
-    const t = Token.create(this, null, result, {
+
+    // Base off the first known token. Not sure if this is correct.
+    // Might need to have a way of getting a non-subnetwork parent token.
+    const t = Token.create(this, tokens ? tokens[0] : null, result, {
       [cleanedVariableName]: result,
+      ...tokens && tokens[0] ? tokens[0].bindings : {},
     });
 
     this.results.set(bindingId, t);
