@@ -72,11 +72,14 @@ export class Rete {
     this.addFacts = this.addFacts.bind(this);
     this.removeFact = this.removeFact.bind(this);
     this.removeFacts = this.removeFacts.bind(this);
+    this.updateFact = this.updateFact.bind(this);
+    this.updateFacts = this.updateFacts.bind(this);
     this.addProduction = this.addProduction.bind(this);
     this.addQuery = this.addQuery.bind(this);
 
     this.assert = this.assert.bind(this);
     this.retract = this.retract.bind(this);
+    this.update = this.update.bind(this);
     this.rule = this.rule.bind(this);
     this.query = this.query.bind(this);
     this.findAll = this.findAll.bind(this);
@@ -91,6 +94,9 @@ export class Rete {
   }
   retract(...facts: IFact[]): void {
     return this.removeFacts(...facts);
+  }
+  update(...facts: IFact[]): void {
+    return this.updateFacts(...facts);
   }
   rule(...conditions: IConditions): IThenCreateProduction {
     return this.addProduction(...conditions);
@@ -107,19 +113,20 @@ export class Rete {
     return this.addQuery(...conditions).getVariableBindings()[0];
   }
 
-  findEntity(
-    id: IIdentifier | IPrimitive,
-  ): { [attribute: string]: IValue } | undefined {
-    const entity = this.entities.get(id);
-    return entity && entity.attributes;
+  findEntity(id: IIdentifier | IPrimitive): IEntityResult | undefined {
+    return this.entities.get(id);
   }
 
   retractEntity(id: IIdentifier | IPrimitive): void {
     const e = this.findEntity(id);
 
     if (e) {
-      this.retract(e.facts);
+      this.retract(...e.facts);
     }
+  }
+
+  toJSONString() {
+    return JSON.stringify(Array.from(this.facts), undefined, 2);
   }
 
   // Internal API.
@@ -131,10 +138,15 @@ export class Rete {
     facts.forEach(this.removeFact);
   }
 
+  private updateFacts(...facts: IFact[]): void {
+    facts.forEach(this.updateFact);
+  }
+
   private addFact(factTuple: IFact): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     if (!this.facts.has(f)) {
+      console.log("Asserting", f);
       this.facts.add(f);
 
       const existingEntity: IEntityResult = this.entities.get(f[0]) || {
@@ -154,6 +166,7 @@ export class Rete {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     if (this.facts.has(f)) {
+      console.log("Retracting", f);
       this.facts.delete(f);
 
       const existingEntity = this.entities.get(f[0]);
@@ -173,6 +186,26 @@ export class Rete {
     }
 
     this.root.rightRetract(f);
+  }
+
+  // TODO: Add an `update` in addition to `activate` and `retract`.
+  private updateFact(fact: IFact): void {
+    let wasAlreadySet = false;
+
+    for (const f of this.facts) {
+      if (f[0] === fact[0] && f[1] === fact[1]) {
+        if (f[2] === fact[2]) {
+          wasAlreadySet = true;
+          break;
+        }
+
+        this.removeFact(f);
+      }
+    }
+
+    if (!wasAlreadySet) {
+      this.addFact(fact);
+    }
   }
 
   private addProduction(...conditions: IConditions): IThenCreateProduction {

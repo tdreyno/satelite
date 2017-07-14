@@ -8,6 +8,7 @@ import {
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
 } from "../util";
+import { JoinNode } from "./JoinNode";
 import { ReteNode } from "./ReteNode";
 
 export interface IAccumulator<T> {
@@ -60,7 +61,6 @@ export class AccumulatorNode extends ReteNode {
     node.parent = parent;
     parent.children.unshift(node);
 
-    // debugger;
     node.updateNewNodeWithMatchesFromAbove();
 
     return node;
@@ -95,6 +95,10 @@ export class AccumulatorNode extends ReteNode {
 
     tokens.unshift(t);
 
+    // Cleanup previous results if there.
+    this.cleanupOldResults(-1);
+    this.cleanupOldResults(bindingId);
+
     this.executeAccumulator(bindingId);
   }
 
@@ -118,14 +122,12 @@ export class AccumulatorNode extends ReteNode {
 
     removeIndexFromList(tokens, i);
 
-    const formerResult = this.results.get(bindingId);
-    if (formerResult) {
-      this.results.delete(bindingId);
-      runLeftRetractOnNodes(this.children, formerResult);
-    }
+    this.cleanupOldResults(bindingId);
 
     if (tokens.length > 0) {
       this.executeAccumulator(bindingId);
+    } else {
+      this.executeAccumulator(-1);
     }
   }
 
@@ -139,18 +141,49 @@ export class AccumulatorNode extends ReteNode {
         this.executeAccumulator(bindingId);
       }
     } else {
-      this.executeAccumulator(-1);
+      const accumulatorBindings: Set<string> = (this.accumulator.conditions ||
+        [])
+        .reduce((sum, c) => {
+          if (c instanceof ParsedCondition) {
+            Object.keys(c.variableNames).forEach(v => sum.add(v));
+          }
+
+          return sum;
+        }, new Set());
+
+      if (accumulatorBindings.size <= 0) {
+        this.executeAccumulator(-1);
+      } else {
+        // if (this.parent) {
+        //   this.parent.rerunForChild(this);
+        // }
+        // if (this.parent && (this.parent as any).items) {
+        //   for (let i = 0; i < (this.parent as any).items.length; i++) {
+        //     const t = (this.parent as any).items[i];
+        //     this.leftActivate(t);
+        //   }
+        // }
+      }
     }
 
     this.children = savedListOfChildren;
   }
 
+  private cleanupOldResults(bindingId: number) {
+    const formerResult = this.results.get(bindingId);
+    if (formerResult) {
+      this.results.delete(-1);
+      runLeftRetractOnNodes(this.children, formerResult);
+    }
+  }
+
   private executeAccumulator(bindingId: number): void {
-    const tokens = this.items.get(bindingId);
+    let tokens = this.items.get(bindingId);
 
     let result;
     if (!tokens) {
       result = this.accumulator.accumulator.initialValue;
+      tokens = (this.parent as JoinNode).items || [];
     } else {
       result = tokens.reduce(
         this.accumulator.accumulator.reducer,
@@ -162,9 +195,9 @@ export class AccumulatorNode extends ReteNode {
 
     // Base off the first known token. Not sure if this is correct.
     // Might need to have a way of getting a non-subnetwork parent token.
-    const t = Token.create(this, tokens ? tokens[0] : null, result, {
+    const t = Token.create(this, tokens[0] || null, result, {
+      ...tokens[0] ? tokens[0].bindings : {},
       [cleanedVariableName]: result,
-      ...tokens && tokens[0] ? tokens[0].bindings : {},
     });
 
     this.results.set(bindingId, t);

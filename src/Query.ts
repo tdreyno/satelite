@@ -8,11 +8,13 @@ export type IQueryChangeFn = (
   variableBindings: IVariableBindings[],
 ) => any;
 
+let nextQueryId = 0;
 export class Query {
   static create(conditions: ParsedCondition[]) {
     return new Query(conditions);
   }
 
+  id = nextQueryId++;
   queryNode: QueryNode;
   callbacks: Set<IQueryChangeFn> = new Set();
   conditions: ParsedCondition[] = [];

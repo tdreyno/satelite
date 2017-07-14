@@ -1,4 +1,5 @@
 import * as React from "react";
+import { collect, placeholder as _ } from "../../../../src";
 import { subscribe } from "../../../../src/react";
 import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "../constants";
 import { pluralize } from "../utils";
@@ -8,6 +9,7 @@ class TodoFooterPure extends React.Component<{
   activeTodoCount: number;
   completedCount: number;
   clearCompleted: () => any;
+  changeFilter: (filter: string) => any;
 }> {
   render() {
     const { activeTodoCount, completedCount } = this.props;
@@ -23,9 +25,9 @@ class TodoFooterPure extends React.Component<{
           <strong>{activeTodoCount}</strong> {activeTodoWord} left
         </span>
         <ul className="filters">
-          {this.renderFilterLink(ALL_TODOS, "", "All")}
-          {this.renderFilterLink(ACTIVE_TODOS, "active", "Active")}
-          {this.renderFilterLink(COMPLETED_TODOS, "completed", "Completed")}
+          {this.renderFilterLink(ALL_TODOS, "All")}
+          {this.renderFilterLink(ACTIVE_TODOS, "Active")}
+          {this.renderFilterLink(COMPLETED_TODOS, "Completed")}
         </ul>
 
         {completedCount === 0
@@ -40,11 +42,11 @@ class TodoFooterPure extends React.Component<{
     );
   }
 
-  renderFilterLink(filterName: string, url: string, caption: string) {
+  renderFilterLink(filterName: string, caption: string) {
     return (
       <li>
         <a
-          href={"#/" + url}
+          onClick={() => this.props.changeFilter(filterName)}
           className={filterName === this.props.todoFilter ? "selected" : ""}
         >
           {caption}
@@ -62,9 +64,11 @@ export const TodoFooter = subscribe(
   ["global", "ui/filter", "?filter"],
   ["global", "doneCount", "?done"],
   ["global", "activeCount", "?active"],
-).then(({ filter, done, active }) => ({
+  collect("?completed", [_, "todo/completed", true]),
+).then(({ filter, done, active, completed }, { update, retract }) => ({
   todoFilter: filter,
   activeTodoCount: active,
   completedCount: done,
-  clearCompleted: () => null,
+  clearCompleted: () => retract(...completed),
+  changeFilter: (f: string) => update(["global", "ui/filter", f]),
 }))(TodoFooterPure);

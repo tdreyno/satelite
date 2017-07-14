@@ -12,7 +12,7 @@ import {
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
 } from "../util";
-import { AccumulatorCondition, AccumulatorNode } from "./AccumulatorNode";
+import { AccumulatorCondition } from "./AccumulatorNode";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { ReteNode } from "./ReteNode";
 
@@ -177,10 +177,6 @@ export class JoinNode extends ReteNode {
   rightRetract(f: IFact): void {
     for (let i = 0; i < this.items.length; i++) {
       const token = this.items[i];
-
-      if (f !== token.fact) {
-        continue;
-      }
 
       const bindings = performJoinTests(this.tests, token, f);
 

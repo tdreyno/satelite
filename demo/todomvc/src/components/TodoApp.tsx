@@ -13,7 +13,7 @@ export class TodoApp extends React.Component {
           <TodoEntry />
         </header>
 
-        {/* <TodoOverview />*/}
+        <TodoOverview />
 
         <TodoFooter />
       </div>

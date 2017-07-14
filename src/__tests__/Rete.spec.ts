@@ -248,25 +248,25 @@ describe("Rete", () => {
 
     const thomasDefinition1 = findEntity(thomas);
 
-    expect(thomasDefinition1!.name).toEqual("Thomas");
-    expect(thomasDefinition1!.gender).toEqual("M");
-    expect(thomasDefinition1!.team).toEqual("WW");
+    expect(thomasDefinition1!.attributes.name).toEqual("Thomas");
+    expect(thomasDefinition1!.attributes.gender).toEqual("M");
+    expect(thomasDefinition1!.attributes.team).toEqual("WW");
 
     retract([thomas, "gender", "M"]);
 
     const thomasDefinition2 = findEntity(thomas);
 
-    expect(thomasDefinition2!.name).toEqual("Thomas");
-    expect(thomasDefinition2!.gender).toBeUndefined();
-    expect(thomasDefinition2!.team).toEqual("WW");
+    expect(thomasDefinition2!.attributes.name).toEqual("Thomas");
+    expect(thomasDefinition2!.attributes.gender).toBeUndefined();
+    expect(thomasDefinition2!.attributes.team).toEqual("WW");
 
     retract([thomas, "team", "WW"]);
 
     const thomasDefinition3 = findEntity(thomas);
 
-    expect(thomasDefinition3!.name).toEqual("Thomas");
-    expect(thomasDefinition3!.gender).toBeUndefined();
-    expect(thomasDefinition3!.team).toBeUndefined();
+    expect(thomasDefinition3!.attributes.name).toEqual("Thomas");
+    expect(thomasDefinition3!.attributes.gender).toBeUndefined();
+    expect(thomasDefinition3!.attributes.team).toBeUndefined();
 
     retract([thomas, "name", "Thomas"]);
 

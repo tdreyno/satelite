@@ -1,52 +1,65 @@
-import { collect, count, IFact, not, Rete } from "../../../src";
-import { ACTIVE_TODOS, COMPLETED_TODOS } from "./constants";
+import { count, not, Rete } from "../../../src";
+import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "./constants";
 
-const makeDoneCount = (n: number): IFact => ["global", "doneCount", n];
-const makeActiveCount = (n: number): IFact => ["global", "activeCount", n];
-
-export const insertDoneCount = ({ rule, _, assert }: Rete) =>
+export const doneCount = ({ rule, _, update }: Rete) =>
   rule(count("?n", [_, "todo/completed", true])).then(({ n }) =>
-    assert(makeDoneCount(n)),
+    update(["global", "doneCount", n]),
   );
 
-export const insertActiveCount = ({ rule, _, assert }: Rete) =>
+export const activeCount = ({ rule, _, update }: Rete) =>
   rule(
-    [_, "doneCount", "?done"],
+    ["global", "doneCount", "?done"],
     count("?total", [_, "todo/text", _]),
-  ).then(({ total, done }) => assert(makeActiveCount(total - done)));
+  ).then(({ total, done }) => update(["global", "activeCount", total - done]));
 
-export const todoVisibility = ({ rule, _, assert }: Rete) =>
+export const todoVisibilityAll = ({ rule, _ }: Rete) =>
   rule(
-    ["global", "ui/filter", "?filter"],
+    ["global", "ui/filter", ALL_TODOS],
     ["?id", "todo/text", _],
-    collect("?completed", ["?id", "todo/completed", true]),
-    collect("?active", not(["?id", "todo/completed", true])),
-  ).then(({ // filter,
-    completed, active }: { filter: string; completed: IFact[]; active: IFact[] }) => {
-    debugger;
-    const filter = ACTIVE_TODOS;
-
-    assert(
-      ...completed.map<IFact>(([id]) => {
-        switch (filter) {
-          case ACTIVE_TODOS:
-            return [id, "todo/visible", false];
-          case COMPLETED_TODOS:
-          default:
-            return [id, "todo/visible", true];
-        }
-      }),
-    );
-
-    assert(
-      ...active.map<IFact>(([id]) => {
-        switch (filter) {
-          case COMPLETED_TODOS:
-            return [id, "todo/visible", false];
-          case ACTIVE_TODOS:
-          default:
-            return [id, "todo/visible", true];
-        }
-      }),
-    );
+  ).then(({ id }: { id: string }, { addProducedFact }) => {
+    addProducedFact([id, "todo/visible", true]);
   });
+
+export const todoVisibilityActive = ({ rule, _ }: Rete) =>
+  rule(
+    ["global", "ui/filter", ACTIVE_TODOS],
+    ["?id", "todo/text", _],
+    not(["?id", "todo/completed", true]),
+  ).then(({ id }: { id: string }, { addProducedFact }) => {
+    addProducedFact([id, "todo/visible", true]);
+  });
+
+export const todoVisibilityComplete = ({ rule, _ }: Rete) =>
+  rule(
+    ["global", "ui/filter", COMPLETED_TODOS],
+    ["?id", "todo/completed", true],
+  ).then(({ id }: { id: string }, { addProducedFact }) => {
+    addProducedFact([id, "todo/visible", true]);
+  });
+
+// export const todoVisibility = ({ rule, _, update }: Rete) =>
+//   rule(
+//     ["global", "ui/filter", "?filter"],
+//     ["?id", "todo/text", _],
+//     exists("?completed", ["?id", "todo/completed", true]),
+//   ).then(
+//     ({
+//       filter,
+//       id,
+//       completed,
+//     }: {
+//       filter: string;
+//       id: string;
+//       completed: boolean;
+//     }) => {
+//       console.log(completed);
+//       if (
+//         (completed && filter === ACTIVE_TODOS) ||
+//         (!completed && filter === COMPLETED_TODOS)
+//       ) {
+//         update([id, "todo/visible", false]);
+//       } else {
+//         update([id, "todo/visible", true]);
+//       }
+//     },
+//   );

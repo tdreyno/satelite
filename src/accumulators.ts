@@ -8,7 +8,7 @@ import { Token } from "./Token";
 export function acc<T>(
   bindingName: string,
   accumulator: IAccumulator<T>,
-  ...conditions: IConditions,
+  ...conditions: IConditions
 ): AccumulatorCondition<T> {
   const parsedConditions =
     conditions.length > 0 ? conditions.map(parseCondition) : undefined;
@@ -46,7 +46,8 @@ export function exists(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
-      reducer: (acc: boolean): boolean => acc || true,
+      // tslint:disable-next-line:variable-name
+      reducer: (_acc: boolean): boolean => true,
       initialValue: false,
       tokenPerBindingMatch: true,
     },

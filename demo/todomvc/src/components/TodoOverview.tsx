@@ -52,18 +52,20 @@ export const TodoOverview = subscribe(
     todoFilter: string;
     activeTodoCount: number;
     todos: IFact[];
-  }) => ({
-    todoFilter,
-    activeTodoCount,
-    todoIds: todos.map(([id]) => id),
+  }) => {
+    return {
+      todoFilter,
+      activeTodoCount,
+      todoIds: todos ? todos.map(([id]) => id) : [],
 
-    // Actions
-    toggleAll: (checked: boolean) => {
-      if (checked) {
-        // set all todos to completed
-      } else {
-        // clear all completed
-      }
-    },
-  }),
+      // Actions
+      toggleAll: (checked: boolean) => {
+        if (checked) {
+          // set all todos to completed
+        } else {
+          // clear all completed
+        }
+      },
+    };
+  },
 )(TodoOverviewPure);

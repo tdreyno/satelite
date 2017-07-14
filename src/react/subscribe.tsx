@@ -18,12 +18,9 @@ export type IPropConditions<OwnProps> = (props: OwnProps) => IAnyCondition;
 export type IConditionsOrPropConditions<OwnProps> =
   | IAnyCondition
   | IPropConditions<OwnProps>;
-export type IOneOrMore<T> = T | T[];
 
 export function subscribe<ReteProps, OwnProps>(
-  ...conditionsOrPropConditions: Array<
-    IOneOrMore<IConditionsOrPropConditions<OwnProps>>
-  >,
+  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>,
 ): {
   then: (
     storesToProps: IReteToProps<ReteProps, OwnProps>,
@@ -31,16 +28,6 @@ export function subscribe<ReteProps, OwnProps>(
     ComposedComponent: TFunction,
   ) => React.ComponentClass<OwnProps>);
 } {
-  const conditionSets = conditionsOrPropConditions.map(
-    (conditionSet: any[]) => {
-      if (conditionSet[1] && typeof conditionSet[1] === "string") {
-        return [conditionSet];
-      }
-
-      return conditionSet;
-    },
-  );
-
   return {
     then: storesToProps => {
       return ComposedComponent => {
@@ -52,7 +39,7 @@ export function subscribe<ReteProps, OwnProps>(
             rete: PropTypes.instanceOf(Rete),
           };
 
-          queries: Set<Query> = new Set();
+          query: Query | null = null;
 
           constructor(props: OwnProps) {
             super(props);
@@ -69,7 +56,7 @@ export function subscribe<ReteProps, OwnProps>(
           }
 
           componentWillUnmount() {
-            this.tearDownQueries();
+            this.tearDownQuery();
           }
 
           buildQuery(props: OwnProps) {
@@ -77,45 +64,38 @@ export function subscribe<ReteProps, OwnProps>(
               return;
             }
 
-            this.tearDownQueries();
+            this.tearDownQuery();
 
-            const conditions = conditionSets.map(conditionsOrPropCondition => {
-              if (!isFunction(conditionsOrPropCondition)) {
-                return conditionsOrPropCondition;
-              }
+            const conditions = conditionsOrPropConditions.map(
+              conditionsOrPropCondition => {
+                if (!isFunction(conditionsOrPropCondition)) {
+                  return conditionsOrPropCondition;
+                }
 
-              return conditionsOrPropCondition(props);
-            });
+                return conditionsOrPropCondition(props);
+              },
+            );
 
-            conditions.forEach(conditionSet => {
-              const q = (this.context.rete as Rete).query(conditionSet);
-              q.onChange(this.executeReteToProps);
-              this.queries.add(q);
-            });
+            if (conditions.length > 0) {
+              this.query = (this.context.rete as Rete).query(...conditions);
+              this.query.onChange(this.executeReteToProps);
+            }
 
             this.executeReteToProps();
           }
 
-          tearDownQueries() {
-            if (!this.context || !this.context.rete) {
+          tearDownQuery() {
+            if (!this.context || !this.context.rete || !this.query) {
               return;
             }
 
-            for (const q of this.queries) {
-              q.offChange(this.executeReteToProps);
-              this.queries.delete(q);
-            }
+            this.query.offChange(this.executeReteToProps);
+            this.query = null;
           }
 
           executeReteToProps() {
-            const variableBindings = Array.from(
-              this.queries,
-            ).reduce((bindings, query) => {
-              Object.assign(bindings, query.getVariableBindings());
-              return bindings;
-            }, {});
-
-            console.log(variableBindings);
+            const variableBindings =
+              (this.query && this.query.getVariableBindings()[0]) || {};
 
             const fromFn = storesToProps(
               variableBindings,
