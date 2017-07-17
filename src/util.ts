@@ -71,3 +71,19 @@ export function runRightRetractOnNodes(nodes: ReteNode[], f: IFact): void {
     child.rightRetract(f);
   }
 }
+
+export function shallowDiffers(a: any, b: any): boolean {
+  for (const i in a) {
+    if (!(i in b)) {
+      return true;
+    }
+  }
+
+  for (const i in b) {
+    if (a[i] !== b[i]) {
+      return true;
+    }
+  }
+
+  return false;
+}

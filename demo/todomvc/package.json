@@ -4,14 +4,21 @@
   "description": "TodoMVC reference implementation",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "NODE_ENVIRONMENT=production webpack -p"
+    "build": "NODE_ENV=production webpack"
   },
   "devDependencies": {
     "@types/react": "^15.0.37",
     "@types/react-dom": "^15.5.1",
     "awesome-typescript-loader": "^3.2.1",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-lodash": "^3.2.11",
+    "babel-preset-env": "^1.6.0",
+    "babili-webpack-plugin": "^0.1.2",
     "css-loader": "^0.28.4",
     "file-loader": "^0.11.2",
+    "lodash-webpack-plugin": "^0.11.4",
+    "source-map-loader": "^0.2.1",
     "style-loader": "^0.18.2",
     "ts-loader": "^2.2.1",
     "typescript": "^2.4.1",

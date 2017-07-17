@@ -1,5 +1,5 @@
 // tslint:disable:no-bitwise
-export function uuid() {
+export function makeUUId() {
   let i;
   let random;
   let uuid = "";

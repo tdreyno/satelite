@@ -1,8 +1,20 @@
 {
+  "sourceMaps": true,
   "presets": [
-    "react",
-    "es2015",
-    "stage-1"
+    [
+      "env",
+      {
+        "targets": {
+          "safari": 10,
+          "ios": 10,
+          "chrome": 56,
+          "firefox": 51,
+          "edge": 13
+        }
+      }
+    ]
   ],
-  "plugins": ["transform-decorators-legacy"]
+  "plugins": [
+    "lodash"
+  ]
 }
