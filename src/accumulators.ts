@@ -18,8 +18,8 @@ export function count(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
-      reducer: (acc: number): number => {
-        return acc + 1;
+      reducer: (sum: number): number => {
+        return sum + 1;
       },
       initialValue: 0,
     },
@@ -31,9 +31,9 @@ export function max(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
-      reducer: (acc: number, item: Token): number => {
+      reducer: (sum: number, item: Token): number => {
         const value = item.fact[2] as number;
-        return value > acc ? value : acc;
+        return value > sum ? value : sum;
       },
       initialValue: 0,
     },
@@ -58,9 +58,9 @@ export function collect(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
-      reducer: (acc: any[], item: Token): any[] => {
-        acc.push(item.fact);
-        return acc;
+      reducer: (sum: any[], item: Token): any[] => {
+        sum.push(item.fact);
+        return sum;
       },
       initialValue: [] as any[],
     },
@@ -82,10 +82,10 @@ export function entity(
   return acc(
     bindingName,
     {
-      reducer: (acc: IEntity | undefined, item: Token): IEntity => {
+      reducer: (sum: IEntity | undefined, item: Token): IEntity => {
         const f = item.fact;
 
-        const result: IEntity = acc || { id: item.fact[0], attributes: {} };
+        const result: IEntity = sum || { id: item.fact[0], attributes: {} };
 
         result.attributes[f[1]] = f[2];
 
