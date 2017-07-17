@@ -33,7 +33,7 @@ export class Query {
     return this.queryNode && this.queryNode.items
       ? this.queryNode.items.map(t => {
           let bindings = t.bindings;
-          if (this.lastCondition) {
+          if (this.lastCondition && t.fact) {
             bindings = extractBindingsFromCondition(
               this.lastCondition,
               t.fact,

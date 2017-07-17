@@ -10,7 +10,6 @@ import {
 } from "../util";
 import { AccumulatedRootNode } from "./AccumulatedRootNode";
 import { AccumulatedTailNode } from "./AccumulatedTailNode";
-import { JoinNode } from "./JoinNode";
 import { ReteNode } from "./ReteNode";
 
 export interface IAccumulator<T> {
@@ -18,6 +17,8 @@ export interface IAccumulator<T> {
   initialValue: T;
   tokenPerBindingMatch?: boolean;
 }
+
+export type IBindingId = number;
 
 let nextBindingId = 0;
 function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
@@ -62,8 +63,9 @@ export class AccumulatorNode extends ReteNode {
     c: AccumulatorCondition,
     subnetworkHead: AccumulatedRootNode,
     subnetworkTail: ReteNode,
+    isIndependent: boolean,
   ): AccumulatorNode {
-    const node = new AccumulatorNode(c, subnetworkHead);
+    const node = new AccumulatorNode(c, subnetworkHead, isIndependent);
 
     node.parent = parent;
     parent.children.unshift(node);
@@ -77,15 +79,32 @@ export class AccumulatorNode extends ReteNode {
 
   subnetworkHead: ReteNode;
   items: Token[] = [];
-  facts: Map<number, Token[]> = new Map();
-  results: Map<number, Token> = new Map();
+  facts: Map<IBindingId, Token[]> = new Map();
+  results: Map<IBindingId, Token> = new Map();
+  pendingSubnetwork: Set<Token> = new Set();
   accumulator: AccumulatorCondition;
+  isIndependent: boolean;
 
-  constructor(accumulator: AccumulatorCondition, subnetworkHead: ReteNode) {
+  sharedIndependentToken = Token.create(this, null, [
+    "global",
+    "token",
+    "sharedIndependent",
+  ]);
+
+  constructor(
+    accumulator: AccumulatorCondition,
+    subnetworkHead: ReteNode,
+    isIndependent: boolean,
+  ) {
     super();
 
     this.accumulator = accumulator;
     this.subnetworkHead = subnetworkHead;
+    this.isIndependent = isIndependent;
+
+    if (this.isIndependent) {
+      this.executeAccumulator(this.sharedIndependentToken);
+    }
   }
 
   leftActivate(t: Token): void {
@@ -94,31 +113,59 @@ export class AccumulatorNode extends ReteNode {
     }
 
     this.items.unshift(t);
-
-    runLeftActivateOnNodes([this.subnetworkHead], t);
-  }
-
-  leftRetract(t: Token): void {
-    if (findInList(this.items, t, compareTokens) === -1) {
+    if (this.isIndependent) {
       return;
     }
 
-    this.items.unshift(t);
+    this.pendingSubnetwork.add(t);
 
-    runLeftRetractOnNodes([this.subnetworkHead], t);
+    runLeftActivateOnNodes([this.subnetworkHead], t);
+
+    if (this.pendingSubnetwork.has(t)) {
+      this.executeAccumulator(t);
+    }
+  }
+
+  leftRetract(t: Token): void {
+    const i = findInList(this.items, t, compareTokens);
+    if (i === -1) {
+      return;
+    }
+
+    const knownToken = this.items[i];
+
+    if (!this.isIndependent) {
+      this.pendingSubnetwork.add(knownToken);
+
+      runLeftRetractOnNodes([this.subnetworkHead], knownToken);
+
+      if (this.pendingSubnetwork.has(knownToken)) {
+        this.executeAccumulator(knownToken);
+      }
+    }
+
+    removeIndexFromList(this.items, i);
   }
 
   rightActivateReduced(t: Token): void {
-    const parent = findParent(this.items, t);
+    let initialToken: Token | undefined;
 
-    const bindings = parent ? parent.bindings : t.bindings;
+    if (this.isIndependent) {
+      initialToken = this.sharedIndependentToken;
+    } else {
+      initialToken = findParent(this.items, t);
 
-    const bindingId = getBindingId(
-      bindings,
-      this.accumulator.accumulator.tokenPerBindingMatch,
-    );
+      if (!initialToken) {
+        console.error("activate a non-parented token?");
+        return;
+      }
 
-    let facts = this.facts.get(bindingId);
+      this.pendingSubnetwork.delete(initialToken);
+    }
+
+    const binding = this.getBindingId(initialToken);
+
+    let facts = this.facts.get(binding);
 
     if (!facts) {
       facts = [];
@@ -129,26 +176,30 @@ export class AccumulatorNode extends ReteNode {
     }
 
     facts.unshift(t);
-    this.facts.set(bindingId, facts);
+    this.facts.set(binding, facts);
 
-    // Cleanup previous results if there.
-    // this.cleanupOldResults(-1);
-    // this.cleanupOldResults(bindingId);
-
-    this.executeAccumulator(bindingId);
+    this.executeAccumulator(initialToken);
   }
 
   rightRetractReduced(t: Token): void {
-    const parent = findParent(this.items, t);
+    let initialToken: Token | undefined;
 
-    const bindings = parent ? parent.bindings : t.bindings;
+    if (this.isIndependent) {
+      initialToken = this.sharedIndependentToken;
+    } else {
+      initialToken = findParent(this.items, t);
 
-    const bindingId = getBindingId(
-      bindings,
-      this.accumulator.accumulator.tokenPerBindingMatch,
-    );
+      if (!initialToken) {
+        console.error("retract a non-parented token?", t.bindings);
+        return;
+      }
 
-    const tokens = this.facts.get(bindingId);
+      this.pendingSubnetwork.delete(initialToken);
+    }
+
+    const binding = this.getBindingId(initialToken);
+
+    const tokens = this.facts.get(binding);
 
     if (!tokens) {
       return;
@@ -162,28 +213,29 @@ export class AccumulatorNode extends ReteNode {
 
     removeIndexFromList(tokens, i);
 
-    this.cleanupOldResults(bindingId);
-
-    if (tokens.length > 0) {
-      this.executeAccumulator(bindingId);
-    } else {
-      // Needs a retract, likely
-      // this.executeAccumulator(-1);
-    }
+    this.executeAccumulator(initialToken);
   }
 
   rerunForChild(child: ReteNode) {
     const savedListOfChildren = this.children;
     this.children = [child];
 
-    for (const [bindingId] of this.facts) {
-      this.executeAccumulator(bindingId);
+    // Resend facts.
+    for (const [_, t] of this.results) {
+      runLeftActivateOnNodes(this.children, t);
     }
 
     this.children = savedListOfChildren;
   }
 
-  private cleanupOldResults(bindingId: number) {
+  private getBindingId(t: Token): number {
+    return getBindingId(
+      t.bindings,
+      this.accumulator.accumulator.tokenPerBindingMatch,
+    );
+  }
+
+  private cleanupOldResults(bindingId: IBindingId) {
     const formerResult = this.results.get(bindingId);
     if (formerResult) {
       this.results.delete(bindingId);
@@ -191,13 +243,15 @@ export class AccumulatorNode extends ReteNode {
     }
   }
 
-  private executeAccumulator(bindingId: number): void {
-    let tokens = this.facts.get(bindingId);
+  private executeAccumulator(initialToken: Token): void {
+    const bindingId = this.getBindingId(initialToken);
+
+    const tokens = this.facts.get(bindingId);
 
     let result;
-    if (!tokens) {
+
+    if (!tokens || tokens.length <= 0) {
       result = this.accumulator.accumulator.initialValue;
-      tokens = (this.parent as JoinNode).items || [];
     } else {
       result = tokens.reduce(
         this.accumulator.accumulator.reducer,
@@ -205,17 +259,25 @@ export class AccumulatorNode extends ReteNode {
       );
     }
 
-    // If reducer has a non-value initial state.
-    if (typeof result === "undefined") {
-      return;
+    const previousResult = this.results.get(bindingId);
+
+    if (previousResult && previousResult.fact === result) {
+      // no-op
+    } else {
+      this.cleanupOldResults(bindingId);
+
+      // If reducer has a non-value initial state.
+      if (typeof result === "undefined") {
+        return;
+      }
     }
 
     const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
 
     // Base off the first known token. Not sure if this is correct.
     // Might need to have a way of getting a non-subnetwork parent token.
-    const t = Token.create(this, tokens[0] || null, result, {
-      ...tokens[0] ? tokens[0].bindings : {},
+    const t = Token.create(this, initialToken, result, {
+      ...initialToken.bindings,
       [cleanedVariableName]: result,
     });
 

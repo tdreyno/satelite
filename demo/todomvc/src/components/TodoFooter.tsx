@@ -13,6 +13,7 @@ class TodoFooterPure extends React.Component<{
 }> {
   render() {
     const { activeTodoCount, completedCount } = this.props;
+
     if (!activeTodoCount && !completedCount) {
       return null;
     }
@@ -61,11 +62,10 @@ class TodoFooterPure extends React.Component<{
 }
 
 export const TodoFooter = subscribe(
-  // TODO: Figure out accumulator subnetworks with zero matches
-  collect("?completed", [_, "todo/completed", true]),
   ["global", "ui/filter", "?filter"],
   ["global", "doneCount", "?done"],
   ["global", "activeCount", "?active"],
+  collect("?completed", [_, "todo/completed", true]),
 ).then(({ filter, done, active, completed }, { update, retract }) => ({
   todoFilter: filter,
   activeTodoCount: active,

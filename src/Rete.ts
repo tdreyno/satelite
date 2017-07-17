@@ -293,17 +293,24 @@ export class Rete {
 
         const isIndependent =
           dependentVars.size <= 0 && currentNode === this.root;
-        const accRoot = AccumulatedRootNode.create(!isIndependent);
+        const accRoot = AccumulatedRootNode.create(isIndependent);
         const accTail = this.buildOrShareNetworkForConditions(
           c.conditions,
           conditionsHigherUp,
           accRoot,
         );
 
-        currentNode = AccumulatorNode.create(currentNode, c, accRoot, accTail);
+        currentNode = AccumulatorNode.create(
+          currentNode,
+          c,
+          accRoot,
+          accTail,
+          isIndependent,
+        );
       } else if (
         currentNode instanceof RootNode ||
-        (currentNode instanceof AccumulatedRootNode && !currentNode.isDependent)
+        (currentNode instanceof AccumulatedRootNode &&
+          currentNode.isIndependent)
       ) {
         const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);

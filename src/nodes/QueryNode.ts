@@ -1,6 +1,5 @@
-import { IFact } from "../Fact";
 import { Query } from "../Query";
-import { compareTokens, Token } from "../Token";
+import { compareTokensAndBindings, Token } from "../Token";
 import { findInList, removeFromList, removeIndexFromList } from "../util";
 import { ReteNode } from "./ReteNode";
 
@@ -11,7 +10,7 @@ export class QueryNode extends ReteNode {
 
   items: Token[] = [];
   query: Query;
-  facts: IFact[] = [];
+  facts: any[] = [];
 
   constructor(query: Query) {
     super();
@@ -19,7 +18,7 @@ export class QueryNode extends ReteNode {
   }
 
   leftActivate(t: Token): void {
-    if (findInList(this.items, t, compareTokens) !== -1) {
+    if (findInList(this.items, t, compareTokensAndBindings) !== -1) {
       return;
     }
 
@@ -30,7 +29,7 @@ export class QueryNode extends ReteNode {
   }
 
   leftRetract(t: Token): void {
-    const foundIndex = findInList(this.items, t, compareTokens);
+    const foundIndex = findInList(this.items, t, compareTokensAndBindings);
 
     if (foundIndex === -1) {
       return;

@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import { IFact } from "./Fact";
 import { AccumulatorNode } from "./nodes/AccumulatorNode";
 import { JoinNode } from "./nodes/JoinNode";
@@ -49,6 +50,14 @@ export class Token {
 
 export function compareTokens(t1: Token, t2: Token): boolean {
   return t1.node === t2.node && t1.fact === t2.fact;
+}
+
+export function compareTokensAndBindings(t1: Token, t2: Token): boolean {
+  if (!compareTokens(t1, t2)) {
+    return false;
+  }
+
+  return isEqual(t1.bindings, t2.bindings);
 }
 
 export function isParent(parent: Token, child: Token): boolean {
