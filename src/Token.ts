@@ -50,3 +50,26 @@ export class Token {
 export function compareTokens(t1: Token, t2: Token): boolean {
   return t1.node === t2.node && t1.fact === t2.fact;
 }
+
+export function isParent(parent: Token, child: Token): boolean {
+  let p = child.parent;
+
+  while (p) {
+    if (p === parent) {
+      return true;
+    }
+
+    p = p.parent;
+  }
+  return false;
+}
+
+export function findParent(parents: Token[], child: Token): Token | undefined {
+  for (let i = 0; i < parents.length; i++) {
+    const parent = parents[i];
+
+    if (isParent(parent, child)) {
+      return parent;
+    }
+  }
+}

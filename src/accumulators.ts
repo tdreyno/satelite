@@ -10,8 +10,7 @@ export function acc<T>(
   accumulator: IAccumulator<T>,
   ...conditions: IConditions,
 ): AccumulatorCondition<T> {
-  const parsedConditions =
-    conditions.length > 0 ? conditions.map(parseCondition) : undefined;
+  const parsedConditions = conditions.map(parseCondition);
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
 }
 

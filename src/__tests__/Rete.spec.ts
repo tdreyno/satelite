@@ -187,11 +187,11 @@ describe("Rete", () => {
 
     const { rule } = makeRete();
 
-    rule(["?e", "gender", "F"], count("?count")).then(({ count }) => {
+    rule(count("?count", ["?e", "gender", "F"])).then(({ count }) => {
       expect(count).toBe(2);
     });
 
-    rule(["?e", "team", "Fun"], count("?count")).then(({ count }) => {
+    rule(count("?count", ["?e", "team", "Fun"])).then(({ count }) => {
       expect(count).toBe(1);
     });
   });
@@ -224,8 +224,7 @@ describe("Rete", () => {
     const maxMaleQuery = query(
       ["?e", "gender", "M"],
       max("?max", ["?e", "age", _]),
-      ["?e2", "age", "?max"],
-      ["?e2", "name", "?v"],
+      ["?e", "name", "?v"],
     );
 
     const maxMaleFacts = maxMaleQuery.getFacts();

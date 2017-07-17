@@ -2,7 +2,7 @@ import { IFact } from "../Fact";
 import { Token } from "../Token";
 
 let nextNodeId = 0;
-export abstract class ReteNode {
+export class ReteNode {
   id = nextNodeId++;
   children: ReteNode[] = [];
   parent: ReteNode | null = null;

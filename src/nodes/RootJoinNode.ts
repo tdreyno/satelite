@@ -65,6 +65,10 @@ export class RootJoinNode extends ReteNode {
     runLeftRetractOnNodes(this.children, t);
   }
 
+  leftActivate(t: Token): void {
+    runLeftActivateOnNodes(this.children, t);
+  }
+
   rerunForChild(child: ReteNode) {
     const facts = this.alphaMemory.facts;
 

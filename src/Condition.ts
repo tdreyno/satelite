@@ -196,3 +196,35 @@ export function extractBindingsFromCondition(
 
   return bindings;
 }
+
+export function getVariableNamesFromCondition(
+  c: ParsedCondition | AccumulatorCondition,
+): Set<string> {
+  if (c instanceof AccumulatorCondition) {
+    return new Set([c.bindingName]);
+  } else {
+    return new Set(Object.keys(c.variableNames));
+  }
+}
+
+export function getVariableNamesFromConditions(
+  conditions: Array<ParsedCondition | AccumulatorCondition>,
+): Set<string> {
+  return conditions.reduce((acc, c) => {
+    return new Set([...acc, ...getVariableNamesFromCondition(c)]);
+  }, new Set());
+}
+
+export function dependentVariableNames(
+  parentConditions: Array<ParsedCondition | AccumulatorCondition>,
+  subConditions: Array<ParsedCondition | AccumulatorCondition>,
+): Set<string> {
+  const parentVarNames = getVariableNamesFromConditions(parentConditions);
+  const subVarNames = getVariableNamesFromConditions(subConditions);
+
+  return new Set(
+    Array.from(subVarNames).filter(subVarName =>
+      parentVarNames.has(subVarName),
+    ),
+  );
+}

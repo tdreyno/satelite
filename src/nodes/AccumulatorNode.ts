@@ -1,13 +1,15 @@
 import { memoize } from "interstelar";
 import { cloneDeep } from "lodash";
 import { cleanVariableName, ParsedCondition } from "../Condition";
-import { compareTokens, Token } from "../Token";
+import { compareTokens, findParent, Token } from "../Token";
 import {
   findInList,
   removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
 } from "../util";
+import { AccumulatedRootNode } from "./AccumulatedRootNode";
+import { AccumulatedTailNode } from "./AccumulatedTailNode";
 import { JoinNode } from "./JoinNode";
 import { ReteNode } from "./ReteNode";
 
@@ -39,12 +41,12 @@ const getBindingIdByValues = memoize(
 export class AccumulatorCondition<T = any> {
   bindingName: string;
   accumulator: IAccumulator<T>;
-  conditions?: Array<ParsedCondition | AccumulatorCondition>;
+  conditions: Array<ParsedCondition | AccumulatorCondition>;
 
   constructor(
     bindingName: string,
     accumulator: IAccumulator<T>,
-    conditions?: Array<ParsedCondition | AccumulatorCondition>,
+    conditions: Array<ParsedCondition | AccumulatorCondition>,
   ) {
     this.bindingName = bindingName;
     this.accumulator = accumulator;
@@ -55,60 +57,98 @@ export class AccumulatorCondition<T = any> {
 export type IAccumulatorReducer<T> = (acc: T, t: Token) => T;
 
 export class AccumulatorNode extends ReteNode {
-  static create(parent: ReteNode, c: AccumulatorCondition): AccumulatorNode {
-    const node = new AccumulatorNode(c);
+  static create(
+    parent: ReteNode,
+    c: AccumulatorCondition,
+    subnetworkHead: AccumulatedRootNode,
+    subnetworkTail: ReteNode,
+  ): AccumulatorNode {
+    const node = new AccumulatorNode(c, subnetworkHead);
 
     node.parent = parent;
     parent.children.unshift(node);
-
     node.updateNewNodeWithMatchesFromAbove();
+
+    const accTail = AccumulatedTailNode.create(subnetworkTail, node);
+    accTail.updateNewNodeWithMatchesFromAbove();
 
     return node;
   }
 
-  items: Map<number, Token[]> = new Map();
+  subnetworkHead: ReteNode;
+  items: Token[] = [];
+  facts: Map<number, Token[]> = new Map();
   results: Map<number, Token> = new Map();
   accumulator: AccumulatorCondition;
 
-  constructor(accumulator: AccumulatorCondition) {
+  constructor(accumulator: AccumulatorCondition, subnetworkHead: ReteNode) {
     super();
 
     this.accumulator = accumulator;
+    this.subnetworkHead = subnetworkHead;
   }
 
   leftActivate(t: Token): void {
-    const bindingId = getBindingId(
-      t.bindings,
-      this.accumulator.accumulator.tokenPerBindingMatch,
-    );
-
-    let tokens = this.items.get(bindingId);
-
-    if (tokens && findInList(tokens, t, compareTokens) !== -1) {
+    if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
 
-    if (!tokens) {
-      tokens = [];
-      this.items.set(bindingId, tokens);
+    this.items.unshift(t);
+
+    runLeftActivateOnNodes([this.subnetworkHead], t);
+  }
+
+  leftRetract(t: Token): void {
+    if (findInList(this.items, t, compareTokens) === -1) {
+      return;
     }
 
-    tokens.unshift(t);
+    this.items.unshift(t);
+
+    runLeftRetractOnNodes([this.subnetworkHead], t);
+  }
+
+  rightActivateReduced(t: Token): void {
+    const parent = findParent(this.items, t);
+
+    const bindings = parent ? parent.bindings : t.bindings;
+
+    const bindingId = getBindingId(
+      bindings,
+      this.accumulator.accumulator.tokenPerBindingMatch,
+    );
+
+    let facts = this.facts.get(bindingId);
+
+    if (!facts) {
+      facts = [];
+    }
+
+    if (findInList(facts, t, compareTokens) !== -1) {
+      return;
+    }
+
+    facts.unshift(t);
+    this.facts.set(bindingId, facts);
 
     // Cleanup previous results if there.
-    this.cleanupOldResults(-1);
-    this.cleanupOldResults(bindingId);
+    // this.cleanupOldResults(-1);
+    // this.cleanupOldResults(bindingId);
 
     this.executeAccumulator(bindingId);
   }
 
-  leftRetract(t: Token): void {
+  rightRetractReduced(t: Token): void {
+    const parent = findParent(this.items, t);
+
+    const bindings = parent ? parent.bindings : t.bindings;
+
     const bindingId = getBindingId(
-      t.bindings,
+      bindings,
       this.accumulator.accumulator.tokenPerBindingMatch,
     );
 
-    const tokens = this.items.get(bindingId);
+    const tokens = this.facts.get(bindingId);
 
     if (!tokens) {
       return;
@@ -127,43 +167,17 @@ export class AccumulatorNode extends ReteNode {
     if (tokens.length > 0) {
       this.executeAccumulator(bindingId);
     } else {
-      this.executeAccumulator(-1);
+      // Needs a retract, likely
+      // this.executeAccumulator(-1);
     }
   }
 
   rerunForChild(child: ReteNode) {
     const savedListOfChildren = this.children;
-
     this.children = [child];
 
-    if (this.items.size > 0) {
-      for (const [bindingId] of this.items) {
-        this.executeAccumulator(bindingId);
-      }
-    } else {
-      const accumulatorBindings: Set<string> = (this.accumulator.conditions ||
-        [])
-        .reduce((sum, c) => {
-          if (c instanceof ParsedCondition) {
-            Object.keys(c.variableNames).forEach(v => sum.add(v));
-          }
-
-          return sum;
-        }, new Set());
-
-      if (accumulatorBindings.size <= 0) {
-        this.executeAccumulator(-1);
-      } else {
-        // if (this.parent) {
-        //   this.parent.rerunForChild(this);
-        // }
-        // if (this.parent && (this.parent as any).items) {
-        //   for (let i = 0; i < (this.parent as any).items.length; i++) {
-        //     const t = (this.parent as any).items[i];
-        //     this.leftActivate(t);
-        //   }
-        // }
-      }
+    for (const [bindingId] of this.facts) {
+      this.executeAccumulator(bindingId);
     }
 
     this.children = savedListOfChildren;
@@ -178,7 +192,7 @@ export class AccumulatorNode extends ReteNode {
   }
 
   private executeAccumulator(bindingId: number): void {
-    let tokens = this.items.get(bindingId);
+    let tokens = this.facts.get(bindingId);
 
     let result;
     if (!tokens) {

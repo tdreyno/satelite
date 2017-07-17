@@ -1,4 +1,5 @@
 import {
+  dependentVariableNames,
   getJoinTestsFromCondition,
   ICondition,
   parseCondition,
@@ -6,6 +7,7 @@ import {
 } from "./Condition";
 import { IFact, IValue, makeFact } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
+import { AccumulatedRootNode } from "./nodes/AccumulatedRootNode";
 import { AccumulatorCondition, AccumulatorNode } from "./nodes/AccumulatorNode";
 import {
   AlphaMemoryNode,
@@ -284,22 +286,25 @@ export class Rete {
       const c = conditions[i];
 
       if (c instanceof AccumulatorCondition) {
-        if (c.conditions) {
-          const subNetwork = this.buildOrShareNetworkForConditions(
-            c.conditions,
-            conditionsHigherUp,
-            currentNode,
-          );
+        const dependentVars = dependentVariableNames(
+          conditionsHigherUp,
+          c.conditions,
+        );
 
-          subNetwork.parent = currentNode;
-          currentNode.children.unshift(subNetwork);
+        const isIndependent =
+          dependentVars.size <= 0 && currentNode === this.root;
+        const accRoot = AccumulatedRootNode.create(!isIndependent);
+        const accTail = this.buildOrShareNetworkForConditions(
+          c.conditions,
+          conditionsHigherUp,
+          accRoot,
+        );
 
-          currentNode = subNetwork;
-          currentNode.updateNewNodeWithMatchesFromAbove();
-        }
-
-        currentNode = AccumulatorNode.create(currentNode, c);
-      } else if (currentNode === this.root) {
+        currentNode = AccumulatorNode.create(currentNode, c, accRoot, accTail);
+      } else if (
+        currentNode instanceof RootNode ||
+        (currentNode instanceof AccumulatedRootNode && !currentNode.isDependent)
+      ) {
         const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
         currentNode = RootJoinNode.create(currentNode, alphaMemory, joinTests);
