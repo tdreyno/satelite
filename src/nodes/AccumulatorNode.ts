@@ -156,8 +156,7 @@ export class AccumulatorNode extends ReteNode {
       initialToken = findParent(this.items, t);
 
       if (!initialToken) {
-        console.error("activate a non-parented token?");
-        return;
+        throw new Error("activate a non-parented token?");
       }
 
       this.pendingSubnetwork.delete(initialToken);
@@ -190,8 +189,7 @@ export class AccumulatorNode extends ReteNode {
       initialToken = findParent(this.items, t);
 
       if (!initialToken) {
-        console.error("retract a non-parented token?", t.bindings);
-        return;
+        throw new Error("retract a non-parented token?");
       }
 
       this.pendingSubnetwork.delete(initialToken);
