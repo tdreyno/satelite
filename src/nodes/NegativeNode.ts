@@ -60,7 +60,7 @@ export class NegativeNode extends ReteNode {
       return;
     }
 
-    this.items.unshift(t);
+    this.items.push(t);
 
     this.executeLeft(t, runLeftActivateOnNodes);
   }

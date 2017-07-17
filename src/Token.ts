@@ -1,8 +1,8 @@
+import { isEqual } from "lodash";
 import { IFact } from "./Fact";
 import { AccumulatorNode } from "./nodes/AccumulatorNode";
 import { JoinNode } from "./nodes/JoinNode";
 import { RootJoinNode } from "./nodes/RootJoinNode";
-import { shallowDiffers } from "./util";
 
 export type ITokenValue = IFact;
 
@@ -57,7 +57,7 @@ export function compareTokensAndBindings(t1: Token, t2: Token): boolean {
     return false;
   }
 
-  return !shallowDiffers(t1.bindings, t2.bindings);
+  return isEqual(t1.bindings, t2.bindings);
 }
 
 export function isParent(parent: Token, child: Token): boolean {

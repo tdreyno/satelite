@@ -108,7 +108,7 @@ export class AlphaMemoryNode extends ReteNode {
   }
 
   activate(f: IFact): void {
-    this.facts.unshift(f);
+    this.facts.push(f);
 
     for (let j = 0; j < this.successors.length; j++) {
       const successor = this.successors[j];

@@ -139,7 +139,7 @@ export class JoinNode extends ReteNode {
       return;
     }
 
-    this.items.unshift(t);
+    this.items.push(t);
 
     for (let i = 0; i < this.alphaMemory.facts.length; i++) {
       const fact = this.alphaMemory.facts[i];

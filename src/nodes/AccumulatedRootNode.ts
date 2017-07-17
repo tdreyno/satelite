@@ -26,7 +26,7 @@ export class AccumulatedRootNode extends ReteNode {
       return;
     }
 
-    this.items.unshift(t);
+    this.items.push(t);
 
     runLeftActivateOnNodes(this.children, t);
   }

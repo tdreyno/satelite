@@ -39,14 +39,14 @@ export class ProductionNode extends ReteNode {
       return;
     }
 
-    this.items.unshift(t);
+    this.items.push(t);
 
     const addProducedFacts = (...facts: IFact[]) => {
       for (let i = 0; i < facts.length; i++) {
         this.rete.assert(facts[i]);
       }
 
-      this.resultingFacts.unshift({
+      this.resultingFacts.push({
         token: t,
         facts,
       });

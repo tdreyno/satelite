@@ -24,6 +24,7 @@ import { RootJoinNode } from "./nodes/RootJoinNode";
 import { IActivateCallback, Production } from "./Production";
 import { Query } from "./Query";
 import { IVariableBindings } from "./Token";
+import { removeIndexFromList } from "./util";
 
 export type ITerminalNode = Production | Query;
 
@@ -64,7 +65,7 @@ export class Rete {
   self = this;
   root = RootNode.create();
   hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
-  facts: Set<IFact> = new Set();
+  facts: IFact[] = [];
 
   private terminalNodes: ITerminalNode[] = [];
   private entities: Map<IIdentifier | IPrimitive, IEntityResult> = new Map();
@@ -147,9 +148,9 @@ export class Rete {
   private addFact(factTuple: IFact): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
-    if (!this.facts.has(f)) {
-      // console.log("Asserting", f);
-      this.facts.add(f);
+    if (this.facts.indexOf(f) === -1) {
+      console.log("Asserting", f);
+      this.facts.push(f);
 
       const existingEntity: IEntityResult = this.entities.get(f[0]) || {
         facts: new Set(),
@@ -167,9 +168,10 @@ export class Rete {
   private removeFact(fact: IFact): void {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
-    if (this.facts.has(f)) {
-      // console.log("Retracting", f);
-      this.facts.delete(f);
+    const factIndex = this.facts.indexOf(f);
+    if (factIndex !== -1) {
+      console.log("Retracting", f);
+      removeIndexFromList(this.facts, factIndex);
 
       const existingEntity = this.entities.get(f[0]);
 
@@ -232,7 +234,7 @@ export class Rete {
 
         production.productionNode.updateNewNodeWithMatchesFromAbove();
 
-        this.terminalNodes.unshift(production);
+        this.terminalNodes.push(production);
 
         return production;
       },
@@ -254,7 +256,7 @@ export class Rete {
 
     query.queryNode.updateNewNodeWithMatchesFromAbove();
 
-    this.terminalNodes.unshift(query);
+    this.terminalNodes.push(query);
 
     return query;
   }

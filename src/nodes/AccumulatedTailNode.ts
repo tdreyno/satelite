@@ -32,7 +32,7 @@ export class AccumulatedTailNode extends ReteNode {
       return;
     }
 
-    this.items.unshift(t);
+    this.items.push(t);
 
     this.accumulatorNode.rightActivateReduced(t);
   }

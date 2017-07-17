@@ -22,8 +22,8 @@ export class QueryNode extends ReteNode {
       return;
     }
 
-    this.items.unshift(t);
-    this.facts.unshift(t.fact);
+    this.items.push(t);
+    this.facts.push(t.fact);
 
     this.query.didChange();
   }

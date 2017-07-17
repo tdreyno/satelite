@@ -59,7 +59,7 @@ export function collect(bindingName: string, ...conditions: IConditions) {
     bindingName,
     {
       reducer: (acc: any[], item: Token): any[] => {
-        acc.unshift(item.fact);
+        acc.push(item.fact);
         return acc;
       },
       initialValue: [] as any[],

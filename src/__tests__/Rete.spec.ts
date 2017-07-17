@@ -141,12 +141,12 @@ describe("Rete", () => {
 
     ladyFacts = ladyQuery.getFacts();
     expect(ladyFacts).toHaveLength(2);
-    expect(ladyFacts[0][0]).toBe(grace);
-    expect(ladyFacts[1][0]).toBe(violet);
+    expect(ladyFacts[0][0]).toBe(violet);
+    expect(ladyFacts[1][0]).toBe(grace);
 
     ladyVariableBindings = ladyQuery.getVariableBindings();
-    expect(ladyVariableBindings[0].e).toBe(grace);
-    expect(ladyVariableBindings[1].e).toBe(violet);
+    expect(ladyVariableBindings[0].e).toBe(violet);
+    expect(ladyVariableBindings[1].e).toBe(grace);
 
     retract(DATA_SET[10] as any);
 
@@ -187,12 +187,12 @@ describe("Rete", () => {
 
     const { rule } = makeRete();
 
-    rule(count("?count", ["?e", "gender", "F"])).then(({ count }) => {
-      expect(count).toBe(2);
+    rule(count("?c", ["?e", "gender", "F"])).then(({ c }) => {
+      expect(c).toBe(2);
     });
 
-    rule(count("?count", ["?e", "team", "Fun"])).then(({ count }) => {
-      expect(count).toBe(1);
+    rule(count("?c", ["?e", "team", "Fun"])).then(({ c }) => {
+      expect(c).toBe(1);
     });
   });
 
@@ -224,7 +224,8 @@ describe("Rete", () => {
     const maxMaleQuery = query(
       ["?e", "gender", "M"],
       max("?max", ["?e", "age", _]),
-      ["?e", "name", "?v"],
+      ["?e2", "age", "?max"],
+      ["?e2", "name", "?v"],
     );
 
     const maxMaleFacts = maxMaleQuery.getFacts();
@@ -316,14 +317,14 @@ describe("Rete", () => {
     expect(bindings[0].fun).toBe("Fun");
 
     expect(bindings[0].men).toHaveLength(2);
-    expect(bindings[0].men[0][0]).toBe(marc);
-    expect(bindings[0].men[1][0]).toBe(thomas);
+    expect(bindings[0].men[0][0]).toBe(thomas);
+    expect(bindings[0].men[1][0]).toBe(marc);
 
     expect(bindings[0].marc).toBe(marc);
 
     expect(bindings[0].women).toHaveLength(2);
-    expect(bindings[0].women[0][0]).toBe(grace);
-    expect(bindings[0].women[1][0]).toBe(violet);
+    expect(bindings[0].women[0][0]).toBe(violet);
+    expect(bindings[0].women[1][0]).toBe(grace);
 
     expect(bindings[0].e).toBe(thomas);
     expect(bindings[0].attr).toBe("name");

@@ -1,7 +1,12 @@
 import { memoize } from "interstelar";
 import { cloneDeep } from "lodash";
 import { cleanVariableName, ParsedCondition } from "../Condition";
-import { compareTokens, findParent, Token } from "../Token";
+import {
+  compareTokens,
+  compareTokensAndBindings,
+  findParent,
+  Token,
+} from "../Token";
 import {
   findInList,
   removeIndexFromList,
@@ -112,7 +117,8 @@ export class AccumulatorNode extends ReteNode {
       return;
     }
 
-    this.items.unshift(t);
+    this.items.push(t);
+
     if (this.isIndependent) {
       return;
     }
@@ -174,7 +180,7 @@ export class AccumulatorNode extends ReteNode {
       return;
     }
 
-    facts.unshift(t);
+    facts.push(t);
     this.facts.set(binding, facts);
 
     this.executeAccumulator(initialToken);
@@ -257,9 +263,18 @@ export class AccumulatorNode extends ReteNode {
       );
     }
 
+    const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
+
+    // Base off the first known token. Not sure if this is correct.
+    // Might need to have a way of getting a non-subnetwork parent token.
+    const t = Token.create(this, initialToken, result, {
+      ...initialToken.bindings,
+      [cleanedVariableName]: result,
+    });
+
     const previousResult = this.results.get(bindingId);
 
-    if (previousResult && previousResult.fact === result) {
+    if (previousResult && compareTokensAndBindings(previousResult, t)) {
       // no-op
     } else {
       this.cleanupOldResults(bindingId);
@@ -269,15 +284,6 @@ export class AccumulatorNode extends ReteNode {
         return;
       }
     }
-
-    const cleanedVariableName = cleanVariableName(this.accumulator.bindingName);
-
-    // Base off the first known token. Not sure if this is correct.
-    // Might need to have a way of getting a non-subnetwork parent token.
-    const t = Token.create(this, initialToken, result, {
-      ...initialToken.bindings,
-      [cleanedVariableName]: result,
-    });
 
     this.results.set(bindingId, t);
 
