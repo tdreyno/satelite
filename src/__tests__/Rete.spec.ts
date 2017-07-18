@@ -1,4 +1,4 @@
-import { collect, count, entity, max } from "../accumulators";
+import { collect, count, entity, max, min } from "../accumulators";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
 import { not, placeholder as _, Rete } from "../Rete";
@@ -183,9 +183,16 @@ describe("Rete", () => {
   );
 
   it("should be able to accumulate facts", () => {
-    expect.assertions(2);
+    expect.assertions(6);
 
-    const { rule } = makeRete();
+    const { rule, assert } = makeRete();
+
+    assert(
+      [thomas, "age", 40],
+      [violet, "age", 30],
+      [marc, "age", 20],
+      [grace, "age", 10],
+    );
 
     rule(count("?c", ["?e", "gender", "F"])).then(({ c }) => {
       expect(c).toBe(2);
@@ -193,6 +200,24 @@ describe("Rete", () => {
 
     rule(count("?c", ["?e", "team", "Fun"])).then(({ c }) => {
       expect(c).toBe(1);
+    });
+
+    // Mapping an alias
+    rule(
+      max("?age", [_, "age", _]),
+      collect("?olds", "?e", ["?e", "age", "?age"]),
+    ).then(({ olds }) => {
+      expect(olds).toHaveLength(1);
+      expect(olds[0]).toBe(thomas);
+    });
+
+    // Mapping a function
+    rule(
+      min("?age", [_, "age", _]),
+      collect("?youngs", f => f[0], [_, "age", "?age"]),
+    ).then(({ youngs }) => {
+      expect(youngs).toHaveLength(1);
+      expect(youngs[0]).toBe(grace);
     });
   });
 

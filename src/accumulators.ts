@@ -1,9 +1,10 @@
-import { IConstantTest, parseCondition } from "./Condition";
-import { IValue } from "./Fact";
+import { isFunction, isString } from "lodash";
+import { cleanVariableName, IConstantTest, parseCondition } from "./Condition";
+import { IFact, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
-import { IConditions, placeholder as _ } from "./Rete";
-import { Token } from "./Token";
+import { IAnyCondition, IConditions, placeholder as _ } from "./Rete";
+import { IVariableBindings, Token } from "./Token";
 
 export function acc<T>(
   bindingName: string,
@@ -31,11 +32,35 @@ export function max(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
-      reducer: (sum: number, item: Token): number => {
+      reducer: (sum: number | undefined, item: Token): number => {
         const value = item.fact[2] as number;
+
+        if (typeof sum === "undefined") {
+          return value;
+        }
+
         return value > sum ? value : sum;
       },
-      initialValue: 0,
+      initialValue: undefined,
+    },
+    ...conditions,
+  );
+}
+
+export function min(bindingName: string, ...conditions: IConditions) {
+  return acc(
+    bindingName,
+    {
+      reducer: (sum: number | undefined, item: Token): number => {
+        const value = item.fact[2] as number;
+
+        if (typeof sum === "undefined") {
+          return value;
+        }
+
+        return value < sum ? value : sum;
+      },
+      initialValue: undefined,
     },
     ...conditions,
   );
@@ -54,12 +79,42 @@ export function exists(bindingName: string, ...conditions: IConditions) {
   );
 }
 
-export function collect(bindingName: string, ...conditions: IConditions) {
+export type ICollectionMapperFn = (f: IFact, b: IVariableBindings) => any;
+export function collect(
+  bindingName: string,
+  mapperAlias: string | ICollectionMapperFn,
+  ...conditions: IAnyCondition[],
+): AccumulatorCondition;
+export function collect(
+  bindingName: string,
+  ...conditions: IAnyCondition[],
+): AccumulatorCondition;
+export function collect(
+  bindingName: string,
+  ...mapperFnOrConditions: Array<string | IAnyCondition | ICollectionMapperFn>,
+): AccumulatorCondition {
+  let mapperFn: ICollectionMapperFn = (f: IFact) => f;
+  const firstVariadicArgument = mapperFnOrConditions[0];
+
+  if (isString(firstVariadicArgument)) {
+    const stringAlias: string = cleanVariableName(
+      mapperFnOrConditions.shift() as any,
+    );
+
+    // tslint:disable-next-line:variable-name
+    mapperFn = (_f, b) => b[stringAlias];
+  } else if (isFunction(firstVariadicArgument)) {
+    mapperFn = mapperFnOrConditions.shift() as any;
+  }
+
+  // Whatever is left are conditions
+  const conditions: IAnyCondition[] = mapperFnOrConditions as any;
+
   return acc(
     bindingName,
     {
       reducer: (sum: any[], item: Token): any[] => {
-        sum.push(item.fact);
+        sum.push(mapperFn(item.fact, item.bindings));
         return sum;
       },
       initialValue: [] as any[],
