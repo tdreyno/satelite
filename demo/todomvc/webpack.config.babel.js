@@ -3,6 +3,7 @@ import webpack from "webpack";
 import { CheckerPlugin } from "awesome-typescript-loader";
 import BabiliPlugin from "babili-webpack-plugin";
 import LodashModuleReplacementPlugin from "lodash-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
 
 const NODE_MODULES_PATH = path.resolve(__dirname, "node_modules");
 const ENV = process.env.NODE_ENV || "development";
@@ -13,7 +14,7 @@ module.exports = {
   output: {
     path: path.join(__dirname, "dist"),
     filename: "bundle.js",
-    publicPath: "/static/",
+    publicPath: "/",
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -46,7 +47,16 @@ module.exports = {
     new webpack.NoEmitOnErrorsPlugin(),
   ].concat(
     ENV === "production"
-      ? [new webpack.optimize.OccurrenceOrderPlugin(), new BabiliPlugin()]
+      ? [
+          // new webpack.optimize.OccurrenceOrderPlugin(),
+          // new BabiliPlugin(),
+          new CopyWebpackPlugin([
+            {
+              context: "static",
+              from: "*",
+            },
+          ]),
+        ]
       : [],
   ),
 
