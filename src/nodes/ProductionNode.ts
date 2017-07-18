@@ -1,3 +1,4 @@
+import { isArray } from "lodash";
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFact } from "../Fact";
 import { Production } from "../Production";
@@ -41,7 +42,20 @@ export class ProductionNode extends ReteNode {
 
     this.items.push(t);
 
-    const addProducedFacts = (...facts: IFact[]) => {
+    const lastCondition = this.conditions[this.conditions.length - 1];
+
+    let bindings = t.bindings;
+    if (lastCondition) {
+      bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
+    }
+
+    const resultingFacts = this.production.onActivation(t.fact, bindings);
+
+    if (resultingFacts && isArray(resultingFacts)) {
+      const facts = isArray(resultingFacts[0])
+        ? resultingFacts as IFact[]
+        : [resultingFacts] as IFact[];
+
       for (let i = 0; i < facts.length; i++) {
         this.rete.assert(facts[i]);
       }
@@ -50,16 +64,7 @@ export class ProductionNode extends ReteNode {
         token: t,
         facts,
       });
-    };
-
-    const lastCondition = this.conditions[this.conditions.length - 1];
-
-    let bindings = t.bindings;
-    if (lastCondition) {
-      bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
     }
-
-    this.production.onActivation(t.fact, bindings, addProducedFacts);
   }
 
   leftRetract(t: Token): void {

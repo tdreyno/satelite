@@ -2,22 +2,19 @@ import { IFact } from "./Fact";
 import { ProductionNode } from "./nodes/ProductionNode";
 import { IVariableBindings } from "./Token";
 
-export type IAddFactsSignature = (...facts: IFact[]) => void;
 export type IActivateCallback = (
   variableBindings: IVariableBindings,
   extra: {
     fact: IFact;
-    addProducedFact: IAddFactsSignature;
   },
-) => any;
+) => undefined | void | null | IFact | IFact[];
 
 export type IInternalActivateCallback = (
   v: IVariableBindings,
   extra: {
     fact: IFact;
-    addProducedFact: IAddFactsSignature;
   },
-) => any;
+) => undefined | void | null | IFact | IFact[];
 
 export class Production {
   static create(onActivationCallback: IActivateCallback) {
@@ -34,11 +31,9 @@ export class Production {
   onActivation(
     f: IFact,
     b: IVariableBindings,
-    addProducedFact: (...facts: IFact[]) => void,
-  ): void {
-    this.onActivationCallback(b, {
+  ): undefined | void | null | IFact | IFact[] {
+    return this.onActivationCallback(b, {
       fact: f,
-      addProducedFact,
     });
   }
 }

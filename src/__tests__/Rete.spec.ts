@@ -106,13 +106,10 @@ describe("Rete", () => {
       expect(e).toBe(violet);
     });
 
-    rule(
-      ["?e", "gender", "F"],
-      ["?e", "name", "?v"],
-    ).then(({ e, v }, { addProducedFact }) => {
+    rule(["?e", "gender", "F"], ["?e", "name", "?v"]).then(({ e, v }) => {
       if (e === violet) {
         expect(v).toBe("Violet");
-        addProducedFact([e, "isLady", true]);
+        return [e, "isLady", true];
       } else {
         expect(v).toBe("Grace");
       }
@@ -122,10 +119,10 @@ describe("Rete", () => {
   it("should allow queries", () => {
     const { assert, retract, rule, query } = makeRete();
 
-    rule(["?e", "gender", "F"]).then(({ e }, { addProducedFact }) => {
-      addProducedFact([e, "isLady", true]);
-
+    rule(["?e", "gender", "F"]).then(({ e }) => {
       assert([thomas, "superCool", true]);
+
+      return [e, "isLady", true];
     });
 
     const coolQuery = query(["?e", "superCool", true]);
