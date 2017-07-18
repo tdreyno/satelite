@@ -122,7 +122,7 @@ describe("Rete", () => {
     rule(["?e", "gender", "F"]).then(({ e }) => {
       assert([thomas, "superCool", true]);
 
-      return [e, "isLady", true];
+      return [[e, "isLady", true]] as IFact[];
     });
 
     const coolQuery = query(["?e", "superCool", true]);
