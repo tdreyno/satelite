@@ -1,5 +1,5 @@
-import { memoize } from "interstelar";
 import cloneDeep = require("lodash/cloneDeep");
+import { memoize } from "interstelar";
 import { cleanVariableName, ParsedCondition } from "../Condition";
 import {
   compareTokens,
