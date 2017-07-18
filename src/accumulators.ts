@@ -1,4 +1,5 @@
-import { isFunction, isString } from "lodash";
+import isFunction = require("lodash/isFunction");
+import isString = require("lodash/isString");
 import { cleanVariableName, IConstantTest, parseCondition } from "./Condition";
 import { IFact, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";

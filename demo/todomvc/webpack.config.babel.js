@@ -2,7 +2,6 @@ import path from "path";
 import webpack from "webpack";
 import { CheckerPlugin } from "awesome-typescript-loader";
 import BabiliPlugin from "babili-webpack-plugin";
-import LodashModuleReplacementPlugin from "lodash-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 
 const NODE_MODULES_PATH = path.resolve(__dirname, "node_modules");
@@ -10,7 +9,10 @@ const ENV = process.env.NODE_ENV || "development";
 
 module.exports = {
   devtool: "source-map",
-  entry: ["./src/index"],
+  entry: {
+    app: "./src/index",
+    vendor: ["react", "react-dom"],
+  },
   output: {
     path: path.join(__dirname, "dist"),
     filename: "bundle.js",
@@ -40,16 +42,17 @@ module.exports = {
     new webpack.DefinePlugin({
       "process.env": { NODE_ENV: JSON.stringify(process.env.NODE_ENV) },
     }),
-    new LodashModuleReplacementPlugin({
-      flattening: true,
-      paths: true,
-    }),
     new webpack.NoEmitOnErrorsPlugin(),
+
+    new webpack.optimize.CommonsChunkPlugin({
+      name: "vendor",
+      filename: "vendor.bundle.js",
+    }),
   ].concat(
     ENV === "production"
       ? [
-          // new webpack.optimize.OccurrenceOrderPlugin(),
-          // new BabiliPlugin(),
+          new webpack.optimize.OccurrenceOrderPlugin(),
+          new BabiliPlugin(),
           new CopyWebpackPlugin([
             {
               context: "static",

@@ -1,4 +1,4 @@
-import { isFunction } from "lodash";
+import isFunction = require("lodash/isFunction");
 import * as PropTypes from "prop-types";
 import * as React from "react";
 

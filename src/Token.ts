@@ -1,4 +1,4 @@
-import { isEqual } from "lodash";
+import isEqual = require("lodash/isEqual");
 import { IFact } from "./Fact";
 import { AccumulatorNode } from "./nodes/AccumulatorNode";
 import { JoinNode } from "./nodes/JoinNode";

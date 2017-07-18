@@ -1,4 +1,4 @@
-import { isArray } from "lodash";
+import isArray = require("lodash/isArray");
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFact } from "../Fact";
 import { Production } from "../Production";
