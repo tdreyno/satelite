@@ -320,6 +320,9 @@ export class Rete {
       } else {
         const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
+
+        console.log(c, joinTests);
+
         currentNode = c.isNegated
           ? NegativeNode.create(currentNode, alphaMemory, joinTests)
           : JoinNode.create(currentNode, alphaMemory, joinTests);

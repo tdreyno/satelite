@@ -1,5 +1,10 @@
 import { memoize } from "interstelar";
-import { isConstant, isPlaceholder, ParsedCondition } from "../Condition";
+import {
+  isComparison,
+  isConstant,
+  isPlaceholder,
+  ParsedCondition,
+} from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
 import { Rete } from "../Rete";
@@ -53,13 +58,19 @@ export function createExhaustiveHashTable(): IExhaustiveHashTable {
 
 export class AlphaMemoryNode extends ReteNode {
   static create(rete: Rete, c: ParsedCondition): AlphaMemoryNode {
-    const identifierTest = isConstant(c.identifier) ? c.identifier : null;
-    const attributeTest = isConstant(c.attribute) ? c.attribute : null;
-    const valueTest = isConstant(c.value) ? c.value : null;
+    const identifierTest: any | null = isConstant(c.identifier)
+      ? c.identifier
+      : null;
+    const attributeTest: any | null = isConstant(c.attribute)
+      ? c.attribute
+      : null;
+    const valueTest: any | null = isConstant(c.value) ? c.value : null;
 
-    const identifierIsPlaceholder = isPlaceholder(c.identifier);
-    const attributeIsPlaceholder = isPlaceholder(c.attribute);
-    const valueIsPlaceholder = isPlaceholder(c.value);
+    const identifierIsPlaceholder =
+      isPlaceholder(c.identifier) || isComparison(c.identifier);
+    const attributeIsPlaceholder =
+      isPlaceholder(c.attribute) || isComparison(c.attribute);
+    const valueIsPlaceholder = isPlaceholder(c.value) || isComparison(c.value);
 
     let alphaMemory = lookupInHashTable(
       rete.hashTable,

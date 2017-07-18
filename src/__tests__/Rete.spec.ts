@@ -1,4 +1,5 @@
 import { collect, count, entity, max, min } from "../accumulators";
+import { compare } from "../Condition";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
 import { not, placeholder as _, Rete } from "../Rete";
@@ -216,6 +217,46 @@ describe("Rete", () => {
       expect(youngs).toHaveLength(1);
       expect(youngs[0]).toBe(grace);
     });
+  });
+
+  it.only("should be able to run arbitrary comparisons", () => {
+    expect.assertions(4);
+
+    const { self, rule, assert } = makeRete();
+
+    assert(
+      [thomas, "age", 40],
+      [violet, "age", 30],
+      [marc, "age", 20],
+      [grace, "age", 10],
+    );
+
+    const lte = (a: number, b: number): boolean => a <= b;
+    // const gt = (a: number, b: number): boolean => a > b;
+    // const equal = (a: number, b: number): boolean => a === b;
+
+    rule(["?e", "name", _], ["?e", "age", compare(lte, 20)]).then(b => {
+      console.log(b);
+      const { e, v } = b;
+      if (e === marc) {
+        expect(v).toBe(20);
+      } else if (e === grace) {
+        expect(v).toBe(10);
+      }
+    });
+    // debugger;
+
+    // rule(min("?age", [_, "age", compare(gt, 10)])).then(({ age }) => {
+    //   expect(age).toHaveLength(20);
+    // });
+
+    // rule(min("?age", [_, "age", _]), [
+    //   "?e",
+    //   "age",
+    //   compare(equal, "?age"),
+    // ]).then(({ e }) => {
+    //   expect(e).toBe(grace);
+    // });
   });
 
   it("should be able to query a max accumulator", () => {

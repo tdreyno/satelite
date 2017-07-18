@@ -1,10 +1,11 @@
 import { memoize } from "interstelar";
 import {
   cleanVariableName,
+  Comparison,
   extractBindingsFromCondition,
   ParsedCondition,
 } from "../Condition";
-import { IFact } from "../Fact";
+import { IFact, IFactFields } from "../Fact";
 import { compareTokens, IVariableBindings, Token } from "../Token";
 import {
   findInList,
@@ -53,22 +54,42 @@ export function performJoinTests(
 
   let bindings = Object.assign({}, t.bindings);
 
+  // console.log(tests);
+
   for (let i = 0; i < tests.length; i++) {
     const test = tests[i];
 
     if (test.fieldArg1 !== null && test.fieldArg2 !== null) {
       const arg1: any = f[test.fieldArg1];
 
-      const bindingName: string =
-        test.condition instanceof AccumulatorCondition
-          ? test.fieldArg2
-          : (test.condition.variableFields as any)[test.fieldArg2];
+      let bindingName: string;
+
+      if (test.condition instanceof AccumulatorCondition) {
+        bindingName = test.fieldArg2;
+      } else {
+        bindingName = (test.condition.variableFields as any)[test.fieldArg2];
+      }
 
       const arg2: any = t.bindings[cleanVariableName(bindingName)];
 
       // TODO: Make this comparison any predicate
       if (arg1 !== arg2) {
         return false;
+      }
+    } else if (
+      !(test.condition instanceof AccumulatorCondition) &&
+      Object.keys(test.condition.comparisonFields).length > 0
+    ) {
+      for (const comparisonField in test.condition.comparisonFields) {
+        if (test.condition.comparisonFields.hasOwnProperty(comparisonField)) {
+          const comparison: Comparison = (test.condition
+            .comparisonFields as any)[comparisonField];
+
+          const arg1: any = f[comparisonField as IFactFields];
+          if (!comparison.compareFn(arg1, comparison.value)) {
+            return false;
+          }
+        }
       }
     }
 
