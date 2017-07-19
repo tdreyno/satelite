@@ -35,7 +35,7 @@ function getVariableFromBindings(name: string, bindings: IVariableBindings) {
   return bindings[cleanVariableName(name)];
 }
 
-export const isNegative = () => compare((a: number): boolean => a < 0);
+export const isNegative = compare((a: number): boolean => a < 0);
 export const isBetween = (a: any, c: any) =>
   compare(
     (b: number, bindings: IVariableBindings): boolean =>
