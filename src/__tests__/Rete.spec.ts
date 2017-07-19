@@ -219,7 +219,7 @@ describe("Rete", () => {
     });
   });
 
-  it.only("should be able to run arbitrary comparisons", () => {
+  it("should be able to run arbitrary comparisons", () => {
     expect.assertions(4);
 
     const { rule, assert } = makeRete();

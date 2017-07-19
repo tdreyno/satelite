@@ -4,7 +4,7 @@ import {
   parseCondition,
 } from "../Condition";
 
-describe.skip("Condition", () => {
+describe("Condition", () => {
   describe("parseCondition", () => {
     it("should parse a purely constants condition", () => {
       const { variableFields, constantFields, variableNames } = parseCondition([
