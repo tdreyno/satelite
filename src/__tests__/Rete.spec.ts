@@ -1,5 +1,10 @@
 import { collect, count, entity, max, min } from "../accumulators";
-import { equals, greaterThan, lessThanOrEqualTo } from "../Condition";
+import {
+  equals,
+  greaterThan,
+  isBetween,
+  lessThanOrEqualTo,
+} from "../Condition";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
 import { not, placeholder as _, Rete } from "../Rete";
@@ -220,7 +225,7 @@ describe("Rete", () => {
   });
 
   it("should be able to run arbitrary comparisons", () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     const { rule, assert } = makeRete();
 
@@ -241,6 +246,10 @@ describe("Rete", () => {
 
     rule(min("?age", [_, "age", greaterThan(10)])).then(({ age }) => {
       expect(age).toBe(20);
+    });
+
+    rule(["?e", "age", isBetween(19, 21)]).then(({ e }) => {
+      expect(e).toBe(marc);
     });
 
     rule(min("?age", [_, "age", _]), [

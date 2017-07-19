@@ -9,37 +9,69 @@ import { IVariableBindings } from "./Token";
 
 export type IConstantTest = string;
 
-export type ICompareFn<T = any> = (a: T, b: T) => boolean;
+export type ICompareFn = (a: any, b: IVariableBindings) => boolean;
 
 export class Comparison {
   compareFn: ICompareFn;
-  value: IPrimitive | IIdentifier | IConstantTest | IValue;
 
-  constructor(compareFn: ICompareFn, value: any | IConstantTest) {
+  constructor(compareFn: ICompareFn) {
     this.compareFn = compareFn;
-    this.value = value;
   }
 }
 
-export function compare(
-  compareFn: ICompareFn,
-  value: any | IConstantTest,
-): Comparison {
-  return new Comparison(compareFn, value);
+export function compare(compareFn: ICompareFn): Comparison {
+  return new Comparison(compareFn);
 }
 
+function getValueOfComparisonTarget(v: any, bindings: IVariableBindings) {
+  if (isVariable(v)) {
+    return getVariableFromBindings(v, bindings);
+  }
+
+  return v;
+}
+
+function getVariableFromBindings(name: string, bindings: IVariableBindings) {
+  return bindings[cleanVariableName(name)];
+}
+
+export const isNegative = () => compare((a: number): boolean => a < 0);
+export const isBetween = (a: any, c: any) =>
+  compare(
+    (b: number, bindings: IVariableBindings): boolean =>
+      getValueOfComparisonTarget(a, bindings) <= b &&
+      b <= getValueOfComparisonTarget(c, bindings),
+  );
 export const lessThanOrEqualTo = (v: any) =>
-  compare((a: number, b: number): boolean => a <= b, v);
+  compare(
+    (a: number, bindings: IVariableBindings): boolean =>
+      a <= getValueOfComparisonTarget(v, bindings),
+  );
 export const lessThan = (v: any) =>
-  compare((a: number, b: number): boolean => a < b, v);
+  compare(
+    (a: number, bindings: IVariableBindings): boolean =>
+      a < getValueOfComparisonTarget(v, bindings),
+  );
 export const greaterThan = (v: any) =>
-  compare((a: number, b: number): boolean => a > b, v);
+  compare(
+    (a: number, bindings: IVariableBindings): boolean =>
+      a > getValueOfComparisonTarget(v, bindings),
+  );
 export const greaterThanOrEqualTo = (v: any) =>
-  compare((a: number, b: number): boolean => a >= b, v);
+  compare(
+    (a: number, bindings: IVariableBindings): boolean =>
+      a >= getValueOfComparisonTarget(v, bindings),
+  );
 export const equals = (v: any) =>
-  compare((a: number, b: number): boolean => a === b, v);
+  compare(
+    (a: any, bindings: IVariableBindings): boolean =>
+      a === getValueOfComparisonTarget(v, bindings),
+  );
 export const notEquals = (v: any) =>
-  compare((a: number, b: number): boolean => a !== b, v);
+  compare(
+    (a: any, bindings: IVariableBindings): boolean =>
+      a !== getValueOfComparisonTarget(v, bindings),
+  );
 
 export function isVariable(v: any): boolean {
   return isString(v) && v.startsWith(getVariablePrefix());

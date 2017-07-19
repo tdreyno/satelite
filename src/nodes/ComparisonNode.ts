@@ -1,4 +1,4 @@
-import { cleanVariableName, Comparison, isVariable } from "../Condition";
+import { Comparison } from "../Condition";
 import { IFactFields } from "../Fact";
 import { compareTokens, Token } from "../Token";
 import {
@@ -82,16 +82,7 @@ export class ComparisonNode extends ReteNode {
   ) {
     const value = t.fact[this.comparisonKey];
 
-    let compareWith;
-
-    if (isVariable(this.comparison.value)) {
-      const variableName = cleanVariableName(this.comparison.value);
-      compareWith = t.bindings[variableName];
-    } else {
-      compareWith = this.comparison.value;
-    }
-
-    const result = this.comparison.compareFn(value, compareWith);
+    const result = this.comparison.compareFn(value, t.bindings);
 
     if (result) {
       action(this.children, t);
