@@ -1,17 +1,19 @@
 import { count, not, placeholder as _, Rete } from "../../../src";
 import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "./constants";
 
-export default function initializeRules({ rule, update }: Rete) {
+export default function initializeRules({ rule }: Rete) {
   // Count the done items
-  rule(count("?n", [_, "todo/completed", true])).then(({ n }) =>
-    update(["global", "doneCount", n]),
-  );
+  rule(count("?n", [_, "todo/completed", true])).then(({ n }) => [
+    "global",
+    "doneCount",
+    n,
+  ]);
 
   // Count the active items
   rule(
     ["global", "doneCount", "?done"],
     count("?total", [_, "todo/text", _]),
-  ).then(({ total, done }) => update(["global", "activeCount", total - done]));
+  ).then(({ total, done }) => ["global", "activeCount", total - done]);
 
   // Mark as visible when filter is all
   rule(
