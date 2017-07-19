@@ -1,11 +1,12 @@
 import {
+  Comparison,
   dependentVariableNames,
   getJoinTestsFromCondition,
   ICondition,
   parseCondition,
   ParsedCondition,
 } from "./Condition";
-import { IFact, IValue, makeFact } from "./Fact";
+import { IFact, IFactFields, IValue, makeFact } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatedRootNode } from "./nodes/AccumulatedRootNode";
 import { AccumulatorCondition, AccumulatorNode } from "./nodes/AccumulatorNode";
@@ -15,6 +16,7 @@ import {
   IExhaustiveHashTable,
   lookupInHashTable,
 } from "./nodes/AlphaMemoryNode";
+import { ComparisonNode } from "./nodes/ComparisonNode";
 import { JoinNode } from "./nodes/JoinNode";
 import { NegativeNode } from "./nodes/NegativeNode";
 import { ProductionNode } from "./nodes/ProductionNode";
@@ -320,9 +322,26 @@ export class Rete {
       } else {
         const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
+
         currentNode = c.isNegated
           ? NegativeNode.create(currentNode, alphaMemory, joinTests)
           : JoinNode.create(currentNode, alphaMemory, joinTests);
+      }
+
+      if (!(c instanceof AccumulatorCondition)) {
+        for (const comparisonFieldKey in c.comparisonFields) {
+          if (c.comparisonFields.hasOwnProperty(comparisonFieldKey)) {
+            const comparisonField = (c.comparisonFields as any)[
+              comparisonFieldKey
+            ] as Comparison;
+
+            currentNode = ComparisonNode.create(
+              currentNode,
+              comparisonFieldKey as IFactFields,
+              comparisonField,
+            );
+          }
+        }
       }
 
       conditionsHigherUp.push(c);
