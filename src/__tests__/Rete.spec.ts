@@ -222,7 +222,7 @@ describe("Rete", () => {
   it.only("should be able to run arbitrary comparisons", () => {
     expect.assertions(4);
 
-    const { self, rule, assert } = makeRete();
+    const { rule, assert } = makeRete();
 
     assert(
       [thomas, "age", 40],
@@ -232,31 +232,28 @@ describe("Rete", () => {
     );
 
     const lte = (a: number, b: number): boolean => a <= b;
-    // const gt = (a: number, b: number): boolean => a > b;
-    // const equal = (a: number, b: number): boolean => a === b;
+    const gt = (a: number, b: number): boolean => a > b;
+    const equal = (a: number, b: number): boolean => a === b;
 
-    rule(["?e", "name", _], ["?e", "age", compare(lte, 20)]).then(b => {
-      console.log(b);
-      const { e, v } = b;
+    rule(["?e", "age", compare(lte, 20)]).then(({ e }, { fact }) => {
       if (e === marc) {
-        expect(v).toBe(20);
+        expect(fact[2]).toBe(20);
       } else if (e === grace) {
-        expect(v).toBe(10);
+        expect(fact[2]).toBe(10);
       }
     });
-    // debugger;
 
-    // rule(min("?age", [_, "age", compare(gt, 10)])).then(({ age }) => {
-    //   expect(age).toHaveLength(20);
-    // });
+    rule(min("?age", [_, "age", compare(gt, 10)])).then(({ age }) => {
+      expect(age).toBe(20);
+    });
 
-    // rule(min("?age", [_, "age", _]), [
-    //   "?e",
-    //   "age",
-    //   compare(equal, "?age"),
-    // ]).then(({ e }) => {
-    //   expect(e).toBe(grace);
-    // });
+    rule(min("?age", [_, "age", _]), [
+      "?e",
+      "age",
+      compare(equal, "?age"),
+    ]).then(({ e }) => {
+      expect(e).toBe(grace);
+    });
   });
 
   it("should be able to query a max accumulator", () => {

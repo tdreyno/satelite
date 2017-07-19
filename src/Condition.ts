@@ -94,6 +94,7 @@ export class ParsedCondition {
 
     if (isComparison(identifier)) {
       this.comparisonFields["0"] = identifier as Comparison;
+      this.placeholderFields["0"] = true;
     } else if (isVariable(identifier)) {
       this.variableNames[identifier as string] = "0";
       this.variableFields["0"] = identifier as string;
@@ -105,6 +106,7 @@ export class ParsedCondition {
 
     if (isComparison(attribute)) {
       this.comparisonFields["1"] = attribute as Comparison;
+      this.placeholderFields["1"] = true;
     } else if (isVariable(attribute)) {
       this.variableNames[attribute as string] = "1";
       this.variableFields["1"] = attribute as string;
@@ -116,6 +118,7 @@ export class ParsedCondition {
 
     if (isComparison(value)) {
       this.comparisonFields["2"] = value as Comparison;
+      this.placeholderFields["2"] = true;
     } else if (isVariable(value)) {
       this.variableNames[value as string] = "2";
       this.variableFields["2"] = value as string;
@@ -150,9 +153,6 @@ export function getJoinTestsFromCondition(
   const variableNames: IVariableNames =
     c instanceof AccumulatorCondition ? {} : c.variableNames;
 
-  const comparisonFields: { [P in IFactFields]?: Comparison } =
-    c instanceof AccumulatorCondition ? {} : c.comparisonFields;
-
   const results: TestAtJoinNode[] = [];
 
   for (const variableName in variableNames) {
@@ -172,21 +172,6 @@ export function getJoinTestsFromCondition(
 
         results.unshift(
           createTestAtJoinNode(fieldArg1, earlierCondition, fieldArg2),
-        );
-      } else {
-        results.unshift(createTestAtJoinNode(null, c, null));
-      }
-    }
-  }
-
-  for (const comparisonField in comparisonFields) {
-    if (comparisonFields.hasOwnProperty(comparisonField)) {
-      const comparison: Comparison = (comparisonFields as any)[comparisonField];
-
-      if (isVariable(comparison.value)) {
-        const earlierCondition = findVariableInEarlierConditions(
-          comparison.value,
-          earlierConditions,
         );
       } else {
         results.unshift(createTestAtJoinNode(null, c, null));
