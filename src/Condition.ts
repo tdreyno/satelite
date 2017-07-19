@@ -28,6 +28,19 @@ export function compare(
   return new Comparison(compareFn, value);
 }
 
+export const lessThanOrEqualTo = (v: any) =>
+  compare((a: number, b: number): boolean => a <= b, v);
+export const lessThan = (v: any) =>
+  compare((a: number, b: number): boolean => a < b, v);
+export const greaterThan = (v: any) =>
+  compare((a: number, b: number): boolean => a > b, v);
+export const greaterThanOrEqualTo = (v: any) =>
+  compare((a: number, b: number): boolean => a >= b, v);
+export const equals = (v: any) =>
+  compare((a: number, b: number): boolean => a === b, v);
+export const notEquals = (v: any) =>
+  compare((a: number, b: number): boolean => a !== b, v);
+
 export function isVariable(v: any): boolean {
   return isString(v) && v.startsWith(getVariablePrefix());
 }

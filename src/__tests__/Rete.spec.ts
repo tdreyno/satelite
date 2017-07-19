@@ -1,5 +1,5 @@
 import { collect, count, entity, max, min } from "../accumulators";
-import { compare } from "../Condition";
+import { equals, greaterThan, lessThanOrEqualTo } from "../Condition";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
 import { not, placeholder as _, Rete } from "../Rete";
@@ -231,11 +231,7 @@ describe("Rete", () => {
       [grace, "age", 10],
     );
 
-    const lte = (a: number, b: number): boolean => a <= b;
-    const gt = (a: number, b: number): boolean => a > b;
-    const equal = (a: number, b: number): boolean => a === b;
-
-    rule(["?e", "age", compare(lte, 20)]).then(({ e }, { fact }) => {
+    rule(["?e", "age", lessThanOrEqualTo(20)]).then(({ e }, { fact }) => {
       if (e === marc) {
         expect(fact[2]).toBe(20);
       } else if (e === grace) {
@@ -243,14 +239,14 @@ describe("Rete", () => {
       }
     });
 
-    rule(min("?age", [_, "age", compare(gt, 10)])).then(({ age }) => {
+    rule(min("?age", [_, "age", greaterThan(10)])).then(({ age }) => {
       expect(age).toBe(20);
     });
 
     rule(min("?age", [_, "age", _]), [
       "?e",
       "age",
-      compare(equal, "?age"),
+      equals("?age"),
     ]).then(({ e }) => {
       expect(e).toBe(grace);
     });

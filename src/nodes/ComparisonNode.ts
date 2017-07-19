@@ -1,4 +1,4 @@
-import { Comparison, isVariable, cleanVariableName } from "../Condition";
+import { cleanVariableName, Comparison, isVariable } from "../Condition";
 import { IFactFields } from "../Fact";
 import { compareTokens, Token } from "../Token";
 import {
