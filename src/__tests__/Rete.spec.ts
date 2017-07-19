@@ -328,10 +328,10 @@ describe("Rete", () => {
       [grace, "team", "?fun"], // A team named fun.
       collect("?men", [_, "gender", "M"]), // All The Men
       ["?marc", "team", "Content"], // A person who is marc.
-      collect("?women", [_, "gender", "F"]), // All The Men
+      collect("?women", [_, "gender", "F"]), // All The Women
       ["?e", "team", "WW"],
       ["?e", "?attr", "Thomas"], // A field called "name"
-      collect("?grace", [_, "team", "?fun"]), // All The Men
+      collect("?grace", [_, "team", "?fun"]), // Fun folk
     );
 
     const bindings = multiQuery.getVariableBindings();
