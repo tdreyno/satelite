@@ -3,6 +3,7 @@ import {
   equals,
   greaterThan,
   isBetween,
+  isIdentifierType,
   lessThanOrEqualTo,
 } from "../Condition";
 import { IFact } from "../Fact";
@@ -258,6 +259,46 @@ describe("Rete", () => {
       equals("?age"),
     ]).then(({ e }) => {
       expect(e).toBe(grace);
+    });
+  });
+
+  it("should be able to query by identifier type", () => {
+    expect.assertions(4);
+
+    const { rule, assert } = new Rete();
+
+    const personA = makeIdentifier("person", 1);
+    const personB = makeIdentifier("person", 2);
+
+    const tagA = makeIdentifier("tag", 1);
+    const tagB = makeIdentifier("tag", 2);
+
+    const isPerson = isIdentifierType("person");
+    const isTag = isIdentifierType("tag");
+
+    assert(
+      [personA, "name", "Thomas"],
+      [personB, "name", "Violet"],
+      [personA, "tag", tagA],
+      [personB, "tag", tagB],
+      [tagA, "name", "New"],
+      [tagB, "name", "Old"],
+    );
+
+    rule([isPerson, "name", "?v"]).then(({ v }, { fact }) => {
+      if (fact[0] === personA) {
+        expect(v).toBe("Thomas");
+      } else if (fact[0] === personB) {
+        expect(v).toBe("Violet");
+      }
+    });
+
+    rule([isTag, "name", "?v"]).then(({ v }, { fact }) => {
+      if (fact[0] === tagA) {
+        expect(v).toBe("New");
+      } else if (fact[0] === tagB) {
+        expect(v).toBe("Old");
+      }
     });
   });
 

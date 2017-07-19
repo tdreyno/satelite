@@ -35,6 +35,8 @@ function getVariableFromBindings(name: string, bindings: IVariableBindings) {
   return bindings[cleanVariableName(name)];
 }
 
+export const isIdentifierType = (type: string) =>
+  compare((a: IIdentifier): boolean => type === a.attribute);
 export const isNegative = compare((a: number): boolean => a < 0);
 export const isBetween = (a: any, c: any) =>
   compare(
@@ -90,9 +92,9 @@ export function isConstant(v: any): boolean {
 }
 
 export interface ICondition extends Array<any> {
-  [0]: IPrimitive | IIdentifier | IConstantTest;
-  [1]: string | IConstantTest;
-  [2]: IValue | IConstantTest;
+  [0]: IPrimitive | IIdentifier | IConstantTest | Comparison;
+  [1]: string | IConstantTest | Comparison;
+  [2]: IValue | IConstantTest | Comparison;
 
   isNegated?: boolean;
 }
