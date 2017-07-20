@@ -1,8 +1,13 @@
+import isEqual = require("lodash/isEqual");
 import { extractBindingsFromCondition } from "../Condition";
 import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 import { Token } from "../Token";
-import { runLeftActivateOnNodes, runLeftRetractOnNodes } from "../util";
+import {
+  runLeftActivateOnNodes,
+  runLeftRetractOnNodes,
+  runLeftUpdateOnNodes,
+} from "../util";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { TestAtJoinNode } from "./JoinNode";
 import { ReteNode } from "./ReteNode";
@@ -58,6 +63,25 @@ export class RootJoinNode extends ReteNode {
     const t = Token.create(this, null, f, bindings);
 
     runLeftActivateOnNodes(this.children, t);
+  }
+
+  rightUpdate(prev: IFact, f: IFact): void {
+    this.log("rightUpdate", prev, f);
+
+    const bindingsPrev = this.tests[0]
+      ? extractBindingsFromCondition(this.tests[0].condition, prev, {})
+      : {};
+
+    const tPrev = Token.create(this, null, prev, bindingsPrev);
+
+    const bindings = this.tests[0]
+      ? extractBindingsFromCondition(this.tests[0].condition, f, {})
+      : {};
+    const t = Token.create(this, null, f, bindings);
+
+    // TODO: Should these be compared?
+
+    runLeftUpdateOnNodes(this.children, tPrev, t);
   }
 
   rightRetract(f: IFact): void {

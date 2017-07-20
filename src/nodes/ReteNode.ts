@@ -15,27 +15,51 @@ export class ReteNode {
 
   // tslint:disable-next-line:variable-name
   rightActivate(_f: IFact): void {
-    throw new Error("Tried to rightActivate a node without an implementation");
+    throw new Error(
+      `${this.toString()} Tried to rightActivate a node without an implementation`,
+    );
+  }
+
+  // tslint:disable-next-line:variable-name
+  rightUpdate(_prev: IFact, _f: IFact): void {
+    throw new Error(
+      `${this.toString()} Tried to rightUpdate a node without an implementation`,
+    );
   }
 
   // tslint:disable-next-line:variable-name
   rightRetract(_f: IFact): void {
-    throw new Error("Tried to rightRetract a node without an implementation");
+    throw new Error(
+      `${this.toString()} Tried to rightRetract a node without an implementation`,
+    );
   }
 
   // tslint:disable-next-line:variable-name
   leftActivate(_t: Token): void {
-    throw new Error("Tried to leftActivate a node without an implementation");
+    throw new Error(
+      `${this.toString()} Tried to leftActivate a node without an implementation`,
+    );
+  }
+
+  // tslint:disable-next-line:variable-name
+  leftUpdate(_prev: Token, _t: Token): void {
+    throw new Error(
+      `${this.toString()} Tried to leftUpdate a node without an implementation`,
+    );
   }
 
   // tslint:disable-next-line:variable-name
   leftRetract(_t: Token): void {
-    throw new Error("Tried to leftRetract a node without an implementation");
+    throw new Error(
+      `${this.toString()} Tried to leftRetract a node without an implementation`,
+    );
   }
 
   // tslint:disable-next-line:variable-name
   rerunForChild(_child: ReteNode) {
-    throw new Error("Tried to leftRetract a node without an implementation");
+    throw new Error(
+      `${this.toString()} Tried to leftRetract a node without an implementation`,
+    );
   }
 
   updateNewNodeWithMatchesFromAbove(): void {
@@ -52,6 +76,16 @@ export class ReteNode {
     return `<${this.constructor.name} id=${this.id}${nested
       ? ` children=[${this.children.map(c => c.toString(false))}]`
       : ""}>`;
+  }
+
+  logF(eventName: string, ...data: any[]) {
+    const old = this.rete.loggers;
+
+    this.rete.loggers = console.log.bind(this);
+
+    this.log(eventName, ...data);
+
+    this.rete.loggers = old;
   }
 
   log(eventName: string, ...data: any[]) {

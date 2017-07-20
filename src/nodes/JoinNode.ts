@@ -12,6 +12,7 @@ import {
   removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
+  runLeftUpdateOnNodes,
 } from "../util";
 import { AccumulatorCondition } from "./AccumulatorNode";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
@@ -181,6 +182,59 @@ export class JoinNode extends ReteNode {
     }
   }
 
+  rightActivate(f: IFact): void {
+    this.log("rightActivate", f);
+
+    for (let i = 0; i < this.items.length; i++) {
+      const token = this.items[i];
+      const bindings = performJoinTests(this.tests, token, f);
+
+      if (bindings) {
+        const newToken = Token.create(this, token, f, bindings);
+
+        runLeftActivateOnNodes(this.children, newToken);
+      }
+    }
+  }
+
+  rightUpdate(prev: IFact, f: IFact): void {
+    this.log("rightUpdate", prev, f);
+
+    for (let i = 0; i < this.items.length; i++) {
+      const token = this.items[i];
+
+      const oldBindings = performJoinTests(this.tests, token, prev);
+      const newBindings = performJoinTests(this.tests, token, f);
+
+      // The join didn't work and still doesn't.
+      if (!oldBindings && !newBindings) {
+        continue;
+      }
+
+      // The join used to work, but stopped.
+      if (oldBindings && !newBindings) {
+        const oldToken = Token.create(this, token, prev, oldBindings);
+        runLeftRetractOnNodes(this.children, oldToken);
+        continue;
+      }
+
+      // The join used to not work, but now it does.
+      if (!oldBindings && newBindings) {
+        const newToken = Token.create(this, token, f, newBindings);
+        runLeftActivateOnNodes(this.children, newToken);
+        continue;
+      }
+
+      // Both were true, let's propagate an update.
+      if (oldBindings && newBindings) {
+        const oldToken = Token.create(this, token, prev, oldBindings);
+        const newToken = Token.create(this, token, f, newBindings);
+        runLeftUpdateOnNodes(this.children, oldToken, newToken);
+        continue;
+      }
+    }
+  }
+
   rightRetract(f: IFact): void {
     this.log("rightRetract", f);
 
@@ -193,21 +247,6 @@ export class JoinNode extends ReteNode {
         const newToken = Token.create(this, token, f, bindings);
 
         runLeftRetractOnNodes(this.children, newToken);
-      }
-    }
-  }
-
-  rightActivate(f: IFact): void {
-    this.log("rightActivate", f);
-
-    for (let i = 0; i < this.items.length; i++) {
-      const token = this.items[i];
-      const bindings = performJoinTests(this.tests, token, f);
-
-      if (bindings) {
-        const newToken = Token.create(this, token, f, bindings);
-
-        runLeftActivateOnNodes(this.children, newToken);
       }
     }
   }

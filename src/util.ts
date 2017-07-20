@@ -8,6 +8,22 @@ export function removeFromList<T>(list: T[], item: T): T[] {
   return removeIndexFromList(list, i);
 }
 
+export function replaceInList<T>(list: T[], itemA: T, itemB: T): T[] {
+  const i = list.indexOf(itemA);
+
+  return replaceIndexFromList(list, i, itemB);
+}
+
+export function replaceIndexFromList<T>(
+  list: T[],
+  index: number,
+  item: T,
+): T[] {
+  list[index] = item;
+
+  return list;
+}
+
 export function removeIndexFromList<T>(list: T[], index: number): T[] {
   if (index !== -1) {
     list.splice(index, 1);
@@ -51,6 +67,17 @@ export function runLeftActivateOnNodes(nodes: ReteNode[], t: Token): void {
   }
 }
 
+export function runLeftUpdateOnNodes(
+  nodes: ReteNode[],
+  prev: Token,
+  t: Token,
+): void {
+  for (let i = 0; i < nodes.length; i++) {
+    const child = nodes[i];
+    child.leftUpdate(prev, t);
+  }
+}
+
 export function runLeftRetractOnNodes(nodes: ReteNode[], t: Token): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
@@ -62,6 +89,17 @@ export function runRightActivateOnNodes(nodes: ReteNode[], f: IFact): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
     child.rightActivate(f);
+  }
+}
+
+export function runRightUpdateOnNodes(
+  nodes: ReteNode[],
+  prev: IFact,
+  f: IFact,
+): void {
+  for (let i = 0; i < nodes.length; i++) {
+    const child = nodes[i];
+    child.rightUpdate(prev, f);
   }
 }
 

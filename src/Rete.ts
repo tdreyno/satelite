@@ -220,24 +220,43 @@ export class Rete {
     this.root.rightRetract(f);
   }
 
-  // TODO: Add an `update` in addition to `activate` and `retract`.
-  private updateFact(fact: IFact): void {
-    let wasAlreadySet = false;
-
+  private getOldFact(newFact: IFact): IFact | undefined {
     for (const f of this.facts) {
-      if (f[0] === fact[0] && f[1] === fact[1]) {
-        if (f[2] === fact[2]) {
-          wasAlreadySet = true;
-          break;
-        }
-
-        this.removeFact(f);
+      if (f[0] === newFact[0] && f[1] === newFact[1]) {
+        return f;
       }
     }
+  }
 
-    if (!wasAlreadySet) {
-      this.addFact(fact);
+  // TODO: Add an `update` in addition to `activate` and `retract`.
+  private updateFact(factTuple: IFact): void {
+    const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
+
+    const oldFact = this.getOldFact(f);
+    if (!oldFact) {
+      this.addFact(f);
+      return;
     }
+
+    if (oldFact[2] === f[2]) {
+      return;
+    }
+
+    this.log("Updating", f);
+
+    const oldFactIndex = this.facts.indexOf(oldFact);
+    removeIndexFromList(this.facts, oldFactIndex);
+
+    this.facts.push(f);
+
+    const existingEntity = this.entities.get(f[0]) as IEntityResult;
+    existingEntity.facts.delete(oldFact);
+    existingEntity.facts.add(f);
+
+    existingEntity.attributes[f[1]] = f[2];
+    this.entities.set(f[0], existingEntity);
+
+    this.updateAlphaMemories(oldFact, f);
   }
 
   private addProduction(...conditions: IConditions): IThenCreateProduction {
@@ -303,6 +322,59 @@ export class Rete {
     fn(lookupInHashTable(this.hashTable, null, f[1], null));
     fn(lookupInHashTable(this.hashTable, f[0], null, null));
     fn(lookupInHashTable(this.hashTable, null, null, null));
+  }
+
+  private updateAlphaMemories(prev: IFact, f: IFact): void {
+    const oldTables = [
+      lookupInHashTable(this.hashTable, prev[0], prev[1], prev[2]),
+      lookupInHashTable(this.hashTable, prev[0], prev[1], null),
+      lookupInHashTable(this.hashTable, null, prev[1], prev[2]),
+      lookupInHashTable(this.hashTable, prev[0], null, prev[2]),
+      lookupInHashTable(this.hashTable, null, null, prev[2]),
+      lookupInHashTable(this.hashTable, null, prev[1], null),
+      lookupInHashTable(this.hashTable, prev[0], null, null),
+      lookupInHashTable(this.hashTable, null, null, null),
+    ];
+
+    const newTables = [
+      lookupInHashTable(this.hashTable, f[0], f[1], f[2]),
+      lookupInHashTable(this.hashTable, f[0], f[1], null),
+      lookupInHashTable(this.hashTable, null, f[1], f[2]),
+      lookupInHashTable(this.hashTable, f[0], null, f[2]),
+      lookupInHashTable(this.hashTable, null, null, f[2]),
+      lookupInHashTable(this.hashTable, null, f[1], null),
+      lookupInHashTable(this.hashTable, f[0], null, null),
+      lookupInHashTable(this.hashTable, null, null, null),
+    ];
+
+    for (let i = 0; i < oldTables.length; i++) {
+      const oldTable = oldTables[i];
+      const newTable = newTables[i];
+
+      if (!oldTable && !newTable) {
+        continue;
+      }
+
+      if (!oldTable && newTable) {
+        newTable.activate(f);
+        continue;
+      }
+
+      if (oldTable && !newTable) {
+        oldTable.retract(prev);
+        continue;
+      }
+
+      if (oldTable && newTable) {
+        if (oldTable === newTable) {
+          oldTable.update(prev, f);
+          continue;
+        }
+
+        oldTable.retract(prev);
+        newTable.activate(f);
+      }
+    }
   }
 
   private buildOrShareNetworkForConditions(

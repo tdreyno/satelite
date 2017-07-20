@@ -104,7 +104,14 @@ export function subscribe<ReteProps, OwnProps>(
               this.context,
             );
 
+            // TODO: Avoid re-renders on fat arrow functions (memoize)
+
             this.setState(prevState => Object.assign({}, prevState, fromFn));
+          }
+
+          // tslint:disable-next-line:variable-name
+          componentWillUpdate(_nextProps: any, nextState: any) {
+            console.log("Render", nextState);
           }
 
           render() {

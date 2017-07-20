@@ -13,6 +13,7 @@ import {
   removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
+  runLeftUpdateOnNodes,
 } from "../util";
 import { AccumulatedRootNode } from "./AccumulatedRootNode";
 import { AccumulatedTailNode } from "./AccumulatedTailNode";
@@ -251,14 +252,6 @@ export class AccumulatorNode extends ReteNode {
     );
   }
 
-  private cleanupOldResults(bindingId: IBindingId) {
-    const formerResult = this.results.get(bindingId);
-    if (formerResult) {
-      this.results.delete(bindingId);
-      runLeftRetractOnNodes(this.children, formerResult);
-    }
-  }
-
   private executeAccumulator(initialToken: Token): void {
     const bindingId = this.getBindingId(initialToken);
 
@@ -286,19 +279,33 @@ export class AccumulatorNode extends ReteNode {
 
     const previousResult = this.results.get(bindingId);
 
-    if (previousResult && compareTokensAndBindings(previousResult, t)) {
-      // no-op
-    } else {
-      this.cleanupOldResults(bindingId);
+    if (!previousResult) {
+      this.results.set(bindingId, t);
 
-      // If reducer has a non-value initial state.
-      if (typeof result === "undefined") {
-        return;
-      }
+      // Insert if first time seen.
+      runLeftActivateOnNodes(this.children, t);
+
+      return;
+    }
+
+    // Nothing changed
+    if (compareTokensAndBindings(previousResult, t)) {
+      return;
+    }
+
+    // If reducer has a non-value initial state.
+    if (typeof result === "undefined") {
+      this.results.delete(bindingId);
+
+      // Result is simply a removal.
+      runLeftRetractOnNodes(this.children, previousResult);
+
+      return;
     }
 
     this.results.set(bindingId, t);
 
-    runLeftActivateOnNodes(this.children, t);
+    // Update in place
+    runLeftUpdateOnNodes(this.children, previousResult, t);
   }
 }

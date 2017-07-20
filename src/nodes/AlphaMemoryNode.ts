@@ -8,7 +8,7 @@ import {
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
 import { Rete } from "../Rete";
-import { removeFromList } from "../util";
+import { removeFromList, replaceInList } from "../util";
 import { ReteNode } from "./ReteNode";
 
 export type IExhaustiveHashTable = Map<number, AlphaMemoryNode>;
@@ -127,6 +127,17 @@ export class AlphaMemoryNode extends ReteNode {
     for (let j = 0; j < this.successors.length; j++) {
       const successor = this.successors[j];
       successor.rightActivate(f);
+    }
+  }
+
+  update(prev: IFact, f: IFact): void {
+    this.log("update", prev, f);
+
+    replaceInList(this.facts, prev, f);
+
+    for (let j = 0; j < this.successors.length; j++) {
+      const successor = this.successors[j];
+      successor.rightUpdate(prev, f);
     }
   }
 

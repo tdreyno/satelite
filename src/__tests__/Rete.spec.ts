@@ -103,6 +103,31 @@ describe("Rete", () => {
     });
   });
 
+  it("should be able to update fact", () => {
+    const { update, query, assert } = new Rete();
+
+    assert([1, "gender", "M"]);
+    assert([1, "name", "Tom"]);
+    assert([1, "age", 10]);
+
+    const q = query(
+      ["?e", "gender", "M"],
+      max("?max", ["?e", "age", _]),
+      ["?e2", "age", "?max"],
+      ["?e2", "name", "?v"],
+    );
+
+    const b1 = q.getVariableBindings()[0];
+    expect(b1.e).toBe(1);
+    expect(b1.v).toBe("Tom");
+
+    update([1, "name", "Thomas"]);
+
+    const b2 = q.getVariableBindings()[0];
+    expect(b2.e).toBe(1);
+    expect(b2.v).toBe("Thomas");
+  });
+
   it("should be able to have dependent facts", () => {
     expect.assertions(4);
 
