@@ -5,6 +5,7 @@ import {
   ParsedCondition,
 } from "../Condition";
 import { IFact } from "../Fact";
+import { Rete } from "../Rete";
 import { compareTokens, IVariableBindings, Token } from "../Token";
 import {
   findInList,
@@ -94,6 +95,7 @@ export function sameTests(a: TestAtJoinNode[], b: TestAtJoinNode[]): boolean {
 
 export class JoinNode extends ReteNode {
   static create(
+    rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
@@ -108,7 +110,7 @@ export class JoinNode extends ReteNode {
       }
     }
 
-    const node = new JoinNode(parent, alphaMemory, tests);
+    const node = new JoinNode(rete, parent, alphaMemory, tests);
 
     parent.children.unshift(node);
     alphaMemory.successors.unshift(node);
@@ -123,11 +125,12 @@ export class JoinNode extends ReteNode {
   tests: TestAtJoinNode[];
 
   constructor(
+    rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
   ) {
-    super();
+    super(rete);
 
     this.parent = parent;
     this.alphaMemory = alphaMemory;
@@ -138,6 +141,8 @@ export class JoinNode extends ReteNode {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
 
@@ -160,6 +165,8 @@ export class JoinNode extends ReteNode {
       return;
     }
 
+    this.log("leftRetract", t);
+
     removeIndexFromList(this.items, foundIndex);
 
     for (let i = 0; i < this.alphaMemory.facts.length; i++) {
@@ -175,6 +182,8 @@ export class JoinNode extends ReteNode {
   }
 
   rightRetract(f: IFact): void {
+    this.log("rightRetract", f);
+
     for (let i = 0; i < this.items.length; i++) {
       const token = this.items[i];
 
@@ -189,6 +198,8 @@ export class JoinNode extends ReteNode {
   }
 
   rightActivate(f: IFact): void {
+    this.log("rightActivate", f);
+
     for (let i = 0; i < this.items.length; i++) {
       const token = this.items[i];
       const bindings = performJoinTests(this.tests, token, f);

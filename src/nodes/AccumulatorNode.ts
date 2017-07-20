@@ -1,6 +1,7 @@
 import cloneDeep = require("lodash/cloneDeep");
 import { memoize } from "interstelar";
 import { cleanVariableName, ParsedCondition } from "../Condition";
+import { Rete } from "../Rete";
 import {
   compareTokens,
   compareTokensAndBindings,
@@ -64,19 +65,20 @@ export type IAccumulatorReducer<T> = (acc: T, t: Token) => T;
 
 export class AccumulatorNode extends ReteNode {
   static create(
+    rete: Rete,
     parent: ReteNode,
     c: AccumulatorCondition,
     subnetworkHead: AccumulatedRootNode,
     subnetworkTail: ReteNode,
     isIndependent: boolean,
   ): AccumulatorNode {
-    const node = new AccumulatorNode(c, subnetworkHead, isIndependent);
+    const node = new AccumulatorNode(rete, c, subnetworkHead, isIndependent);
 
     node.parent = parent;
     parent.children.unshift(node);
     node.updateNewNodeWithMatchesFromAbove();
 
-    const accTail = AccumulatedTailNode.create(subnetworkTail, node);
+    const accTail = AccumulatedTailNode.create(rete, subnetworkTail, node);
     accTail.updateNewNodeWithMatchesFromAbove();
 
     return node;
@@ -97,11 +99,12 @@ export class AccumulatorNode extends ReteNode {
   ]);
 
   constructor(
+    rete: Rete,
     accumulator: AccumulatorCondition,
     subnetworkHead: ReteNode,
     isIndependent: boolean,
   ) {
-    super();
+    super(rete);
 
     this.accumulator = accumulator;
     this.subnetworkHead = subnetworkHead;
@@ -116,6 +119,8 @@ export class AccumulatorNode extends ReteNode {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
 
@@ -134,9 +139,12 @@ export class AccumulatorNode extends ReteNode {
 
   leftRetract(t: Token): void {
     const i = findInList(this.items, t, compareTokens);
+
     if (i === -1) {
       return;
     }
+
+    this.log("leftRetract", t);
 
     const knownToken = this.items[i];
 
@@ -154,6 +162,8 @@ export class AccumulatorNode extends ReteNode {
   }
 
   rightActivateReduced(t: Token): void {
+    this.log("rightActivateReduced", t);
+
     let initialToken: Token | undefined;
 
     if (this.isIndependent) {
@@ -187,6 +197,8 @@ export class AccumulatorNode extends ReteNode {
   }
 
   rightRetractReduced(t: Token): void {
+    this.log("rightRetractReduced", t);
+
     let initialToken: Token | undefined;
 
     if (this.isIndependent) {

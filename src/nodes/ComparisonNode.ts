@@ -1,5 +1,6 @@
 import { Comparison } from "../Condition";
 import { IFactFields } from "../Fact";
+import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import {
   findInList,
@@ -11,11 +12,12 @@ import { ReteNode } from "./ReteNode";
 
 export class ComparisonNode extends ReteNode {
   static create(
+    rete: Rete,
     parent: ReteNode,
     comparisonKey: IFactFields,
     comparison: Comparison,
   ): ComparisonNode {
-    const node = new ComparisonNode(parent, comparisonKey, comparison);
+    const node = new ComparisonNode(rete, parent, comparisonKey, comparison);
 
     parent.children.unshift(node);
 
@@ -29,11 +31,12 @@ export class ComparisonNode extends ReteNode {
   comparison: Comparison;
 
   constructor(
+    rete: Rete,
     parent: ReteNode,
     comparisonKey: IFactFields,
     comparison: Comparison,
   ) {
-    super();
+    super(rete);
 
     this.parent = parent;
     this.comparisonKey = comparisonKey;
@@ -44,6 +47,8 @@ export class ComparisonNode extends ReteNode {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
 
@@ -56,6 +61,8 @@ export class ComparisonNode extends ReteNode {
     if (foundIndex === -1) {
       return;
     }
+
+    this.log("leftRetract", t);
 
     this.items = removeIndexFromList(this.items, foundIndex);
 

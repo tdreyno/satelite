@@ -1,3 +1,4 @@
+import isFunction = require("lodash/isFunction");
 import {
   Comparison,
   dependentVariableNames,
@@ -58,21 +59,31 @@ export interface IEntityResult {
   attributes: { [attribute: string]: IValue };
 }
 
+export type ILogger = (message: string, ...data: any[]) => any;
+export type ILoggers =
+  | {
+      [eventName: string]: ILogger;
+    }
+  | ILogger;
+
 export class Rete {
-  static create(): Rete {
-    return new Rete();
+  static create(loggers?: ILoggers): Rete {
+    return new Rete(loggers);
   }
 
   _ = placeholder;
   self = this;
-  root = RootNode.create();
+  root = RootNode.create(this);
   hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
   facts: IFact[] = [];
+  loggers?: ILoggers;
 
   private terminalNodes: ITerminalNode[] = [];
   private entities: Map<IIdentifier | IPrimitive, IEntityResult> = new Map();
 
-  constructor() {
+  constructor(loggers?: ILoggers) {
+    this.loggers = loggers;
+
     this.addFact = this.addFact.bind(this);
     this.addFacts = this.addFacts.bind(this);
     this.removeFact = this.removeFact.bind(this);
@@ -91,6 +102,21 @@ export class Rete {
     this.findOne = this.findOne.bind(this);
     this.findEntity = this.findEntity.bind(this);
     this.retractEntity = this.retractEntity.bind(this);
+  }
+
+  log(eventName: string, ...data: any[]): void {
+    if (!this.loggers) {
+      return;
+    }
+
+    if (isFunction(this.loggers)) {
+      this.loggers(eventName, ...data);
+      return;
+    }
+
+    if (isFunction(this.loggers[eventName])) {
+      this.loggers[eventName](eventName, ...data);
+    }
   }
 
   // External API.
@@ -151,7 +177,7 @@ export class Rete {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     if (this.facts.indexOf(f) === -1) {
-      console.log("Asserting", f);
+      this.log("Asserting", f);
       this.facts.push(f);
 
       const existingEntity: IEntityResult = this.entities.get(f[0]) || {
@@ -172,7 +198,7 @@ export class Rete {
 
     const factIndex = this.facts.indexOf(f);
     if (factIndex !== -1) {
-      console.log("Retracting", f);
+      this.log("Retracting", f);
       removeIndexFromList(this.facts, factIndex);
 
       const existingEntity = this.entities.get(f[0]);
@@ -251,7 +277,7 @@ export class Rete {
     );
 
     const query = Query.create(parsedConditions);
-    query.queryNode = QueryNode.create(query);
+    query.queryNode = QueryNode.create(this, query);
     currentNode.children.unshift(query.queryNode);
 
     query.queryNode.parent = currentNode;
@@ -297,7 +323,7 @@ export class Rete {
 
         const isIndependent =
           dependentVars.size <= 0 && currentNode === this.root;
-        const accRoot = AccumulatedRootNode.create(isIndependent);
+        const accRoot = AccumulatedRootNode.create(this, isIndependent);
         const accTail = this.buildOrShareNetworkForConditions(
           c.conditions,
           conditionsHigherUp,
@@ -305,6 +331,7 @@ export class Rete {
         );
 
         currentNode = AccumulatorNode.create(
+          this,
           currentNode,
           c,
           accRoot,
@@ -318,14 +345,19 @@ export class Rete {
       ) {
         const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
-        currentNode = RootJoinNode.create(currentNode, alphaMemory, joinTests);
+        currentNode = RootJoinNode.create(
+          this,
+          currentNode,
+          alphaMemory,
+          joinTests,
+        );
       } else {
         const alphaMemory = AlphaMemoryNode.create(this, c);
         const joinTests = getJoinTestsFromCondition(c, conditionsHigherUp);
 
         currentNode = c.isNegated
-          ? NegativeNode.create(currentNode, alphaMemory, joinTests)
-          : JoinNode.create(currentNode, alphaMemory, joinTests);
+          ? NegativeNode.create(this, currentNode, alphaMemory, joinTests)
+          : JoinNode.create(this, currentNode, alphaMemory, joinTests);
       }
 
       if (!(c instanceof AccumulatorCondition)) {
@@ -336,6 +368,7 @@ export class Rete {
             ] as Comparison;
 
             currentNode = ComparisonNode.create(
+              this,
               currentNode,
               comparisonFieldKey as IFactFields,
               comparisonField,

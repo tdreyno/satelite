@@ -1,4 +1,5 @@
 import { IFact } from "../Fact";
+import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import {
   findInList,
@@ -12,6 +13,7 @@ import { ReteNode } from "./ReteNode";
 
 export class NegativeNode extends ReteNode {
   static create(
+    rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
@@ -29,7 +31,7 @@ export class NegativeNode extends ReteNode {
       }
     }
 
-    const node = new NegativeNode(parent, alphaMemory, tests);
+    const node = new NegativeNode(rete, parent, alphaMemory, tests);
 
     parent.children.unshift(node);
     alphaMemory.successors.unshift(node);
@@ -44,11 +46,12 @@ export class NegativeNode extends ReteNode {
   tests: TestAtJoinNode[];
 
   constructor(
+    rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
   ) {
-    super();
+    super(rete);
 
     this.parent = parent;
     this.alphaMemory = alphaMemory;
@@ -59,6 +62,8 @@ export class NegativeNode extends ReteNode {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
 
@@ -72,16 +77,22 @@ export class NegativeNode extends ReteNode {
       return;
     }
 
+    this.log("leftRetract", t);
+
     this.items = removeIndexFromList(this.items, foundIndex);
 
     this.executeLeft(t, runLeftRetractOnNodes);
   }
 
   rightRetract(f: IFact): void {
+    this.log("rightRetract", f);
+
     this.executeRight(f, runLeftRetractOnNodes);
   }
 
   rightActivate(f: IFact): void {
+    this.log("rightActivate", f);
+
     this.executeRight(f, runLeftActivateOnNodes);
   }
 

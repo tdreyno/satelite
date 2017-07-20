@@ -1,5 +1,6 @@
 import { extractBindingsFromCondition } from "../Condition";
 import { IFact } from "../Fact";
+import { Rete } from "../Rete";
 import { Token } from "../Token";
 import { runLeftActivateOnNodes, runLeftRetractOnNodes } from "../util";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
@@ -8,6 +9,7 @@ import { ReteNode } from "./ReteNode";
 
 export class RootJoinNode extends ReteNode {
   static create(
+    rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
@@ -24,18 +26,19 @@ export class RootJoinNode extends ReteNode {
       }
     }
 
-    return new RootJoinNode(parent, alphaMemory, tests);
+    return new RootJoinNode(rete, parent, alphaMemory, tests);
   }
 
   alphaMemory: AlphaMemoryNode;
   tests: TestAtJoinNode[];
 
   constructor(
+    rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
     tests: TestAtJoinNode[],
   ) {
-    super();
+    super(rete);
 
     this.parent = parent;
     this.alphaMemory = alphaMemory;
@@ -46,6 +49,8 @@ export class RootJoinNode extends ReteNode {
   }
 
   rightActivate(f: IFact): void {
+    this.log("rightActivate", f);
+
     const bindings = this.tests[0]
       ? extractBindingsFromCondition(this.tests[0].condition, f, {})
       : {};
@@ -56,6 +61,8 @@ export class RootJoinNode extends ReteNode {
   }
 
   rightRetract(f: IFact): void {
+    this.log("rightRetract", f);
+
     const bindings = this.tests[0]
       ? extractBindingsFromCondition(this.tests[0].condition, f, {})
       : {};
@@ -66,6 +73,8 @@ export class RootJoinNode extends ReteNode {
   }
 
   leftActivate(t: Token): void {
+    this.log("leftActivate", t);
+
     runLeftActivateOnNodes(this.children, t);
   }
 

@@ -1,19 +1,21 @@
 import { Query } from "../Query";
+import { Rete } from "../Rete";
 import { compareTokensAndBindings, Token } from "../Token";
 import { findInList, removeFromList, removeIndexFromList } from "../util";
 import { ReteNode } from "./ReteNode";
 
 export class QueryNode extends ReteNode {
-  static create(query: Query) {
-    return new QueryNode(query);
+  static create(rete: Rete, query: Query) {
+    return new QueryNode(rete, query);
   }
 
   items: Token[] = [];
   query: Query;
   facts: any[] = [];
 
-  constructor(query: Query) {
-    super();
+  constructor(rete: Rete, query: Query) {
+    super(rete);
+
     this.query = query;
   }
 
@@ -21,6 +23,8 @@ export class QueryNode extends ReteNode {
     if (findInList(this.items, t, compareTokensAndBindings) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
     this.facts.push(t.fact);
@@ -34,6 +38,8 @@ export class QueryNode extends ReteNode {
     if (foundIndex === -1) {
       return;
     }
+
+    this.log("leftRetract", t);
 
     removeIndexFromList(this.items, foundIndex);
     removeFromList(this.facts, t.fact);

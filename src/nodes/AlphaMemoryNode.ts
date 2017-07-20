@@ -36,18 +36,19 @@ export function lookupInHashTable(
 }
 
 export function addToHashTable(
-  hashTable: IExhaustiveHashTable,
+  rete: Rete,
   identifier: IPrimitive | IIdentifier | null,
   attribute: string | null,
   value: IValue | null,
 ): AlphaMemoryNode {
   const node = new AlphaMemoryNode(
+    rete,
     `${identifier ? JSON.stringify(identifier) : "_"} ${attribute ||
       "_"} ${value ? JSON.stringify(value) : "_"}`,
   );
 
   const hashCode = getHashCode(identifier, attribute, value);
-  hashTable.set(hashCode, node);
+  rete.hashTable.set(hashCode, node);
 
   return node;
 }
@@ -84,7 +85,7 @@ export class AlphaMemoryNode extends ReteNode {
     }
 
     alphaMemory = addToHashTable(
-      rete.hashTable,
+      rete,
       identifierTest,
       attributeTest,
       valueTest,
@@ -112,13 +113,15 @@ export class AlphaMemoryNode extends ReteNode {
   facts: IFact[] = [];
   successors: ReteNode[] = [];
 
-  constructor(name: string) {
-    super();
+  constructor(rete: Rete, name: string) {
+    super(rete);
 
     this.name = name;
   }
 
   activate(f: IFact): void {
+    this.log("activate", f);
+
     this.facts.push(f);
 
     for (let j = 0; j < this.successors.length; j++) {
@@ -128,6 +131,8 @@ export class AlphaMemoryNode extends ReteNode {
   }
 
   retract(f: IFact): void {
+    this.log("retract", f);
+
     for (let j = 0; j < this.successors.length; j++) {
       const successor = this.successors[j];
       successor.rightRetract(f);

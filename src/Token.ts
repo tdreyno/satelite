@@ -46,6 +46,12 @@ export class Token {
     this.fact = fact;
     this.bindings = bindings;
   }
+
+  toString(): string {
+    return `<Token\n\t\tid=${this.id}\n\t\tfact=${JSON.stringify(
+      this.fact,
+    )}\n\t\tbindings=${JSON.stringify(this.bindings)}>`;
+  }
 }
 
 export function compareTokens(t1: Token, t2: Token): boolean {

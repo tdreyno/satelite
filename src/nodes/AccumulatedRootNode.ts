@@ -1,3 +1,4 @@
+import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import {
   findInList,
@@ -8,15 +9,15 @@ import {
 import { ReteNode } from "./ReteNode";
 
 export class AccumulatedRootNode extends ReteNode {
-  static create(isIndependent: boolean): AccumulatedRootNode {
-    return new AccumulatedRootNode(isIndependent);
+  static create(rete: Rete, isIndependent: boolean): AccumulatedRootNode {
+    return new AccumulatedRootNode(rete, isIndependent);
   }
 
   items: Token[] = [];
   isIndependent: boolean;
 
-  constructor(isIndependent: boolean) {
-    super();
+  constructor(rete: Rete, isIndependent: boolean) {
+    super(rete);
 
     this.isIndependent = isIndependent;
   }
@@ -25,6 +26,8 @@ export class AccumulatedRootNode extends ReteNode {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
 
@@ -37,6 +40,8 @@ export class AccumulatedRootNode extends ReteNode {
     if (foundIndex === -1) {
       return;
     }
+
+    this.log("leftRetract", t);
 
     removeIndexFromList(this.items, foundIndex);
 

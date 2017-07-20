@@ -21,16 +21,14 @@ export class ProductionNode extends ReteNode {
     return new ProductionNode(r, production, conditions);
   }
 
-  rete: Rete;
   items: Token[] = [];
   production: Production;
   conditions: ParsedCondition[];
   resultingFacts: IResultingFacts[] = [];
 
   constructor(r: Rete, production: Production, conditions: ParsedCondition[]) {
-    super();
+    super(r);
 
-    this.rete = r;
     this.production = production;
     this.conditions = conditions;
   }
@@ -39,6 +37,8 @@ export class ProductionNode extends ReteNode {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
 
@@ -73,6 +73,8 @@ export class ProductionNode extends ReteNode {
     if (foundIndex === -1) {
       return;
     }
+
+    this.log("leftRetract", t);
 
     this.items = removeIndexFromList(this.items, foundIndex);
 

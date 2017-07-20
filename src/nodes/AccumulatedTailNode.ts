@@ -1,3 +1,4 @@
+import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import { findInList, removeIndexFromList } from "../util";
 import { AccumulatorNode } from "./AccumulatorNode";
@@ -5,10 +6,11 @@ import { ReteNode } from "./ReteNode";
 
 export class AccumulatedTailNode extends ReteNode {
   static create(
+    rete: Rete,
     parent: ReteNode,
     accumulatorNode: AccumulatorNode,
   ): AccumulatedTailNode {
-    const node = new AccumulatedTailNode(parent, accumulatorNode);
+    const node = new AccumulatedTailNode(rete, parent, accumulatorNode);
 
     parent.children.unshift(node);
 
@@ -20,8 +22,8 @@ export class AccumulatedTailNode extends ReteNode {
   items: Token[] = [];
   accumulatorNode: AccumulatorNode;
 
-  constructor(parent: ReteNode, accumulatorNode: AccumulatorNode) {
-    super();
+  constructor(rete: Rete, parent: ReteNode, accumulatorNode: AccumulatorNode) {
+    super(rete);
 
     this.parent = parent;
     this.accumulatorNode = accumulatorNode;
@@ -31,6 +33,8 @@ export class AccumulatedTailNode extends ReteNode {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     this.items.push(t);
 
@@ -43,6 +47,8 @@ export class AccumulatedTailNode extends ReteNode {
     if (foundIndex === -1) {
       return;
     }
+
+    this.log("leftActivate", t);
 
     removeIndexFromList(this.items, foundIndex);
 
