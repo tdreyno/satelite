@@ -10,10 +10,10 @@ import { compareTokens, IVariableBindings, Token } from "../Token";
 import {
   findInList,
   removeIndexFromList,
+  replaceIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
   runLeftUpdateOnNodes,
-  replaceIndexFromList,
 } from "../util";
 import { AccumulatorCondition } from "./AccumulatorNode";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
@@ -282,19 +282,19 @@ export class JoinNode extends ReteNode {
     }
 
     // The join used to work, but stopped.
-    if (oldBindings && !newBindings) {
+    if (oldBindings && !newBindings && oldToken) {
       runLeftRetractOnNodes(this.children, oldToken);
       return;
     }
 
     // The join used to not work, but now it does.
-    if (!oldBindings && newBindings) {
+    if (!oldBindings && newBindings && newToken) {
       runLeftActivateOnNodes(this.children, newToken);
       return;
     }
 
     // Both were true, let's propagate an update.
-    if (oldBindings && newBindings) {
+    if (oldBindings && newBindings && oldToken && newToken) {
       runLeftUpdateOnNodes(this.children, oldToken, newToken);
       return;
     }
