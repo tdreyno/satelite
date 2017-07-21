@@ -108,6 +108,7 @@ describe("Rete", () => {
     const { update, query, rule, assert } = new Rete();
 
     assert([1, "gender", "M"]);
+    assert([1, "job", "Dev"]);
     assert([1, "name", "Tom"]);
     assert([1, "age", 10]);
 
@@ -126,7 +127,7 @@ describe("Rete", () => {
         expect(v).toBe("Tom");
         isFirst = false;
         return [
-          ["global", "hasBro", true],
+          [1, "hasBro", true],
           ["global", "hasTName", true],
           ["global", "isFirst", true],
         ] as IFact[];
@@ -134,7 +135,7 @@ describe("Rete", () => {
         expect(v).toBe("Thomas");
         return [
           ["global", "hasTName", true],
-          ["global", "isNotBro", true],
+          [1, "isNotBro", true],
           ["global", "isFirst", false],
         ] as IFact[];
       }
@@ -164,6 +165,8 @@ describe("Rete", () => {
 
     const tName2 = tNameQuery.getFacts();
     expect(tName2).toHaveLength(1);
+
+    rule(["?e", "gender", "M"], ["?e", "hasBro", false]);
   });
 
   it("should be able to have dependent facts", () => {

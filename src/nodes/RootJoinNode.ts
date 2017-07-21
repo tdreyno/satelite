@@ -1,4 +1,3 @@
-import isEqual = require("lodash/isEqual");
 import { extractBindingsFromCondition } from "../Condition";
 import { IFact } from "../Fact";
 import { Rete } from "../Rete";

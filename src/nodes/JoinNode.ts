@@ -13,6 +13,7 @@ import {
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
   runLeftUpdateOnNodes,
+  replaceIndexFromList,
 } from "../util";
 import { AccumulatorCondition } from "./AccumulatorNode";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
@@ -159,6 +160,31 @@ export class JoinNode extends ReteNode {
     }
   }
 
+  leftUpdate(prev: Token, t: Token): void {
+    const foundIndex = findInList(this.items, prev, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    this.log("leftUpdate", prev, t);
+
+    replaceIndexFromList(this.items, foundIndex, t);
+
+    for (let i = 0; i < this.alphaMemory.facts.length; i++) {
+      const fact = this.alphaMemory.facts[i];
+
+      const oldBindings = performJoinTests(this.tests, prev, fact);
+      const oldToken =
+        oldBindings && Token.create(this, prev, fact, oldBindings);
+
+      const newBindings = performJoinTests(this.tests, t, fact);
+      const newToken = newBindings && Token.create(this, t, fact, newBindings);
+
+      this.propagateUpdates(oldBindings, newBindings, oldToken, newToken);
+    }
+  }
+
   leftRetract(t: Token): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
@@ -204,34 +230,13 @@ export class JoinNode extends ReteNode {
       const token = this.items[i];
 
       const oldBindings = performJoinTests(this.tests, token, prev);
+      const oldToken =
+        oldBindings && Token.create(this, token, prev, oldBindings);
+
       const newBindings = performJoinTests(this.tests, token, f);
+      const newToken = newBindings && Token.create(this, token, f, newBindings);
 
-      // The join didn't work and still doesn't.
-      if (!oldBindings && !newBindings) {
-        continue;
-      }
-
-      // The join used to work, but stopped.
-      if (oldBindings && !newBindings) {
-        const oldToken = Token.create(this, token, prev, oldBindings);
-        runLeftRetractOnNodes(this.children, oldToken);
-        continue;
-      }
-
-      // The join used to not work, but now it does.
-      if (!oldBindings && newBindings) {
-        const newToken = Token.create(this, token, f, newBindings);
-        runLeftActivateOnNodes(this.children, newToken);
-        continue;
-      }
-
-      // Both were true, let's propagate an update.
-      if (oldBindings && newBindings) {
-        const oldToken = Token.create(this, token, prev, oldBindings);
-        const newToken = Token.create(this, token, f, newBindings);
-        runLeftUpdateOnNodes(this.children, oldToken, newToken);
-        continue;
-      }
+      this.propagateUpdates(oldBindings, newBindings, oldToken, newToken);
     }
   }
 
@@ -263,5 +268,35 @@ export class JoinNode extends ReteNode {
     }
 
     this.children = savedListOfChildren;
+  }
+
+  private propagateUpdates(
+    oldBindings: IVariableBindings | false,
+    newBindings: IVariableBindings | false,
+    oldToken: Token | false,
+    newToken: Token | false,
+  ) {
+    // The join didn't work and still doesn't.
+    if (!oldBindings && !newBindings) {
+      return;
+    }
+
+    // The join used to work, but stopped.
+    if (oldBindings && !newBindings) {
+      runLeftRetractOnNodes(this.children, oldToken);
+      return;
+    }
+
+    // The join used to not work, but now it does.
+    if (!oldBindings && newBindings) {
+      runLeftActivateOnNodes(this.children, newToken);
+      return;
+    }
+
+    // Both were true, let's propagate an update.
+    if (oldBindings && newBindings) {
+      runLeftUpdateOnNodes(this.children, oldToken, newToken);
+      return;
+    }
   }
 }
