@@ -1,16 +1,24 @@
 import isArray = require("lodash/isArray");
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
-import { IFact } from "../Fact";
+import { IFact, makeFact } from "../Fact";
 import { Production } from "../Production";
 import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
-import { findInList, removeIndexFromList } from "../util";
+import {
+  difference,
+  findInList,
+  intersection,
+  removeIndexFromList,
+  replaceIndexFromList,
+} from "../util";
 import { ReteNode } from "./ReteNode";
 
 export interface IResultingFacts {
   token: Token;
   facts: IFact[];
 }
+
+export type IUpdateList = Array<{ from: IFact; to: IFact }>;
 
 export class ProductionNode extends ReteNode {
   static create(
@@ -42,28 +50,75 @@ export class ProductionNode extends ReteNode {
 
     this.items.push(t);
 
-    const lastCondition = this.conditions[this.conditions.length - 1];
+    const facts = this.activateForToken(t);
 
-    let bindings = t.bindings;
-    if (lastCondition) {
-      bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
-    }
-
-    const resultingFacts = this.production.onActivation(t.fact, bindings);
-
-    if (resultingFacts && isArray(resultingFacts)) {
-      const facts = isArray(resultingFacts[0])
-        ? resultingFacts as IFact[]
-        : [resultingFacts] as IFact[];
-
-      for (let i = 0; i < facts.length; i++) {
-        this.rete.assert(facts[i]);
-      }
+    if (facts) {
+      this.assertDependentFacts(facts);
 
       this.resultingFacts.push({
         token: t,
         facts,
       });
+    }
+  }
+
+  leftUpdate(prev: Token, t: Token) {
+    const foundIndex = findInList(this.items, prev, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    this.log("leftUpdate", prev, t);
+
+    this.items = replaceIndexFromList(this.items, foundIndex, t);
+
+    const resultingFactIndex = this.findResultingFactsIndex(prev);
+    const oldFacts = this.resultingFacts[resultingFactIndex];
+
+    const newFacts = this.activateForToken(t);
+
+    // Just a logging production or something.
+    if (!oldFacts && !newFacts) {
+      return;
+    }
+
+    // Just new facts, assert them.
+    if (!oldFacts && newFacts) {
+      this.assertDependentFacts(newFacts);
+
+      this.resultingFacts.push({
+        token: t,
+        facts: newFacts,
+      });
+    }
+
+    // Just old facts, retract them all
+    if (oldFacts && !newFacts) {
+      const facts = this.resultingFacts[resultingFactIndex].facts;
+
+      this.resultingFacts = removeIndexFromList(
+        this.resultingFacts,
+        resultingFactIndex,
+      );
+
+      this.retractDependentFacts(facts);
+    }
+
+    if (oldFacts && newFacts) {
+      const { assert, retract, update } = this.groupFactChanges(
+        oldFacts.facts,
+        newFacts,
+      );
+
+      this.retractDependentFacts(retract);
+      this.assertDependentFacts(assert);
+      this.updateDependentFacts(update);
+
+      this.resultingFacts[resultingFactIndex] = {
+        token: t,
+        facts: newFacts,
+      };
     }
   }
 
@@ -78,13 +133,7 @@ export class ProductionNode extends ReteNode {
 
     this.items = removeIndexFromList(this.items, foundIndex);
 
-    const foundResultingFactIndex = findInList(
-      this.resultingFacts,
-      t,
-      (resultingFact, token) => {
-        return compareTokens(resultingFact.token, token);
-      },
-    );
+    const foundResultingFactIndex = this.findResultingFactsIndex(t);
 
     if (foundResultingFactIndex !== -1) {
       const facts = this.resultingFacts[foundResultingFactIndex].facts;
@@ -94,9 +143,89 @@ export class ProductionNode extends ReteNode {
         foundResultingFactIndex,
       );
 
-      for (let i = 0; i < facts.length; i++) {
-        this.rete.retract(facts[i]);
-      }
+      this.retractDependentFacts(facts);
     }
+  }
+
+  private findResultingFactsIndex(t: Token): number {
+    return findInList(this.resultingFacts, t, (resultingFact, token) => {
+      return compareTokens(resultingFact.token, token);
+    });
+  }
+
+  private assertDependentFacts(facts: IFact[]): void {
+    for (let i = 0; i < facts.length; i++) {
+      this.rete.assert(facts[i]);
+    }
+  }
+
+  private updateDependentFacts(updates: IUpdateList): void {
+    for (let i = 0; i < updates.length; i++) {
+      this.rete.update(updates[i].from, updates[i].to);
+    }
+  }
+
+  private retractDependentFacts(facts: IFact[]): void {
+    for (let i = 0; i < facts.length; i++) {
+      this.rete.retract(facts[i]);
+    }
+  }
+
+  private activateForToken(t: Token): IFact[] | undefined {
+    const lastCondition = this.conditions[this.conditions.length - 1];
+
+    let bindings = t.bindings;
+    if (lastCondition) {
+      bindings = extractBindingsFromCondition(lastCondition, t.fact, bindings);
+    }
+
+    const resultingFacts = this.production.onActivation(t.fact, bindings);
+
+    if (resultingFacts && isArray(resultingFacts)) {
+      return (isArray(resultingFacts[0])
+        ? resultingFacts as IFact[]
+        : [resultingFacts] as IFact[]).map(f => makeFact(f[0], f[1], f[2]));
+    }
+  }
+
+  private groupFactChanges(oldFacts: IFact[], newFacts: IFact[]) {
+    const oldFactsWithoutValues = oldFacts.map(f => makeFact(f[0], f[1], true));
+    const newFactsWithoutValues = newFacts.map(f => makeFact(f[0], f[1], true));
+
+    const oldSet = new Set(oldFactsWithoutValues);
+    const newSet = new Set(newFactsWithoutValues);
+
+    const uniqueOldFacts = Array.from(difference(oldSet, newSet));
+    const uniqueNewFacts = Array.from(difference(newSet, oldSet));
+
+    const sharedFacts = Array.from(intersection(newSet, oldSet));
+    const toBeUpdated: IUpdateList = [];
+
+    for (let i = 0; i < sharedFacts.length; i++) {
+      const sharedFact = sharedFacts[i];
+
+      const oldFact = oldFacts.find(
+        f => f[0] === sharedFact[0] && f[1] === sharedFact[1],
+      );
+
+      const newFact = newFacts.find(
+        f => f[0] === sharedFact[0] && f[1] === sharedFact[1],
+      );
+
+      if (oldFact === newFact) {
+        continue;
+      }
+
+      toBeUpdated.push({
+        from: oldFact as IFact,
+        to: newFact as IFact,
+      });
+    }
+
+    return {
+      retract: uniqueOldFacts,
+      assert: uniqueNewFacts,
+      update: toBeUpdated,
+    };
   }
 }

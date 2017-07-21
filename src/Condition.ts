@@ -6,6 +6,7 @@ import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { createTestAtJoinNode, TestAtJoinNode } from "./nodes/JoinNode";
 import { getVariablePrefix, placeholder } from "./Rete";
 import { IVariableBindings } from "./Token";
+import { intersection, union } from "./util";
 
 export type IConstantTest = string;
 
@@ -293,21 +294,18 @@ export function getVariableNamesFromCondition(
 export function getVariableNamesFromConditions(
   conditions: Array<ParsedCondition | AccumulatorCondition>,
 ): Set<string> {
-  return conditions.reduce((acc, c) => {
-    return new Set([...acc, ...getVariableNamesFromCondition(c)]);
-  }, new Set());
+  return conditions.reduce(
+    (acc, c) => union(acc, getVariableNamesFromCondition(c)),
+    new Set(),
+  );
 }
 
 export function dependentVariableNames(
   parentConditions: Array<ParsedCondition | AccumulatorCondition>,
   subConditions: Array<ParsedCondition | AccumulatorCondition>,
 ): Set<string> {
-  const parentVarNames = getVariableNamesFromConditions(parentConditions);
-  const subVarNames = getVariableNamesFromConditions(subConditions);
-
-  return new Set(
-    Array.from(subVarNames).filter(subVarName =>
-      parentVarNames.has(subVarName),
-    ),
+  return intersection(
+    getVariableNamesFromConditions(parentConditions),
+    getVariableNamesFromConditions(subConditions),
   );
 }

@@ -8,7 +8,7 @@ import {
 } from "../Condition";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
-import { not, placeholder as _, Rete } from "../Rete";
+import { IAnyCondition, not, placeholder as _, Rete } from "../Rete";
 
 const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
@@ -104,28 +104,66 @@ describe("Rete", () => {
   });
 
   it("should be able to update fact", () => {
-    const { update, query, assert } = new Rete();
+    expect.assertions(10);
+    const { update, query, rule, assert } = new Rete();
 
     assert([1, "gender", "M"]);
     assert([1, "name", "Tom"]);
     assert([1, "age", 10]);
 
-    const q = query(
+    const conditions: IAnyCondition[] = [
       ["?e", "gender", "M"],
       max("?max", ["?e", "age", _]),
       ["?e2", "age", "?max"],
       ["?e2", "name", "?v"],
-    );
+    ];
+
+    const q = query(...conditions);
+
+    let isFirst = true;
+    rule(...conditions).then(({ v }) => {
+      if (isFirst) {
+        expect(v).toBe("Tom");
+        isFirst = false;
+        return [
+          ["global", "hasBro", true],
+          ["global", "hasTName", true],
+          ["global", "isFirst", true],
+        ] as IFact[];
+      } else {
+        expect(v).toBe("Thomas");
+        return [
+          ["global", "hasTName", true],
+          ["global", "isNotBro", true],
+          ["global", "isFirst", false],
+        ] as IFact[];
+      }
+    });
+
+    const broQuery = query([_, "hasBro", true]);
+    const tNameQuery = query([_, "hasTName", true]);
 
     const b1 = q.getVariableBindings()[0];
     expect(b1.e).toBe(1);
     expect(b1.v).toBe("Tom");
+
+    const bro1 = broQuery.getFacts();
+    expect(bro1).toHaveLength(1);
+
+    const tName1 = tNameQuery.getFacts();
+    expect(tName1).toHaveLength(1);
 
     update([1, "name", "Thomas"]);
 
     const b2 = q.getVariableBindings()[0];
     expect(b2.e).toBe(1);
     expect(b2.v).toBe("Thomas");
+
+    const bro2 = broQuery.getFacts();
+    expect(bro2).toHaveLength(0);
+
+    const tName2 = tNameQuery.getFacts();
+    expect(tName2).toHaveLength(1);
   });
 
   it("should be able to have dependent facts", () => {
