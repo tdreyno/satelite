@@ -1,4 +1,5 @@
 import isFunction = require("lodash/isFunction");
+import isEqual = require("lodash/isEqual");
 import * as PropTypes from "prop-types";
 import * as React from "react";
 
@@ -20,7 +21,7 @@ export type IConditionsOrPropConditions<OwnProps> =
   | IPropConditions<OwnProps>;
 
 export function subscribe<ReteProps, OwnProps>(
-  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>,
+  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>
 ): {
   then: (
     storesToProps: IReteToProps<ReteProps, OwnProps>,
@@ -111,7 +112,9 @@ export function subscribe<ReteProps, OwnProps>(
 
           // tslint:disable-next-line:variable-name
           componentWillUpdate(_nextProps: any, nextState: any) {
-            console.log("Render", nextState);
+            console.log("Render", this.state, nextState);
+            const e = isEqual(this.state, nextState);
+            debugger;
           }
 
           render() {

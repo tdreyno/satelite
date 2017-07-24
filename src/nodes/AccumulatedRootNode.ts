@@ -5,6 +5,8 @@ import {
   removeIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
+  replaceIndexFromList,
+  runLeftUpdateOnNodes,
 } from "../util";
 import { ReteNode } from "./ReteNode";
 
@@ -32,6 +34,20 @@ export class AccumulatedRootNode extends ReteNode {
     this.items.push(t);
 
     runLeftActivateOnNodes(this.children, t);
+  }
+
+  leftUpdate(prev: Token, t: Token): void {
+    const foundIndex = findInList(this.items, prev, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    this.log("leftUpdate", prev, t);
+
+    replaceIndexFromList(this.items, foundIndex, t);
+
+    runLeftUpdateOnNodes(this.children, prev, t);
   }
 
   leftRetract(t: Token): void {

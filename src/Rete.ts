@@ -26,7 +26,6 @@ import { ReteNode, RootNode } from "./nodes/ReteNode";
 import { RootJoinNode } from "./nodes/RootJoinNode";
 import { IActivateCallback, Production } from "./Production";
 import { Query } from "./Query";
-import { IVariableBindings } from "./Token";
 import { removeIndexFromList } from "./util";
 
 export type ITerminalNode = Production | Query;
@@ -84,24 +83,33 @@ export class Rete {
   constructor(loggers?: ILoggers) {
     this.loggers = loggers;
 
+    // Internal
     this.addFact = this.addFact.bind(this);
-    this.addFacts = this.addFacts.bind(this);
     this.removeFact = this.removeFact.bind(this);
-    this.removeFacts = this.removeFacts.bind(this);
     this.updateFact = this.updateFact.bind(this);
-    this.updateFacts = this.updateFacts.bind(this);
     this.addProduction = this.addProduction.bind(this);
     this.addQuery = this.addQuery.bind(this);
 
+    // Public
     this.assert = this.assert.bind(this);
     this.retract = this.retract.bind(this);
     this.update = this.update.bind(this);
     this.rule = this.rule.bind(this);
     this.query = this.query.bind(this);
-    this.findAll = this.findAll.bind(this);
-    this.findOne = this.findOne.bind(this);
     this.findEntity = this.findEntity.bind(this);
     this.retractEntity = this.retractEntity.bind(this);
+  }
+
+  publicAPI() {
+    return {
+      assert: this.assert,
+      retract: this.retract,
+      update: this.update,
+      rule: this.rule,
+      query: this.query,
+      findEntity: this.findEntity,
+      retractEntity: this.retractEntity,
+    };
   }
 
   log(eventName: string, ...data: any[]): void {
@@ -121,27 +129,23 @@ export class Rete {
 
   // External API.
   assert(...facts: IFact[]): void {
-    return this.addFacts(...facts);
+    facts.forEach(this.addFact);
   }
+
   retract(...facts: IFact[]): void {
-    return this.removeFacts(...facts);
+    facts.forEach(this.removeFact);
   }
+
   update(...facts: IFact[]): void {
-    return this.updateFacts(...facts);
+    facts.forEach(this.updateFact);
   }
+
   rule(...conditions: IConditions): IThenCreateProduction {
     return this.addProduction(...conditions);
   }
+
   query(...conditions: IConditions): Query {
     return this.addQuery(...conditions);
-  }
-
-  findAll(...conditions: IConditions): IVariableBindings[] {
-    return this.addQuery(...conditions).getVariableBindings();
-  }
-
-  findOne(...conditions: IConditions): IVariableBindings {
-    return this.addQuery(...conditions).getVariableBindings()[0];
   }
 
   findEntity(id: IIdentifier | IPrimitive): IEntityResult | undefined {
@@ -161,17 +165,6 @@ export class Rete {
   }
 
   // Internal API.
-  private addFacts(...facts: IFact[]): void {
-    facts.forEach(this.addFact);
-  }
-
-  private removeFacts(...facts: IFact[]): void {
-    facts.forEach(this.removeFact);
-  }
-
-  private updateFacts(...facts: IFact[]): void {
-    facts.forEach(this.updateFact);
-  }
 
   private addFact(factTuple: IFact): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
@@ -228,7 +221,6 @@ export class Rete {
     }
   }
 
-  // TODO: Add an `update` in addition to `activate` and `retract`.
   private updateFact(factTuple: IFact): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 

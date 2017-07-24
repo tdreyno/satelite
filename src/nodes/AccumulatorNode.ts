@@ -11,6 +11,7 @@ import {
 import {
   findInList,
   removeIndexFromList,
+  replaceIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
   runLeftUpdateOnNodes,
@@ -138,6 +139,30 @@ export class AccumulatorNode extends ReteNode {
     }
   }
 
+  leftUpdate(prev: Token, t: Token): void {
+    const i = findInList(this.items, prev, compareTokens);
+
+    if (i === -1) {
+      return;
+    }
+
+    this.log("leftUpdate", prev, t);
+
+    const knownPrevToken = this.items[i];
+
+    if (!this.isIndependent) {
+      this.pendingSubnetwork.add(t);
+
+      runLeftUpdateOnNodes([this.subnetworkHead], knownPrevToken, t);
+
+      if (this.pendingSubnetwork.has(t)) {
+        this.executeAccumulator(t);
+      }
+    }
+
+    replaceIndexFromList(this.items, i, t);
+  }
+
   leftRetract(t: Token): void {
     const i = findInList(this.items, t, compareTokens);
 
@@ -193,6 +218,42 @@ export class AccumulatorNode extends ReteNode {
 
     facts.push(t);
     this.facts.set(binding, facts);
+
+    this.executeAccumulator(initialToken);
+  }
+
+  rightUpdateReduced(prev: Token, t: Token) {
+    this.log("rightUpdateReduced", prev, t);
+
+    let initialToken: Token | undefined;
+
+    if (this.isIndependent) {
+      initialToken = this.sharedIndependentToken;
+    } else {
+      initialToken = findParent(this.items, prev);
+
+      if (!initialToken) {
+        throw new Error("update a non-parented token?");
+      }
+
+      this.pendingSubnetwork.delete(initialToken);
+    }
+
+    const binding = this.getBindingId(initialToken);
+
+    const tokens = this.facts.get(binding);
+
+    if (!tokens) {
+      return;
+    }
+
+    const i = findInList(tokens, prev, compareTokens);
+
+    if (i === -1) {
+      return;
+    }
+
+    replaceIndexFromList(tokens, i, t);
 
     this.executeAccumulator(initialToken);
   }

@@ -1,6 +1,6 @@
 import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
-import { findInList, removeIndexFromList } from "../util";
+import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { AccumulatorNode } from "./AccumulatorNode";
 import { ReteNode } from "./ReteNode";
 
@@ -39,6 +39,20 @@ export class AccumulatedTailNode extends ReteNode {
     this.items.push(t);
 
     this.accumulatorNode.rightActivateReduced(t);
+  }
+
+  leftUpdate(prev: Token, t: Token): void {
+    const foundIndex = findInList(this.items, t, compareTokens);
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    this.log("leftUpdate", prev, t);
+
+    replaceIndexFromList(this.items, foundIndex, t);
+
+    this.accumulatorNode.rightUpdateReduced(prev, t);
   }
 
   leftRetract(t: Token): void {
