@@ -1,4 +1,3 @@
-import isArray = require("lodash/isArray");
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFact, makeFact } from "../Fact";
 import { Production } from "../Production";
@@ -181,8 +180,8 @@ export class ProductionNode extends ReteNode {
 
     const resultingFacts = this.production.onActivation(t.fact, bindings);
 
-    if (resultingFacts && isArray(resultingFacts)) {
-      return (isArray(resultingFacts[0])
+    if (resultingFacts && Array.isArray(resultingFacts)) {
+      return (Array.isArray(resultingFacts[0])
         ? resultingFacts as IFact[]
         : [resultingFacts] as IFact[]).map(f => makeFact(f[0], f[1], f[2]));
     }
