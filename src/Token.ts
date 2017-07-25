@@ -28,12 +28,12 @@ export class Token {
     return token;
   }
 
-  id: number = nextTokenId++;
-  parent: Token | null;
-  fact: ITokenValue;
-  bindings: IVariableBindings;
-  node: JoinNode | RootJoinNode | AccumulatorNode;
-  children: Token[] = [];
+  readonly id: number = nextTokenId++;
+  readonly parent: Token | null;
+  readonly fact: ITokenValue;
+  readonly bindings: IVariableBindings;
+  readonly node: JoinNode | RootJoinNode | AccumulatorNode;
+  readonly children: Token[] = [];
 
   constructor(
     node: RootJoinNode | JoinNode | AccumulatorNode,

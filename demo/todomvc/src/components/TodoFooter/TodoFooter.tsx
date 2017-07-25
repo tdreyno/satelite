@@ -1,17 +1,9 @@
 import * as React from "react";
-import { withHandlers } from "recompose";
-import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "../constants";
-import {
-  collect,
-  IFact,
-  placeholder as _,
-  retract,
-  subscribe,
-  update,
-} from "../data";
-import { pluralize } from "../utils";
+import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "../../constants";
+import { IFact } from "../../data";
+import { pluralize } from "../../utils";
 
-interface ITodoFooterProps {
+export interface ITodoFooterProps {
   todoFilter: string;
   activeTodoCount: number;
   completedCount: number;
@@ -20,7 +12,7 @@ interface ITodoFooterProps {
   changeFilter: (filter: string) => any;
 }
 
-class TodoFooterPure extends React.Component<ITodoFooterProps> {
+export class TodoFooter extends React.Component<ITodoFooterProps> {
   render() {
     const { activeTodoCount, completedCount } = this.props;
 
@@ -70,28 +62,3 @@ class TodoFooterPure extends React.Component<ITodoFooterProps> {
     this.props.clearCompleted();
   }
 }
-
-export type ITodoFooterReteProps = Pick<
-  ITodoFooterProps,
-  "todoFilter" | "activeTodoCount" | "completedCount" | "completed"
->;
-
-export type ITodoFooterHandlerProps = Pick<
-  ITodoFooterProps,
-  "clearCompleted" | "changeFilter"
->;
-
-const TodoFooterWithHandlers = withHandlers<
-  ITodoFooterHandlerProps,
-  ITodoFooterReteProps
->({
-  clearCompleted: ({ completed }) => () => retract(...completed),
-  changeFilter: () => (f: string) => update(["global", "ui/filter", f]),
-})(TodoFooterPure);
-
-export const TodoFooter = subscribe(
-  ["global", "ui/filter", "?todoFilter"],
-  ["global", "doneCount", "?completedCount"],
-  ["global", "activeCount", "?activeTodoCount"],
-  collect("?completed", [_, "todo/completed", true]),
-)(TodoFooterWithHandlers);

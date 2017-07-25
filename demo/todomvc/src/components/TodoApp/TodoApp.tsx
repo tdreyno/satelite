@@ -1,7 +1,7 @@
 import * as React from "react";
-import { TodoEntry } from "./TodoEntry";
-import { TodoFooter } from "./TodoFooter";
-import { TodoOverview } from "./TodoOverview";
+import { TodoEntry } from "../TodoEntry";
+import { TodoFooter } from "../TodoFooter";
+import { TodoOverview } from "../TodoOverview";
 
 export class TodoApp extends React.Component {
   render() {

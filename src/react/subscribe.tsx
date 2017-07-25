@@ -1,9 +1,9 @@
 import isFunction = require("lodash/isFunction");
 import isEqual = require("lodash/isEqual");
+import hoistStatics = require("hoist-non-react-statics");
 import * as PropTypes from "prop-types";
 import * as React from "react";
 
-// import hoistStatics from "hoist-non-react-statics";
 import { Query } from "../Query";
 import { IAnyCondition, Rete } from "../Rete";
 import { IVariableBindings } from "../Token";
@@ -21,15 +21,7 @@ export type IConditionsOrPropConditions<OwnProps> =
 
 export function subscribe<ReteProps, OwnProps>(
   ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>,
-): (<
-  TFunction extends React.ComponentClass<
-    | ReteProps
-    | OwnProps
-    | {
-      rete: Rete;
-    }
-  >
->(
+): (<TFunction extends React.ComponentClass<ReteProps | OwnProps>>(
   ComposedComponent: TFunction,
 ) => React.ComponentClass<OwnProps>) {
   return ComposedComponent => {
@@ -42,7 +34,9 @@ export function subscribe<ReteProps, OwnProps>(
       };
 
       query: Query | null = null;
-      previousProps: OwnProps;
+
+      // True until the query is parsed.
+      hasPropConditions: boolean = true;
 
       constructor(props: OwnProps) {
         super(props);
@@ -64,6 +58,10 @@ export function subscribe<ReteProps, OwnProps>(
       }
 
       componentWillReceiveProps(nextProps: OwnProps) {
+        if (!this.hasPropConditions) {
+          return;
+        }
+
         this.buildQuery(nextProps);
       }
 
@@ -83,9 +81,12 @@ export function subscribe<ReteProps, OwnProps>(
 
         this.tearDownQuery();
 
+        this.hasPropConditions = false;
+
         const conditions = conditionsOrPropConditions.map(
           conditionsOrPropCondition => {
             if (!isFunction(conditionsOrPropCondition)) {
+              this.hasPropConditions = true;
               return conditionsOrPropCondition;
             }
 
@@ -98,7 +99,6 @@ export function subscribe<ReteProps, OwnProps>(
           this.query.onChange(this.executeReteToProps);
         }
 
-        this.previousProps = props;
         this.executeReteToProps();
       }
 
@@ -116,9 +116,7 @@ export function subscribe<ReteProps, OwnProps>(
           (this.query && this.query.getVariableBindings()[0]) || {};
 
         // TODO: Avoid re-renders on fat arrow functions (memoize?)
-        this.setState(prevState =>
-          Object.assign({}, prevState, variableBindings),
-        );
+        this.setState(variableBindings as any);
       }
 
       // tslint:disable-next-line:variable-name
@@ -132,7 +130,7 @@ export function subscribe<ReteProps, OwnProps>(
       }
     }
 
-    // hoistStatics(Injected, ComposedComponent);
+    hoistStatics(Injected, ComposedComponent);
 
     return Injected;
   };

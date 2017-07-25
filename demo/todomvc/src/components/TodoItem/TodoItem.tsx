@@ -1,14 +1,4 @@
 import * as React from "react";
-import { withHandlers } from "recompose";
-import {
-  assert,
-  entity,
-  retract,
-  retractEntity,
-  subscribe,
-  update,
-} from "../data";
-
 const ESCAPE_KEY = 27;
 const ENTER_KEY = 13;
 
@@ -28,11 +18,12 @@ export interface ITodoItemProps {
   toggleTodo: () => any;
   destroyTodo: () => any;
 }
+
 export interface ITodoItemState {
   editText: string;
 }
 
-class TodoItemPure extends React.Component<ITodoItemProps, ITodoItemState> {
+export class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
   state = {
     editText: "",
   };
@@ -112,31 +103,3 @@ class TodoItemPure extends React.Component<ITodoItemProps, ITodoItemState> {
     this.props.toggleTodo();
   }
 }
-
-export type ITodoItemOwnProps = Pick<ITodoItemProps, "todoId">;
-export type ITodoItemReteProps = Pick<ITodoItemProps, "todo">;
-export type ITodoItemHandlerProps = Pick<
-  ITodoItemProps,
-  "setIsBeingEdited" | "destroyTodo" | "setTitle" | "toggleTodo"
->;
-
-const TodoItemWithHandlers = withHandlers<
-  ITodoItemHandlerProps,
-  ITodoItemOwnProps & ITodoItemReteProps
->({
-  setIsBeingEdited: ({ todoId }) => (v: boolean) =>
-    v
-      ? assert([todoId, "todo/isBeingEdited", true])
-      : retract([todoId, "todo/isBeingEdited", true]),
-  destroyTodo: ({ todoId }) => () => retractEntity(todoId),
-  setTitle: ({ todoId }) => (t: string) => update([todoId, "todo/text", t]),
-  toggleTodo: ({ todo, todoId }) => () =>
-    todo && todo.attributes["todo/completed"]
-      ? retract([todoId, "todo/completed", true])
-      : assert([todoId, "todo/completed", true]),
-})(TodoItemPure);
-
-export const TodoItem = subscribe<
-  ITodoItemOwnProps,
-  ITodoItemOwnProps
->(({ todoId }) => entity("?todo", todoId))(TodoItemWithHandlers);

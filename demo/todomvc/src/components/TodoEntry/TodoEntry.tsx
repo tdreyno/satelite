@@ -1,14 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { withHandlers } from "recompose";
-import { assert } from "../data";
-import { makeUUId } from "../utils";
 
 const ENTER_KEY = 13;
 
-class TodoEntryPure extends React.Component<{
+export interface ITodoEntryProps {
   addTodo: (text: string) => any;
-}> {
+}
+
+export class TodoEntry extends React.Component<ITodoEntryProps> {
   render() {
     return (
       <input
@@ -38,7 +37,3 @@ class TodoEntryPure extends React.Component<{
     }
   }
 }
-
-export const TodoEntry = withHandlers({
-  addTodo: () => (text: string) => assert([makeUUId(), "todo/text", text]),
-})(TodoEntryPure);
