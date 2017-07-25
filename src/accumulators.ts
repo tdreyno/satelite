@@ -134,6 +134,7 @@ export interface IEntity {
 export function entity(
   bindingName: string,
   entityId: IPrimitive | IIdentifier | IConstantTest,
+  renamerFn?: (key: string) => string,
 ) {
   return acc(
     bindingName,
@@ -141,9 +142,10 @@ export function entity(
       reducer: (sum: IEntity | undefined, item: Token): IEntity => {
         const f = item.fact;
 
-        const result: IEntity = sum || { id: item.fact[0], attributes: {} };
+        const result: IEntity = sum || { id: f[0], attributes: {} };
 
-        result.attributes[f[1]] = f[2];
+        const key = renamerFn ? renamerFn(f[1]) : f[1];
+        result.attributes[key] = f[2];
 
         return result;
       },

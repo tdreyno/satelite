@@ -12,7 +12,6 @@ export type IReteToProps<ReteProps, OwnProps> = (
   variables: IVariableBindings,
   rete: Rete,
   nextProps: OwnProps,
-  context: object,
 ) => ReteProps;
 
 export type IPropConditions<OwnProps> = (props: OwnProps) => IAnyCondition;
@@ -21,111 +20,120 @@ export type IConditionsOrPropConditions<OwnProps> =
   | IPropConditions<OwnProps>;
 
 export function subscribe<ReteProps, OwnProps>(
-  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>
-): {
-  then: (
-    storesToProps: IReteToProps<ReteProps, OwnProps>,
-  ) => (<TFunction extends React.ComponentClass<ReteProps | OwnProps>>(
-    ComposedComponent: TFunction,
-  ) => React.ComponentClass<OwnProps>);
-} {
-  return {
-    then: storesToProps => {
-      return ComposedComponent => {
-        class Injected extends React.PureComponent<OwnProps, ReteProps> {
-          static wrappedComponent = ComposedComponent;
-          static displayName = `Injected${ComposedComponent.displayName}`;
+  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>,
+): (<
+  TFunction extends React.ComponentClass<
+    | ReteProps
+    | OwnProps
+    | {
+      rete: Rete;
+    }
+  >
+>(
+  ComposedComponent: TFunction,
+) => React.ComponentClass<OwnProps>) {
+  return ComposedComponent => {
+    class Injected extends React.Component<OwnProps, ReteProps> {
+      static wrappedComponent = ComposedComponent;
+      static displayName = `Injected${ComposedComponent.displayName}`;
 
-          static contextTypes = {
-            rete: PropTypes.instanceOf(Rete),
-          };
+      static contextTypes = {
+        rete: PropTypes.instanceOf(Rete),
+      };
 
-          query: Query | null = null;
+      query: Query | null = null;
+      previousProps: OwnProps;
 
-          constructor(props: OwnProps) {
-            super(props);
+      constructor(props: OwnProps) {
+        super(props);
 
-            this.executeReteToProps = this.executeReteToProps.bind(this);
-          }
+        this.executeReteToProps = this.executeReteToProps.bind(this);
+      }
 
-          componentWillMount() {
-            this.buildQuery(this.props);
-          }
+      shouldComponentUpdate(
+        nextProps: OwnProps,
+        nextState: ReteProps,
+      ): boolean {
+        return (
+          !isEqual(this.props, nextProps) || !isEqual(this.state, nextState)
+        );
+      }
 
-          componentWillReceiveProps(nextProps: OwnProps) {
-            this.buildQuery(nextProps);
-          }
+      componentWillMount() {
+        this.buildQuery(this.props);
+      }
 
-          componentWillUnmount() {
-            this.tearDownQuery();
-          }
+      componentWillReceiveProps(nextProps: OwnProps) {
+        this.buildQuery(nextProps);
+      }
 
-          buildQuery(props: OwnProps) {
-            if (!this.context || !this.context.rete) {
-              return;
-            }
+      componentWillUnmount() {
+        this.tearDownQuery();
+      }
 
-            this.tearDownQuery();
-
-            const conditions = conditionsOrPropConditions.map(
-              conditionsOrPropCondition => {
-                if (!isFunction(conditionsOrPropCondition)) {
-                  return conditionsOrPropCondition;
-                }
-
-                return conditionsOrPropCondition(props);
-              },
-            );
-
-            if (conditions.length > 0) {
-              this.query = (this.context.rete as Rete).query(...conditions);
-              this.query.onChange(this.executeReteToProps);
-            }
-
-            this.executeReteToProps();
-          }
-
-          tearDownQuery() {
-            if (!this.context || !this.context.rete || !this.query) {
-              return;
-            }
-
-            this.query.offChange(this.executeReteToProps);
-            this.query = null;
-          }
-
-          executeReteToProps() {
-            const variableBindings =
-              (this.query && this.query.getVariableBindings()[0]) || {};
-
-            const fromFn = storesToProps(
-              variableBindings,
-              this.context.rete,
-              this.props,
-              this.context,
-            );
-
-            // TODO: Avoid re-renders on fat arrow functions (memoize)
-
-            this.setState(prevState => Object.assign({}, prevState, fromFn));
-          }
-
-          // tslint:disable-next-line:variable-name
-          componentWillUpdate(_nextProps: any, nextState: any) {
-            console.log("Render", this.state, nextState);
-            const e = isEqual(this.state, nextState);
-            debugger;
-          }
-
-          render() {
-            return <ComposedComponent {...this.props} {...this.state} />;
-          }
+      buildQuery(props: OwnProps) {
+        if (!this.context || !this.context.rete) {
+          return;
         }
 
-        // hoistStatics(Injected, ComposedComponent);
+        // Don't re-build if inputs are the same.
+        if (this.query && isEqual(this.props, props)) {
+          return;
+        }
 
-        return Injected;
-      };
-    },
+        this.tearDownQuery();
+
+        const conditions = conditionsOrPropConditions.map(
+          conditionsOrPropCondition => {
+            if (!isFunction(conditionsOrPropCondition)) {
+              return conditionsOrPropCondition;
+            }
+
+            return conditionsOrPropCondition(props);
+          },
+        );
+
+        if (conditions.length > 0) {
+          this.query = (this.context.rete as Rete).query(...conditions);
+          this.query.onChange(this.executeReteToProps);
+        }
+
+        this.previousProps = props;
+        this.executeReteToProps();
+      }
+
+      tearDownQuery() {
+        if (!this.context || !this.context.rete || !this.query) {
+          return;
+        }
+
+        this.query.offChange(this.executeReteToProps);
+        this.query = null;
+      }
+
+      executeReteToProps() {
+        const variableBindings =
+          (this.query && this.query.getVariableBindings()[0]) || {};
+
+        // TODO: Avoid re-renders on fat arrow functions (memoize?)
+        this.setState(prevState =>
+          Object.assign({}, prevState, variableBindings),
+        );
+      }
+
+      // tslint:disable-next-line:variable-name
+      // componentWillUpdate(_nextProps: any, nextState: any) {
+      //   console.log("Render", this.state, nextState);
+      //   // const e = isEqual(this.state, nextState);
+      // }
+
+      render() {
+        return <ComposedComponent {...this.props} {...this.state} />;
+      }
+    }
+
+    // hoistStatics(Injected, ComposedComponent);
+
+    return Injected;
   };
 }

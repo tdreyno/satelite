@@ -26,9 +26,11 @@
     "webpack-dev-server": "^2.5.0"
   },
   "dependencies": {
+    "@types/recompose": "^0.23.2",
     "classnames": "^2.2.5",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "recompose": "^0.24.0",
     "todomvc-app-css": "^2.1.0",
     "todomvc-common": "^1.0.3",
     "url-loader": "^0.5.9"

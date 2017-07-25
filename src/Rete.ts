@@ -100,18 +100,6 @@ export class Rete {
     this.retractEntity = this.retractEntity.bind(this);
   }
 
-  publicAPI() {
-    return {
-      assert: this.assert,
-      retract: this.retract,
-      update: this.update,
-      rule: this.rule,
-      query: this.query,
-      findEntity: this.findEntity,
-      retractEntity: this.retractEntity,
-    };
-  }
-
   log(eventName: string, ...data: any[]): void {
     if (!this.loggers) {
       return;

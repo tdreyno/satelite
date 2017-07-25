@@ -1,12 +1,20 @@
 import * as React from "react";
-import { collect, IFact, IIdentifier, placeholder as _ } from "../../../../src";
-import { subscribe } from "../../../../src/react";
+import { withHandlers } from "recompose";
+import {
+  collect,
+  IFact,
+  placeholder as _,
+  retract,
+  subscribe,
+  update,
+} from "../data";
 import { TodoItem } from "./TodoItem";
 
 export interface ITodoOverviewProps {
   todoFilter: string;
   activeTodoCount: number;
   todoIds: string[];
+  allIds: string[];
   toggleAll: (checked: boolean) => any;
 }
 
@@ -41,41 +49,31 @@ class TodoOverviewPure extends React.Component<ITodoOverviewProps> {
   }
 }
 
+export type ITodoOverviewReteProps = Pick<
+  ITodoOverviewProps,
+  "todoFilter" | "activeTodoCount" | "todoIds" | "allIds"
+>;
+
+export type ITodoOverviewHandlerProps = Pick<ITodoOverviewProps, "toggleAll">;
+
+const TodoOverviewWithHandlers = withHandlers<
+  ITodoOverviewHandlerProps,
+  ITodoOverviewReteProps
+>({
+  toggleAll: ({ allIds }: { allIds: string[] }) => (checked: boolean) => {
+    const facts = allIds.map(id => [id, "todo/completed", true] as IFact);
+
+    if (checked) {
+      update(...facts);
+    } else {
+      retract(...facts);
+    }
+  },
+})(TodoOverviewPure);
+
 export const TodoOverview = subscribe(
   ["global", "ui/filter", "?todoFilter"],
   ["global", "activeCount", "?activeTodoCount"],
   collect("?allIds", "?e", ["?e", "todo/text", _]),
-  collect("?visibleIds", "?e", ["?e", "todo/visible", true]),
-).then(
-  (
-    {
-      todoFilter,
-      activeTodoCount,
-      visibleIds,
-      allIds,
-    }: {
-      todoFilter: string;
-      activeTodoCount: number;
-      visibleIds: IIdentifier[];
-      allIds: IIdentifier[];
-    },
-    { update, retract },
-  ) => {
-    return {
-      todoFilter,
-      activeTodoCount,
-      todoIds: visibleIds,
-
-      // Actions
-      toggleAll: (checked: boolean) => {
-        const facts = allIds.map(id => [id, "todo/completed", true] as IFact);
-
-        if (checked) {
-          update(...facts);
-        } else {
-          retract(...facts);
-        }
-      },
-    };
-  },
-)(TodoOverviewPure);
+  collect("?todoIds", "?e", ["?e", "todo/visible", true]),
+)(TodoOverviewWithHandlers);

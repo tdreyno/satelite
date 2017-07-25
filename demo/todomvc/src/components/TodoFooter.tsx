@@ -1,16 +1,26 @@
 import * as React from "react";
-import { collect, placeholder as _ } from "../../../../src";
-import { subscribe } from "../../../../src/react";
+import { withHandlers } from "recompose";
 import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "../constants";
+import {
+  collect,
+  IFact,
+  placeholder as _,
+  retract,
+  subscribe,
+  update,
+} from "../data";
 import { pluralize } from "../utils";
 
-class TodoFooterPure extends React.Component<{
+interface ITodoFooterProps {
   todoFilter: string;
   activeTodoCount: number;
   completedCount: number;
+  completed: IFact[];
   clearCompleted: () => any;
   changeFilter: (filter: string) => any;
-}> {
+}
+
+class TodoFooterPure extends React.Component<ITodoFooterProps> {
   render() {
     const { activeTodoCount, completedCount } = this.props;
 
@@ -61,15 +71,27 @@ class TodoFooterPure extends React.Component<{
   }
 }
 
+export type ITodoFooterReteProps = Pick<
+  ITodoFooterProps,
+  "todoFilter" | "activeTodoCount" | "completedCount" | "completed"
+>;
+
+export type ITodoFooterHandlerProps = Pick<
+  ITodoFooterProps,
+  "clearCompleted" | "changeFilter"
+>;
+
+const TodoFooterWithHandlers = withHandlers<
+  ITodoFooterHandlerProps,
+  ITodoFooterReteProps
+>({
+  clearCompleted: ({ completed }) => () => retract(...completed),
+  changeFilter: () => (f: string) => update(["global", "ui/filter", f]),
+})(TodoFooterPure);
+
 export const TodoFooter = subscribe(
-  ["global", "ui/filter", "?filter"],
-  ["global", "doneCount", "?done"],
-  ["global", "activeCount", "?active"],
+  ["global", "ui/filter", "?todoFilter"],
+  ["global", "doneCount", "?completedCount"],
+  ["global", "activeCount", "?activeTodoCount"],
   collect("?completed", [_, "todo/completed", true]),
-).then(({ filter, done, active, completed }, { update, retract }) => ({
-  todoFilter: filter,
-  activeTodoCount: active,
-  completedCount: done,
-  clearCompleted: () => retract(...completed),
-  changeFilter: (f: string) => update(["global", "ui/filter", f]),
-}))(TodoFooterPure);
+)(TodoFooterWithHandlers);

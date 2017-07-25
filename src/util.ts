@@ -1,6 +1,6 @@
 import { IFact } from "./Fact";
 import { ReteNode } from "./nodes/ReteNode";
-import { Token } from "./Token";
+import { compareTokensAndBindings, Token } from "./Token";
 
 export function removeFromList<T>(list: T[], item: T): T[] {
   const i = list.indexOf(item);
@@ -72,6 +72,10 @@ export function runLeftUpdateOnNodes(
   prev: Token,
   t: Token,
 ): void {
+  if (compareTokensAndBindings(prev, t)) {
+    return;
+  }
+
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
     child.leftUpdate(prev, t);

@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { subscribe } from "../../../../src/react";
+import { withHandlers } from "recompose";
+import { assert } from "../data";
 import { makeUUId } from "../utils";
 
 const ENTER_KEY = 13;
@@ -38,6 +39,6 @@ class TodoEntryPure extends React.Component<{
   }
 }
 
-export const TodoEntry = subscribe().then((_, { assert }) => ({
-  addTodo: (text: string) => assert([makeUUId(), "todo/text", text]),
-}))(TodoEntryPure);
+export const TodoEntry = withHandlers({
+  addTodo: () => (text: string) => assert([makeUUId(), "todo/text", text]),
+})(TodoEntryPure);

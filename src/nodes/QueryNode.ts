@@ -38,10 +38,6 @@ export class QueryNode extends ReteNode {
   }
 
   leftUpdate(prev: Token, t: Token): void {
-    if (compareTokensAndBindings(prev, t)) {
-      return;
-    }
-
     const foundIndex = findInList(this.items, prev, compareTokensAndBindings);
 
     if (foundIndex === -1) {
