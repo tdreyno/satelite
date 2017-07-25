@@ -126,26 +126,45 @@ export function collect(
 
 export interface IEntity {
   id: IPrimitive | IIdentifier | IConstantTest;
-  attributes: {
-    [attribute: string]: IValue;
-  };
+  [attribute: string]: IValue;
 }
 
 export function entity(
   bindingName: string,
   entityId: IPrimitive | IIdentifier | IConstantTest,
-  renamerFn?: (key: string) => string,
+  options?: {
+    renamerFn?: (key: string) => string;
+    stripPrefix: boolean | string;
+  },
 ) {
+  // Default renamer is just "identity".
+  let renamerFn = (k: string) => k;
+
+  if (options) {
+    if (options.renamerFn) {
+      renamerFn = options.renamerFn;
+    } else if (typeof options.stripPrefix !== "undefined") {
+      if (isString(options.stripPrefix)) {
+        renamerFn = (k: string) => k.replace(options.stripPrefix as string, "");
+      } else if (options.stripPrefix === true) {
+        renamerFn = (k: string) => {
+          const parts = k.split("/");
+          return parts[parts.length - 1];
+        };
+      }
+    }
+  }
+
   return acc(
     bindingName,
     {
       reducer: (sum: IEntity | undefined, item: Token): IEntity => {
         const f = item.fact;
 
-        const result: IEntity = sum || { id: f[0], attributes: {} };
+        const result: IEntity = sum || { id: f[0] };
 
-        const key = renamerFn ? renamerFn(f[1]) : f[1];
-        result.attributes[key] = f[2];
+        const key = renamerFn(f[1]);
+        result[key] = f[2];
 
         return result;
       },

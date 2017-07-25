@@ -17,7 +17,7 @@ export type ITodoItemHandlerProps = Pick<
 >;
 
 export const TodoItem = compose<ITodoItemOwnProps, ITodoItemOwnProps>(
-  subscribe(({ todoId }) => entity("?todo", todoId)),
+  subscribe(({ todoId }) => entity("?todo", todoId, { stripPrefix: true })),
   withHandlers<ITodoItemHandlerProps, ITodoItemOwnProps & ITodoItemReteProps>({
     setIsBeingEdited: ({ todoId }) => (v: boolean) => {
       const action = v ? assert : retract;
@@ -26,11 +26,11 @@ export const TodoItem = compose<ITodoItemOwnProps, ITodoItemOwnProps>(
 
     destroyTodo: ({ todoId }) => () => retractEntity(todoId),
 
-    setTitle: ({ todoId }) => (t: string) => update([todoId, "todo/text", t]),
+    setTitle: ({ todoId }) => (title: string) =>
+      update([todoId, "todo/text", title]),
 
     toggleTodo: ({ todo, todoId }) => () => {
-      const action =
-        todo && todo.attributes["todo/completed"] ? retract : assert;
+      const action = todo && todo.completed ? retract : assert;
       action([todoId, "todo/completed", true]);
     },
   }),

@@ -456,9 +456,9 @@ describe("Rete", () => {
 
     entityQuery.getFacts().forEach((f: any) => {
       if (f.id === marc) {
-        expect(f.attributes.name).toBe("Marc");
+        expect(f.name).toBe("Marc");
       } else if (f.id === thomas) {
-        expect(f.attributes.name).toBe("Thomas");
+        expect(f.name).toBe("Thomas");
       }
     });
 
