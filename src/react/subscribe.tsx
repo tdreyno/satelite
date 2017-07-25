@@ -112,11 +112,15 @@ export function subscribe<ReteProps, OwnProps>(
       }
 
       executeReteToProps() {
-        const variableBindings =
-          (this.query && this.query.getVariableBindings()[0]) || {};
+        if (!this.query) {
+          return;
+        }
 
-        // TODO: Avoid re-renders on fat arrow functions (memoize?)
-        this.setState(variableBindings as any);
+        const variableBindings = this.query.getVariableBindings()[0];
+
+        if (variableBindings) {
+          this.setState(variableBindings as any);
+        }
       }
 
       // tslint:disable-next-line:variable-name
@@ -130,7 +134,7 @@ export function subscribe<ReteProps, OwnProps>(
       }
     }
 
-    hoistStatics(Injected, ComposedComponent);
+    hoistStatics(Injected, ComposedComponent as any);
 
     return Injected;
   };
