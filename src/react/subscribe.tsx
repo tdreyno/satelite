@@ -116,7 +116,7 @@ export function subscribe<ReteProps, OwnProps>(
           return;
         }
 
-        const variableBindings = this.query.getVariableBindings()[0];
+        const variableBindings = this.query.variableBindings[0];
 
         if (variableBindings) {
           this.setState(variableBindings as any);

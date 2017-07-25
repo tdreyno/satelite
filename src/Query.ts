@@ -19,38 +19,20 @@ export class Query {
   callbacks: Set<IQueryChangeFn> = new Set();
   conditions: ParsedCondition[] = [];
   lastCondition: ParsedCondition;
+  facts: IFact[];
+  variableBindings: IVariableBindings[];
 
   constructor(conditions: ParsedCondition[]) {
     this.conditions = conditions;
     this.lastCondition = this.conditions[this.conditions.length - 1];
   }
 
-  getFacts(): IFact[] {
-    return this.queryNode && this.queryNode.facts ? this.queryNode.facts : [];
-  }
-
-  getVariableBindings(): IVariableBindings[] {
-    return this.queryNode && this.queryNode.items
-      ? this.queryNode.items.map(t => {
-          let bindings = t.bindings;
-          if (this.lastCondition && t.fact) {
-            bindings = extractBindingsFromCondition(
-              this.lastCondition,
-              t.fact,
-              bindings,
-            );
-          }
-          return bindings;
-        })
-      : [];
-  }
-
   didChange(): void {
-    const factTuples = this.getFacts();
-    const variableBindings = this.getVariableBindings();
+    this.facts = this.getFacts();
+    this.variableBindings = this.getVariableBindings();
 
     for (const callback of this.callbacks) {
-      callback(factTuples, variableBindings);
+      callback(this.facts, this.variableBindings);
     }
   }
 
@@ -64,5 +46,25 @@ export class Query {
 
   offChange(cb: IQueryChangeFn): void {
     this.callbacks.delete(cb);
+  }
+
+  private getFacts(): IFact[] {
+    return this.queryNode && this.queryNode.facts ? this.queryNode.facts : [];
+  }
+
+  private getVariableBindings(): IVariableBindings[] {
+    return this.queryNode && this.queryNode.items
+      ? this.queryNode.items.map(t => {
+          let bindings = t.bindings;
+          if (this.lastCondition && t.fact) {
+            bindings = extractBindingsFromCondition(
+              this.lastCondition,
+              t.fact,
+              bindings,
+            );
+          }
+          return bindings;
+        })
+      : [];
   }
 }

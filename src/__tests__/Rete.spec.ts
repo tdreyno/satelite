@@ -144,26 +144,26 @@ describe("Rete", () => {
     const broQuery = query([_, "hasBro", true]);
     const tNameQuery = query([_, "hasTName", true]);
 
-    const b1 = q.getVariableBindings()[0];
+    const b1 = q.variableBindings[0];
     expect(b1.e).toBe(1);
     expect(b1.v).toBe("Tom");
 
-    const bro1 = broQuery.getFacts();
+    const bro1 = broQuery.facts;
     expect(bro1).toHaveLength(1);
 
-    const tName1 = tNameQuery.getFacts();
+    const tName1 = tNameQuery.facts;
     expect(tName1).toHaveLength(1);
 
     update([1, "name", "Thomas"]);
 
-    const b2 = q.getVariableBindings()[0];
+    const b2 = q.variableBindings[0];
     expect(b2.e).toBe(1);
     expect(b2.v).toBe("Thomas");
 
-    const bro2 = broQuery.getFacts();
+    const bro2 = broQuery.facts;
     expect(bro2).toHaveLength(0);
 
-    const tName2 = tNameQuery.getFacts();
+    const tName2 = tNameQuery.facts;
     expect(tName2).toHaveLength(1);
 
     rule(["?e", "gender", "M"], ["?e", "hasBro", false]);
@@ -205,34 +205,34 @@ describe("Rete", () => {
     let ladyFacts;
     let ladyVariableBindings;
 
-    coolFacts = coolQuery.getFacts();
+    coolFacts = coolQuery.facts;
     expect(coolFacts).toHaveLength(1);
     expect(coolFacts[0][0]).toBe(thomas);
 
-    ladyFacts = ladyQuery.getFacts();
+    ladyFacts = ladyQuery.facts;
     expect(ladyFacts).toHaveLength(2);
     expect(ladyFacts[0][0]).toBe(violet);
     expect(ladyFacts[1][0]).toBe(grace);
 
-    ladyVariableBindings = ladyQuery.getVariableBindings();
+    ladyVariableBindings = ladyQuery.variableBindings;
     expect(ladyVariableBindings[0].e).toBe(violet);
     expect(ladyVariableBindings[1].e).toBe(grace);
 
     retract(DATA_SET[10] as any);
 
-    ladyFacts = ladyQuery.getFacts();
+    ladyFacts = ladyQuery.facts;
     expect(ladyFacts).toHaveLength(1);
     expect(ladyFacts[0][0]).toBe(violet);
 
-    ladyVariableBindings = ladyQuery.getVariableBindings();
+    ladyVariableBindings = ladyQuery.variableBindings;
     expect(ladyVariableBindings[0].e).toBe(violet);
 
     retract(DATA_SET[4] as any);
 
-    ladyFacts = ladyQuery.getFacts();
+    ladyFacts = ladyQuery.facts;
     expect(ladyFacts).toHaveLength(0);
 
-    coolFacts = coolQuery.getFacts();
+    coolFacts = coolQuery.facts;
     expect(coolFacts).toHaveLength(1);
     expect(coolFacts[0][0]).toBe(thomas);
   });
@@ -389,7 +389,7 @@ describe("Rete", () => {
       ["?e", "name", "?v"],
     );
 
-    const maxFacts = maxQuery.getFacts();
+    const maxFacts = maxQuery.facts;
     expect(maxFacts).toHaveLength(1);
     expect(maxFacts[0][2]).toBe("Older");
 
@@ -400,7 +400,7 @@ describe("Rete", () => {
       ["?e2", "name", "?v"],
     );
 
-    const maxMaleFacts = maxMaleQuery.getFacts();
+    const maxMaleFacts = maxMaleQuery.facts;
     expect(maxMaleFacts).toHaveLength(1);
     expect(maxMaleFacts[0][2]).toBe("Medium");
 
@@ -410,7 +410,7 @@ describe("Rete", () => {
       ["?e2", "name", "?v"],
     );
 
-    const maxMaleFacts2 = maxMaleQuery2.getFacts();
+    const maxMaleFacts2 = maxMaleQuery2.facts;
     expect(maxMaleFacts2).toHaveLength(1);
     expect(maxMaleFacts2[0][2]).toBe("Medium");
   });
@@ -454,7 +454,7 @@ describe("Rete", () => {
 
     const entityQuery = query(["?e", "gender", "M"], entity("?entity", "?e"));
 
-    entityQuery.getFacts().forEach((f: any) => {
+    entityQuery.facts.forEach((f: any) => {
       if (f.id === marc) {
         expect(f.name).toBe("Marc");
       } else if (f.id === thomas) {
@@ -464,7 +464,7 @@ describe("Rete", () => {
 
     retract([marc, "gender", "M"]);
 
-    const fewerFacts: any[] = entityQuery.getFacts();
+    const fewerFacts: any[] = entityQuery.facts;
     expect(fewerFacts).toHaveLength(1);
 
     // TODO: Time to start batching changes.
@@ -484,7 +484,7 @@ describe("Rete", () => {
       collect("?grace", [_, "team", "?fun"]), // Fun folk
     );
 
-    const bindings = multiQuery.getVariableBindings();
+    const bindings = multiQuery.variableBindings;
 
     expect(bindings[0].fun).toBe("Fun");
 
