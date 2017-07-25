@@ -49,7 +49,9 @@ export class Query {
   }
 
   private getFacts(): IFact[] {
-    return this.queryNode && this.queryNode.facts ? this.queryNode.facts : [];
+    return this.queryNode && this.queryNode.items
+      ? this.queryNode.items.map(t => t.fact)
+      : [];
   }
 
   private getVariableBindings(): IVariableBindings[] {

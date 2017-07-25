@@ -1,13 +1,7 @@
 import { Query } from "../Query";
 import { Rete } from "../Rete";
 import { compareTokensAndBindings, Token } from "../Token";
-import {
-  findInList,
-  removeFromList,
-  removeIndexFromList,
-  replaceIndexFromList,
-  replaceInList,
-} from "../util";
+import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { ReteNode } from "./ReteNode";
 
 export class QueryNode extends ReteNode {
@@ -32,7 +26,7 @@ export class QueryNode extends ReteNode {
 
     this.log("leftActivate", t);
 
-    this.addToken(t);
+    this.items.push(t);
 
     this.query.didChange();
   }
@@ -46,7 +40,7 @@ export class QueryNode extends ReteNode {
 
     this.log("leftUpdate", prev, t);
 
-    this.replaceToken(prev, t, foundIndex);
+    replaceIndexFromList(this.items, foundIndex, t);
 
     this.query.didChange();
   }
@@ -60,24 +54,8 @@ export class QueryNode extends ReteNode {
 
     this.log("leftRetract", t);
 
-    this.removeToken(t, foundIndex);
-
-    this.query.didChange();
-  }
-
-  private addToken(t: Token) {
-    this.items.push(t);
-    this.facts.push(t.fact);
-  }
-
-  private replaceToken(prev: Token, t: Token, foundIndex: number) {
-    replaceIndexFromList(this.items, foundIndex, t);
-    replaceInList(this.facts, prev.fact, t.fact);
-  }
-
-  private removeToken(t: Token, foundIndex: number) {
     removeIndexFromList(this.items, foundIndex);
 
-    removeFromList(this.facts, t.fact);
+    this.query.didChange();
   }
 }
