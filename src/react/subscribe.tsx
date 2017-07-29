@@ -1,6 +1,6 @@
 import isFunction = require("lodash/isFunction");
 import isEqual = require("lodash/isEqual");
-import hoistStatics = require("hoist-non-react-statics");
+// import hoistStatics = require("hoist-non-react-statics");
 import * as PropTypes from "prop-types";
 import * as React from "react";
 
@@ -134,7 +134,7 @@ export function subscribe<ReteProps, OwnProps>(
       }
     }
 
-    hoistStatics(Injected, ComposedComponent as any);
+    // hoistStatics(Injected, ComposedComponent as any);
 
     return Injected;
   };
