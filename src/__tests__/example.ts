@@ -42,9 +42,7 @@ export async function load() {
 
 export function updateArticleModerators(articleId: string, userIds: string[]) {
   // Find all moderators for this article (`_` is the wildcard character)
-  const currentModerators = query(
-    articleModeratorsScope(articleId)(_),
-  ).getFacts();
+  const currentModerators = query(articleModeratorsScope(articleId)(_)).facts;
 
   // Remove them.
   retract(...currentModerators);
