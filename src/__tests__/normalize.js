@@ -182,6 +182,9 @@ Object.keys(normalizedData.entities).forEach(modelName => {
   });
 });
 
-fs.writeFileSync(path.join(__dirname, "facts.json"), JSON.stringify(facts));
+fs.writeFileSync(
+  path.join(__dirname, "facts.ts"),
+  "export default " + JSON.stringify(facts),
+);
 
 console.log(`Wrote ${facts.length} facts`);
