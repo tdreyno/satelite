@@ -1,12 +1,13 @@
-const path = require("path");
-const fs = require("fs");
-const { omit } = require("lodash");
-const { normalize, schema } = require("normalizr");
+import * as fs from "fs";
+import { normalize, schema } from "normalizr";
+import * as path from "path";
+import { IFact } from "../Fact";
+import { omit } from "../util";
 
 const data = fs.readFileSync(path.join(__dirname, "info.json")).toString();
 const json = JSON.parse(data);
 
-function cleanJoinTables(keys, entity) {
+function cleanJoinTables<T extends any>(keys: string[], entity: T): T {
   keys.forEach(k => {
     if (
       entity[k] &&
@@ -25,8 +26,8 @@ function cleanJoinTables(keys, entity) {
   return entity;
 }
 
-function omitEmptyFields(entity) {
-  return Object.keys(entity).reduce((sum, key) => {
+function omitEmptyFields<T extends any>(entity: T): T {
+  return Object.keys(entity).reduce((sum: any, key) => {
     const value = entity[key];
 
     if (Array.isArray(value) && value.length === 0) {
@@ -43,11 +44,11 @@ function omitEmptyFields(entity) {
 
     sum[key] = value;
     return sum;
-  }, {});
+  }, {}) as T;
 }
 
-function cleanUnnecessaryPrefixes(entity, prefix) {
-  return Object.keys(entity).reduce((sum, key) => {
+function cleanUnnecessaryPrefixes<T extends any>(entity: T, prefix: string): T {
+  return Object.keys(entity).reduce((sum: any, key) => {
     const value = entity[key];
 
     if (key.startsWith(prefix)) {
@@ -61,7 +62,7 @@ function cleanUnnecessaryPrefixes(entity, prefix) {
     }
 
     return sum;
-  }, {});
+  }, {}) as T;
 }
 
 const campaign = new schema.Entity("campaign", undefined, {
@@ -128,7 +129,7 @@ const projectOutcome = new schema.Entity(
 const project = new schema.Entity(
   "project",
   {
-    campaign: campaign,
+    campaign,
     outcome: projectOutcome,
     region: projectRegion,
     owner: person,
@@ -140,9 +141,9 @@ const project = new schema.Entity(
       entity = omit(entity, "teamMembers");
       entity = omit(entity, "projectDocument");
 
-      entity["projectStartDate"] = entity["projectStartDate"].date;
-      entity["projectEndDate"] = entity["projectEndDate"].date;
-      entity["budget"] = parseFloat(entity["budget"]);
+      entity.projectStartDate = entity.projectStartDate.date;
+      entity.projectEndDate = entity.projectEndDate.date;
+      entity.budget = parseFloat(entity.budget);
 
       entity = omitEmptyFields(entity);
 
@@ -165,8 +166,8 @@ fs.writeFileSync(
   JSON.stringify(normalizedData),
 );
 
-const facts = [];
-const ids = new Set(normalizedData.result);
+const facts: IFact[] = [];
+// const ids = new Set(normalizedData.result);
 
 Object.keys(normalizedData.entities).forEach(modelName => {
   Object.keys(normalizedData.entities[modelName]).forEach(modelId => {

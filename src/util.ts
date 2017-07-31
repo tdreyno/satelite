@@ -141,3 +141,15 @@ export function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
 export function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
   return new Set([...a].filter(x => !b.has(x)));
 }
+
+export function omit<T extends object>(o: T, ...keys: string[]): T {
+  return Object.keys(o).reduce((sum: T, k) => {
+    if (keys.indexOf(k) !== -1) {
+      return sum;
+    }
+
+    (sum as any)[k] = (o as any)[k];
+
+    return sum;
+  }, {}) as T;
+}
