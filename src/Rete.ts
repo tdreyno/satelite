@@ -61,6 +61,17 @@ export interface IEntityResult {
   attributes: { [attribute: string]: IValue };
 }
 
+export interface IUpdate {
+  from: IFact;
+  to: IFact;
+}
+export type IUpdateList = IUpdate[];
+
+export interface IBatchedAction {
+  type: "update" | "assert" | "retract";
+  value: IFact | IUpdate;
+}
+
 export type ILogger = (message: string, ...data: any[]) => any;
 export type ILoggers =
   | {
@@ -79,6 +90,10 @@ export class Rete {
   hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
   facts: IFact[] = [];
   loggers?: ILoggers;
+
+  returnAfterRecording = false;
+  recordActions = false;
+  queuedActions: IBatchedAction[] = [];
 
   private terminalNodes: ITerminalNode[] = [];
   private entities: Map<IIdentifier | IPrimitive, IEntityResult> = new Map();
@@ -102,6 +117,8 @@ export class Rete {
       "query",
       "findEntity",
       "retractEntity",
+      "beginTransaction",
+      "commitTransaction",
     ]);
   }
 
@@ -122,15 +139,15 @@ export class Rete {
 
   // External API.
   assert(...facts: IFact[]): void {
-    each(facts, this.addFact);
+    each(facts, f => this.addFact(f));
   }
 
   retract(...facts: IFact[]): void {
-    each(facts, this.removeFact);
+    each(facts, f => this.removeFact(f));
   }
 
   update(...facts: IFact[]): void {
-    each(facts, this.updateFact);
+    each(facts, f => this.updateFact(f));
   }
 
   rule(...conditions: IConditions): IThenCreateProduction {
@@ -153,16 +170,65 @@ export class Rete {
     }
   }
 
+  beginTransaction() {
+    if (this.returnAfterRecording) {
+      throw new Error(`Already in a transation!`);
+    }
+
+    this.returnAfterRecording = true;
+    this.recordActions = true;
+  }
+
+  commitTransaction(): IBatchedAction[] {
+    if (!this.returnAfterRecording) {
+      throw new Error(`Not in a transation!`);
+    }
+
+    this.returnAfterRecording = false;
+
+    each(this.queuedActions, ({ type, value }) => {
+      switch (type) {
+        case "assert":
+          this.addFact(value as IFact, false);
+          break;
+        case "retract":
+          this.removeFact(value as IFact, false);
+          break;
+        case "update":
+          this.updateFact((value as IUpdate).to, false);
+          break;
+      }
+    });
+
+    const results = [...this.queuedActions];
+    this.queuedActions.length = 0;
+
+    this.recordActions = false;
+
+    return results;
+  }
+
   toJSONString() {
     return JSON.stringify(Array.from(this.facts), undefined, 2);
   }
 
   // Internal API.
 
-  private addFact(factTuple: IFact): void {
+  private addFact(factTuple: IFact, shouldRecord = this.recordActions): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     if (this.facts.indexOf(f) === -1) {
+      if (shouldRecord) {
+        this.queuedActions.push({
+          type: "assert",
+          value: f,
+        });
+
+        if (this.returnAfterRecording) {
+          return;
+        }
+      }
+
       this.log("Asserting", f);
       this.facts.push(f);
 
@@ -179,11 +245,22 @@ export class Rete {
     }
   }
 
-  private removeFact(fact: IFact): void {
+  private removeFact(fact: IFact, shouldRecord = this.recordActions): void {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     const factIndex = this.facts.indexOf(f);
     if (factIndex !== -1) {
+      if (shouldRecord) {
+        this.queuedActions.push({
+          type: "retract",
+          value: f,
+        });
+
+        if (this.returnAfterRecording) {
+          return;
+        }
+      }
+
       this.log("Retracting", f);
       removeIndexFromList(this.facts, factIndex);
 
@@ -214,7 +291,10 @@ export class Rete {
     }
   }
 
-  private updateFact(factTuple: IFact): void {
+  private updateFact(
+    factTuple: IFact,
+    shouldRecord = this.recordActions,
+  ): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     const oldFact = this.getOldFact(f);
@@ -225,6 +305,17 @@ export class Rete {
 
     if (oldFact[2] === f[2]) {
       return;
+    }
+
+    if (shouldRecord) {
+      this.queuedActions.push({
+        type: "update",
+        value: { from: oldFact, to: f },
+      });
+
+      if (this.returnAfterRecording) {
+        return;
+      }
     }
 
     this.log("Updating", f);

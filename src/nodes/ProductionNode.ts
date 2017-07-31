@@ -5,7 +5,7 @@ import intersection = require("lodash/intersection");
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFact, makeFact } from "../Fact";
 import { Production } from "../Production";
-import { Rete } from "../Rete";
+import { IUpdateList, Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { ReteNode } from "./ReteNode";
@@ -14,8 +14,6 @@ export interface IResultingFacts {
   token: Token;
   facts: IFact[];
 }
-
-export type IUpdateList = Array<{ from: IFact; to: IFact }>;
 
 export class ProductionNode extends ReteNode {
   static create(

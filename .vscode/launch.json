@@ -7,9 +7,8 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Attach to Process",
-      "processId": "${command:PickProcess}",
-      "port": 5858
+      "name": "Attach by Process ID",
+      "processId": "${command:PickProcess}"
     }
   ]
 }

@@ -68,6 +68,38 @@ describe("Rete", () => {
     });
   });
 
+  it.only("should support transactions", () => {
+    // expect.assertions(4);
+
+    const {
+      beginTransaction,
+      commitTransaction,
+      assert,
+      rule,
+      self,
+    } = Rete.create({
+      Asserting: console.log.bind(console),
+      Retracting: console.log.bind(console),
+      Updating: console.log.bind(console),
+    });
+
+    rule(["?e", "gender", "F"]).then(({ e }) => [e, "isLady", true]);
+
+    beginTransaction();
+
+    for (let i = 0; i < DATA_SET.length; i++) {
+      assert(DATA_SET[i]);
+    }
+
+    expect(self.facts).toHaveLength(0);
+
+    const result = commitTransaction();
+
+    const resultingLength = DATA_SET.length + 2; // 2 women got a produced fact.
+    expect(self.facts).toHaveLength(resultingLength);
+    expect(result).toHaveLength(resultingLength);
+  });
+
   it("should allow negative conditions", () => {
     expect.assertions(2);
 
