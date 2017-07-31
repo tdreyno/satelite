@@ -1,3 +1,4 @@
+import map = require("lodash/map");
 import { IFact, makeIdentifier, placeholder as _, Rete } from "../index";
 declare const fetch: (path: string) => Promise<any>;
 
@@ -33,7 +34,7 @@ export async function load() {
 
   const insertions = Object.keys(json).reduce((sum, articleId) => {
     const userIds = json[articleId];
-    return sum.concat(userIds.map(articleModeratorsScope(articleId)));
+    return sum.concat(map(userIds, articleModeratorsScope(articleId)));
   }, [] as IFact[]);
 
   assert(...insertions);
@@ -48,5 +49,5 @@ export function updateArticleModerators(articleId: string, userIds: string[]) {
   retract(...currentModerators);
 
   // Add the new values.
-  assert(...userIds.map(articleModeratorsScope(articleId)));
+  assert(...map(userIds, articleModeratorsScope(articleId)));
 }

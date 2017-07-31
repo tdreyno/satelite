@@ -1,5 +1,6 @@
 import isFunction = require("lodash/isFunction");
 import isEqual = require("lodash/isEqual");
+import map = require("lodash/map");
 // import hoistStatics = require("hoist-non-react-statics");
 import * as PropTypes from "prop-types";
 import * as React from "react";
@@ -83,7 +84,8 @@ export function subscribe<ReteProps, OwnProps>(
 
         this.hasPropConditions = false;
 
-        const conditions = conditionsOrPropConditions.map(
+        const conditions = map(
+          conditionsOrPropConditions,
           conditionsOrPropCondition => {
             if (!isFunction(conditionsOrPropCondition)) {
               this.hasPropConditions = true;

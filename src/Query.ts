@@ -1,3 +1,4 @@
+import map = require("lodash/map");
 import { extractBindingsFromCondition, ParsedCondition } from "./Condition";
 import { IFact } from "./Fact";
 import { QueryNode } from "./nodes/QueryNode";
@@ -50,13 +51,13 @@ export class Query {
 
   private getFacts(): IFact[] {
     return this.queryNode && this.queryNode.items
-      ? this.queryNode.items.map(t => t.fact)
+      ? map(this.queryNode.items, t => t.fact)
       : [];
   }
 
   private getVariableBindings(): IVariableBindings[] {
     return this.queryNode && this.queryNode.items
-      ? this.queryNode.items.map(t => {
+      ? map(this.queryNode.items, t => {
           let bindings = t.bindings;
           if (this.lastCondition && t.fact) {
             bindings = extractBindingsFromCondition(

@@ -1,4 +1,5 @@
 import * as React from "react";
+import map = require("lodash/map");
 import { TodoItem } from "../TodoItem";
 
 export interface ITodoOverviewProps {
@@ -28,7 +29,7 @@ export class TodoOverview extends React.Component<ITodoOverviewProps> {
         />
         <label htmlFor="toggle-all">Mark all as complete</label>
         <ul className="todo-list">
-          {todoIds.map(id => <TodoItem key={id} todoId={id} />)}
+          {map(todoIds, id => <TodoItem key={id} todoId={id} />)}
         </ul>
       </section>
     );

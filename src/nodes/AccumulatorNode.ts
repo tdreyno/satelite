@@ -1,3 +1,4 @@
+import map = require("lodash/map");
 import cloneDeep = require("lodash/cloneDeep");
 import { memoize } from "interstelar";
 import { cleanVariableName, ParsedCondition } from "../Condition";
@@ -36,7 +37,7 @@ function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
     return getBindingIdByKeys(keys);
   }
 
-  return getBindingIdByValues(keys, keys.map(k => bindings[k]));
+  return getBindingIdByValues(keys, map(keys, k => bindings[k]));
 }
 
 // tslint:disable-next-line:variable-name

@@ -1,5 +1,6 @@
 import isFunction = require("lodash/isFunction");
 import isString = require("lodash/isString");
+import map = require("lodash/map");
 import { cleanVariableName, IConstantTest, parseCondition } from "./Condition";
 import { IFact, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
@@ -12,7 +13,7 @@ export function acc<T>(
   accumulator: IAccumulator<T>,
   ...conditions: IConditions,
 ): AccumulatorCondition<T> {
-  const parsedConditions = conditions.map(parseCondition);
+  const parsedConditions = map(conditions, parseCondition);
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
 }
 

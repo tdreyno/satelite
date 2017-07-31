@@ -1,3 +1,4 @@
+import map = require("lodash/map");
 import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 import { Token } from "../Token";
@@ -74,7 +75,7 @@ export class ReteNode {
 
   toString(nested = true): string {
     return `<${this.constructor.name} id=${this.id}${nested
-      ? ` children=[${this.children.map(c => c.toString(false))}]`
+      ? ` children=[${map(this.children, c => c.toString(false))}]`
       : ""}>`;
   }
 
@@ -93,15 +94,13 @@ export class ReteNode {
       return;
     }
 
-    const cleanData = data
-      .map(d => {
-        if (d instanceof Token) {
-          return d.toString();
-        }
+    const cleanData = map(data, d => {
+      if (d instanceof Token) {
+        return d.toString();
+      }
 
-        return JSON.stringify(d);
-      })
-      .map(s => `\n\t${s}`);
+      return `\n\t${JSON.stringify(d)}`;
+    });
 
     this.rete.log(eventName, this.toString(), ...cleanData);
   }

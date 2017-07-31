@@ -1,14 +1,15 @@
 import * as fs from "fs";
 import { normalize, schema } from "normalizr";
 import * as path from "path";
+import each = require("lodash/each");
+import omit = require("lodash/omit");
 import { IFact } from "../Fact";
-import { omit } from "../util";
 
 const data = fs.readFileSync(path.join(__dirname, "info.json")).toString();
 const json = JSON.parse(data);
 
 function cleanJoinTables<T extends any>(keys: string[], entity: T): T {
-  keys.forEach(k => {
+  each(keys, k => {
     if (
       entity[k] &&
       Object.keys(entity[k]).length === 1 &&
@@ -167,17 +168,18 @@ fs.writeFileSync(
 );
 
 const facts: IFact[] = [];
-// const ids = new Set(normalizedData.result);
 
-Object.keys(normalizedData.entities).forEach(modelName => {
-  Object.keys(normalizedData.entities[modelName]).forEach(modelId => {
-    Object.keys(
-      normalizedData.entities[modelName][modelId],
-    ).forEach(modelAttribute => {
+each(Object.keys(normalizedData.entities), modelName => {
+  const models = normalizedData.entities[modelName];
+
+  each(Object.keys(models), modelId => {
+    const model = models[modelId];
+
+    each(Object.keys(model), modelAttribute => {
       facts.push([
         modelId,
         `${modelName}/${modelAttribute}`,
-        normalizedData.entities[modelName][modelId][modelAttribute],
+        model[modelAttribute],
       ]);
     });
   });

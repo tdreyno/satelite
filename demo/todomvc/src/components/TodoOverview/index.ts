@@ -1,3 +1,4 @@
+import map = require("lodash/map");
 import { compose, withHandlers } from "recompose";
 import {
   collect,
@@ -19,7 +20,7 @@ export const TodoOverview = compose(
   withHandlers({
     toggleAll: ({ allIds }: { allIds: string[] }) => (checked: boolean) => {
       const action = checked ? update : retract;
-      const facts = allIds.map(id => [id, "todo/completed", true] as IFact);
+      const facts = map(allIds, id => [id, "todo/completed", true] as IFact);
       action(...facts);
     },
   }),

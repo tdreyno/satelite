@@ -3,9 +3,9 @@ import { compareTokens, Token } from "../Token";
 import {
   findInList,
   removeIndexFromList,
+  replaceIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  replaceIndexFromList,
   runLeftUpdateOnNodes,
 } from "../util";
 import { ReteNode } from "./ReteNode";

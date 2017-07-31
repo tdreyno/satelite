@@ -1,15 +1,13 @@
+import map = require("lodash/map");
+import find = require("lodash/find");
+import difference = require("lodash/difference");
+import intersection = require("lodash/intersection");
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFact, makeFact } from "../Fact";
 import { Production } from "../Production";
 import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
-import {
-  difference,
-  findInList,
-  intersection,
-  removeIndexFromList,
-  replaceIndexFromList,
-} from "../util";
+import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { ReteNode } from "./ReteNode";
 
 export interface IResultingFacts {
@@ -181,35 +179,46 @@ export class ProductionNode extends ReteNode {
     const resultingFacts = this.production.onActivation(t.fact, bindings);
 
     if (resultingFacts && Array.isArray(resultingFacts)) {
-      return (Array.isArray(resultingFacts[0])
+      return Array.isArray(resultingFacts[0])
         ? resultingFacts as IFact[]
-        : [resultingFacts] as IFact[]).map(f => makeFact(f[0], f[1], f[2]));
+        : map([resultingFacts] as IFact[], f => makeFact(f[0], f[1], f[2]));
     }
   }
 
   private groupFactChanges(oldFacts: IFact[], newFacts: IFact[]) {
-    const oldFactsWithoutValues = oldFacts.map(f => makeFact(f[0], f[1], true));
-    const newFactsWithoutValues = newFacts.map(f => makeFact(f[0], f[1], true));
+    const oldFactsWithoutValues = map(oldFacts, f =>
+      makeFact(f[0], f[1], true),
+    );
 
-    const oldSet = new Set(oldFactsWithoutValues);
-    const newSet = new Set(newFactsWithoutValues);
+    const newFactsWithoutValues = map(newFacts, f =>
+      makeFact(f[0], f[1], true),
+    );
 
-    const uniqueOldFacts = Array.from(difference(oldSet, newSet));
-    const uniqueNewFacts = Array.from(difference(newSet, oldSet));
+    const uniqueOldFacts = difference(
+      oldFactsWithoutValues,
+      newFactsWithoutValues,
+    );
 
-    const sharedFacts = Array.from(intersection(newSet, oldSet));
+    const uniqueNewFacts = difference(
+      newFactsWithoutValues,
+      oldFactsWithoutValues,
+    );
+
+    const sharedFacts = intersection(
+      newFactsWithoutValues,
+      oldFactsWithoutValues,
+    );
+
     const toBeUpdated: IUpdateList = [];
 
     for (let i = 0; i < sharedFacts.length; i++) {
       const sharedFact = sharedFacts[i];
 
-      const oldFact = oldFacts.find(
-        f => f[0] === sharedFact[0] && f[1] === sharedFact[1],
-      );
+      const finder = (f: IFact) =>
+        f[0] === sharedFact[0] && f[1] === sharedFact[1];
 
-      const newFact = newFacts.find(
-        f => f[0] === sharedFact[0] && f[1] === sharedFact[1],
-      );
+      const oldFact = find(oldFacts, finder);
+      const newFact = find(newFacts, finder);
 
       if (oldFact === newFact) {
         continue;

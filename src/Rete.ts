@@ -1,4 +1,7 @@
 import isFunction = require("lodash/isFunction");
+import map = require("lodash/map");
+import each = require("lodash/each");
+import bindAll = require("lodash/bindAll");
 import {
   Comparison,
   dependentVariableNames,
@@ -83,21 +86,23 @@ export class Rete {
   constructor(loggers?: ILoggers) {
     this.loggers = loggers;
 
-    // Internal
-    this.addFact = this.addFact.bind(this);
-    this.removeFact = this.removeFact.bind(this);
-    this.updateFact = this.updateFact.bind(this);
-    this.addProduction = this.addProduction.bind(this);
-    this.addQuery = this.addQuery.bind(this);
+    bindAll(this, [
+      // Internal
+      "addFact",
+      "removeFact",
+      "updateFact",
+      "addProduction",
+      "addQuery",
 
-    // Public
-    this.assert = this.assert.bind(this);
-    this.retract = this.retract.bind(this);
-    this.update = this.update.bind(this);
-    this.rule = this.rule.bind(this);
-    this.query = this.query.bind(this);
-    this.findEntity = this.findEntity.bind(this);
-    this.retractEntity = this.retractEntity.bind(this);
+      // Public
+      "assert",
+      "retract",
+      "update",
+      "rule",
+      "query",
+      "findEntity",
+      "retractEntity",
+    ]);
   }
 
   log(eventName: string, ...data: any[]): void {
@@ -117,15 +122,15 @@ export class Rete {
 
   // External API.
   assert(...facts: IFact[]): void {
-    facts.forEach(this.addFact);
+    each(facts, this.addFact);
   }
 
   retract(...facts: IFact[]): void {
-    facts.forEach(this.removeFact);
+    each(facts, this.removeFact);
   }
 
   update(...facts: IFact[]): void {
-    facts.forEach(this.updateFact);
+    each(facts, this.updateFact);
   }
 
   rule(...conditions: IConditions): IThenCreateProduction {
@@ -242,7 +247,7 @@ export class Rete {
   private addProduction(...conditions: IConditions): IThenCreateProduction {
     return {
       then: (callback: IActivateCallback) => {
-        const parsedConditions = conditions.map(parseCondition);
+        const parsedConditions = map(conditions, parseCondition);
         const currentNode = this.buildOrShareNetworkForConditions(
           parsedConditions,
           [],
@@ -269,7 +274,7 @@ export class Rete {
   }
 
   private addQuery(...conditions: IConditions): Query {
-    const parsedConditions = conditions.map(parseCondition);
+    const parsedConditions = map(conditions, parseCondition);
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
       [],
@@ -374,7 +379,7 @@ export class Rete {
         );
 
         const isIndependent =
-          dependentVars.size <= 0 && currentNode === this.root;
+          dependentVars.length <= 0 && currentNode === this.root;
         const accRoot = AccumulatedRootNode.create(this, isIndependent);
         const accTail = this.buildOrShareNetworkForConditions(
           c.conditions,

@@ -1,12 +1,13 @@
 import { memoize } from "interstelar";
 import isString = require("lodash/isString");
+import intersection = require("lodash/intersection");
+import union = require("lodash/union");
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { createTestAtJoinNode, TestAtJoinNode } from "./nodes/JoinNode";
 import { getVariablePrefix, placeholder } from "./Rete";
 import { IVariableBindings } from "./Token";
-import { intersection, union } from "./util";
 
 export type IConstantTest = string;
 
@@ -283,27 +284,27 @@ export function extractBindingsFromCondition(
 
 export function getVariableNamesFromCondition(
   c: ParsedCondition | AccumulatorCondition,
-): Set<string> {
+): string[] {
   if (c instanceof AccumulatorCondition) {
-    return new Set([c.bindingName]);
+    return [c.bindingName];
   } else {
-    return new Set(Object.keys(c.variableNames));
+    return Object.keys(c.variableNames);
   }
 }
 
 export function getVariableNamesFromConditions(
   conditions: Array<ParsedCondition | AccumulatorCondition>,
-): Set<string> {
+): string[] {
   return conditions.reduce(
     (acc, c) => union(acc, getVariableNamesFromCondition(c)),
-    new Set(),
+    [],
   );
 }
 
 export function dependentVariableNames(
   parentConditions: Array<ParsedCondition | AccumulatorCondition>,
   subConditions: Array<ParsedCondition | AccumulatorCondition>,
-): Set<string> {
+): string[] {
   return intersection(
     getVariableNamesFromConditions(parentConditions),
     getVariableNamesFromConditions(subConditions),
