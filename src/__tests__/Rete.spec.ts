@@ -68,9 +68,7 @@ describe("Rete", () => {
     });
   });
 
-  it.only("should support transactions", () => {
-    // expect.assertions(4);
-
+  it("should support transactions", () => {
     const {
       beginTransaction,
       commitTransaction,
