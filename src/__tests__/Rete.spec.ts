@@ -1,4 +1,12 @@
-import { collect, count, entity, max, min } from "../accumulators";
+import {
+  collect,
+  collectBindings,
+  count,
+  entity,
+  max,
+  min,
+  sortBy,
+} from "../accumulators";
 import {
   equals,
   greaterThan,
@@ -14,6 +22,7 @@ const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
 const marc = makeIdentifier("person", 3);
 const grace = makeIdentifier("person", 4);
+const brian = makeIdentifier("person", 5);
 
 const DATA_SET: IFact[] = [
   [thomas, "name", "Thomas"],
@@ -33,8 +42,8 @@ const DATA_SET: IFact[] = [
   [grace, "team", "Fun"],
 ] as any;
 
-function makeRete() {
-  const rete = Rete.create();
+function makeRete(loggers?: any) {
+  const rete = Rete.create(loggers);
 
   for (let i = 0; i < DATA_SET.length; i++) {
     rete.assert(DATA_SET[i]);
@@ -319,6 +328,29 @@ describe("Rete", () => {
       expect(youngs).toHaveLength(1);
       expect(youngs[0]).toBe(grace);
     });
+  });
+
+  it.only("should be able to collect from different bindings and sort", () => {
+    const { query, assert } = makeRete();
+
+    assert([brian, "team", "WW"]);
+
+    const q = query(
+      [_, "team", "?teamId"],
+      collect("?teamMembers", "?e", ["?e", "team", "?teamId"]),
+      collectBindings("?teamsWithMembers"),
+      sortBy("?sortedTeamsWithMembers", "?teamsWithMembers", ["teamId"]),
+    );
+
+    const result = q.variableBindings[0].sortedTeamsWithMembers;
+
+    const firstTeam = result[0];
+    expect(firstTeam.teamId).toBe("Content");
+    expect(firstTeam.teamMembers).toHaveLength(1);
+
+    const lastTeam = result[result.length - 1];
+    expect(lastTeam.teamId).toBe("WW");
+    expect(lastTeam.teamMembers).toHaveLength(2);
   });
 
   it("should be able to run arbitrary comparisons", () => {

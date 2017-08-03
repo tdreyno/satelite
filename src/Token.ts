@@ -67,6 +67,10 @@ export function compareTokensAndBindings(t1: Token, t2: Token): boolean {
 }
 
 export function isParent(parent: Token, child: Token): boolean {
+  if (parent === child) {
+    return true;
+  }
+
   let p = child.parent;
 
   while (p) {

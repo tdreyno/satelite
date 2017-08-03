@@ -1,6 +1,8 @@
 import isFunction = require("lodash/isFunction");
 import isString = require("lodash/isString");
+import pick = require("lodash/pick");
 import map = require("lodash/map");
+import lodashOrderBy = require("lodash/orderBy");
 import { cleanVariableName, IConstantTest, parseCondition } from "./Condition";
 import { IFact, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
@@ -11,7 +13,7 @@ import { IVariableBindings, Token } from "./Token";
 export function acc<T>(
   bindingName: string,
   accumulator: IAccumulator<T>,
-  ...conditions: IConditions,
+  ...conditions: IConditions
 ): AccumulatorCondition<T> {
   const parsedConditions = map(conditions, parseCondition);
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
@@ -85,15 +87,15 @@ export type ICollectionMapperFn = (f: IFact, b: IVariableBindings) => any;
 export function collect(
   bindingName: string,
   mapperAlias: string | ICollectionMapperFn,
-  ...conditions: IAnyCondition[],
+  ...conditions: IAnyCondition[]
 ): AccumulatorCondition;
 export function collect(
   bindingName: string,
-  ...conditions: IAnyCondition[],
+  ...conditions: IAnyCondition[]
 ): AccumulatorCondition;
 export function collect(
   bindingName: string,
-  ...mapperFnOrConditions: Array<string | IAnyCondition | ICollectionMapperFn>,
+  ...mapperFnOrConditions: Array<string | IAnyCondition | ICollectionMapperFn>
 ): AccumulatorCondition {
   let mapperFn: ICollectionMapperFn = (f: IFact) => f;
   const firstVariadicArgument = mapperFnOrConditions[0];
@@ -120,9 +122,38 @@ export function collect(
         return sum;
       },
       initialValue: [] as any[],
+      tokenPerBindingMatch: true,
     },
     ...conditions,
   );
+}
+
+export function collectBindings(
+  bindingName: string,
+  onlyKeys?: string[],
+): AccumulatorCondition {
+  return collect(
+    bindingName,
+    // tslint:disable-next-line:variable-name
+    (_f, bindings) => (onlyKeys ? pick(bindings, onlyKeys) : bindings),
+  );
+}
+
+export function sortBy(
+  bindingName: string,
+  dataKey: string,
+  sortKeys: string[],
+  orderKeys?: string[],
+): AccumulatorCondition {
+  const cleanKey = cleanVariableName(dataKey);
+
+  return acc(bindingName, {
+    reducer: (sum: any[], item: Token): any[] => {
+      return lodashOrderBy(item.bindings[cleanKey], sortKeys, orderKeys);
+    },
+    initialValue: [] as any[],
+    tokenPerBindingMatch: true,
+  });
 }
 
 export interface IEntity {

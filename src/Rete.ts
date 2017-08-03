@@ -485,6 +485,7 @@ export class Rete {
           accRoot,
           accTail,
           isIndependent,
+          dependentVars,
         );
       } else if (
         currentNode instanceof RootNode ||

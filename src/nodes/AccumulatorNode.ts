@@ -74,8 +74,15 @@ export class AccumulatorNode extends ReteNode {
     subnetworkHead: AccumulatedRootNode,
     subnetworkTail: ReteNode,
     isIndependent: boolean,
+    dependentVars: string[],
   ): AccumulatorNode {
-    const node = new AccumulatorNode(rete, c, subnetworkHead, isIndependent);
+    const node = new AccumulatorNode(
+      rete,
+      c,
+      subnetworkHead,
+      isIndependent,
+      dependentVars,
+    );
 
     node.parent = parent;
     parent.children.unshift(node);
@@ -94,6 +101,7 @@ export class AccumulatorNode extends ReteNode {
   pendingSubnetwork: Set<Token> = new Set();
   accumulator: AccumulatorCondition;
   isIndependent: boolean;
+  dependentVars: string[];
 
   sharedIndependentToken = Token.create(this, null, [
     "global",
@@ -106,12 +114,14 @@ export class AccumulatorNode extends ReteNode {
     accumulator: AccumulatorCondition,
     subnetworkHead: ReteNode,
     isIndependent: boolean,
+    dependentVars: string[],
   ) {
     super(rete);
 
     this.accumulator = accumulator;
     this.subnetworkHead = subnetworkHead;
     this.isIndependent = isIndependent;
+    this.dependentVars = dependentVars;
 
     if (this.isIndependent) {
       this.executeAccumulator(this.sharedIndependentToken);
@@ -199,7 +209,7 @@ export class AccumulatorNode extends ReteNode {
       initialToken = findParent(this.items, t);
 
       if (!initialToken) {
-        throw new Error("activate a non-parented token?");
+        throw new Error("rightActivate a non-parented token?");
       }
 
       this.pendingSubnetwork.delete(initialToken);
@@ -234,7 +244,7 @@ export class AccumulatorNode extends ReteNode {
       initialToken = findParent(this.items, prev);
 
       if (!initialToken) {
-        throw new Error("update a non-parented token?");
+        throw new Error("rightUpdate a non-parented token?");
       }
 
       this.pendingSubnetwork.delete(initialToken);
@@ -270,7 +280,7 @@ export class AccumulatorNode extends ReteNode {
       initialToken = findParent(this.items, t);
 
       if (!initialToken) {
-        throw new Error("retract a non-parented token?");
+        throw new Error("rightRetract a non-parented token?");
       }
 
       this.pendingSubnetwork.delete(initialToken);
@@ -310,7 +320,8 @@ export class AccumulatorNode extends ReteNode {
   private getBindingId(t: Token): number {
     return getBindingId(
       t.bindings,
-      this.accumulator.accumulator.tokenPerBindingMatch,
+      this.dependentVars.length > 0 &&
+        this.accumulator.accumulator.tokenPerBindingMatch,
     );
   }
 
