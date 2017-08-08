@@ -1,6 +1,6 @@
-import map = require("lodash/map");
-import cloneDeep = require("lodash/cloneDeep");
 import { memoize } from "interstelar";
+import cloneDeep = require("lodash/cloneDeep");
+import map = require("lodash/map");
 import { cleanVariableName, ParsedCondition } from "../Condition";
 import { Rete } from "../Rete";
 import {
@@ -30,6 +30,15 @@ export interface IAccumulator<T> {
 export type IBindingId = number;
 
 let nextBindingId = 0;
+
+// tslint:disable-next-line:variable-name
+const getBindingIdByKeys = memoize((_keys: string[]) => nextBindingId++);
+
+const getBindingIdByValues = memoize(
+  // tslint:disable-next-line:variable-name
+  (_keys: string[], _values: any[]) => nextBindingId++,
+);
+
 function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
   const keys = Object.keys(bindings);
 
@@ -39,14 +48,6 @@ function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
 
   return getBindingIdByValues(keys, map(keys, k => bindings[k]));
 }
-
-// tslint:disable-next-line:variable-name
-const getBindingIdByKeys = memoize((_keys: string[]) => nextBindingId++);
-
-const getBindingIdByValues = memoize(
-  // tslint:disable-next-line:variable-name
-  (_keys: string[], _values: any[]) => nextBindingId++,
-);
 
 export class AccumulatorCondition<T = any> {
   bindingName: string;

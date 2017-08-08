@@ -35,28 +35,6 @@ export function lookupInHashTable(
   return hashTable.get(hashCode);
 }
 
-export function addToHashTable(
-  rete: Rete,
-  identifier: IPrimitive | IIdentifier | null,
-  attribute: string | null,
-  value: IValue | null,
-): AlphaMemoryNode {
-  const node = new AlphaMemoryNode(
-    rete,
-    `${identifier ? JSON.stringify(identifier) : "_"} ${attribute ||
-      "_"} ${value ? JSON.stringify(value) : "_"}`,
-  );
-
-  const hashCode = getHashCode(identifier, attribute, value);
-  rete.hashTable.set(hashCode, node);
-
-  return node;
-}
-
-export function createExhaustiveHashTable(): IExhaustiveHashTable {
-  return new Map();
-}
-
 export class AlphaMemoryNode extends ReteNode {
   static create(rete: Rete, c: ParsedCondition): AlphaMemoryNode {
     const identifierTest: any | null = isConstant(c.identifier)
@@ -151,4 +129,26 @@ export class AlphaMemoryNode extends ReteNode {
 
     removeFromList(this.facts, f);
   }
+}
+
+export function addToHashTable(
+  rete: Rete,
+  identifier: IPrimitive | IIdentifier | null,
+  attribute: string | null,
+  value: IValue | null,
+): AlphaMemoryNode {
+  const node = new AlphaMemoryNode(
+    rete,
+    `${identifier ? JSON.stringify(identifier) : "_"} ${attribute ||
+      "_"} ${value ? JSON.stringify(value) : "_"}`,
+  );
+
+  const hashCode = getHashCode(identifier, attribute, value);
+  rete.hashTable.set(hashCode, node);
+
+  return node;
+}
+
+export function createExhaustiveHashTable(): IExhaustiveHashTable {
+  return new Map();
 }

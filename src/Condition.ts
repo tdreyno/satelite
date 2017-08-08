@@ -1,6 +1,6 @@
 import { memoize } from "interstelar";
-import isString = require("lodash/isString");
 import intersection = require("lodash/intersection");
+import isString = require("lodash/isString");
 import union = require("lodash/union");
 import { IFact, IFactFields, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
@@ -8,6 +8,14 @@ import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { createTestAtJoinNode, TestAtJoinNode } from "./nodes/JoinNode";
 import { getVariablePrefix, placeholder } from "./Rete";
 import { IVariableBindings } from "./Token";
+
+export function cleanVariableNamePure(variableName: string): string {
+  return variableName.charAt(0) === getVariablePrefix()
+    ? variableName.slice(1, variableName.length)
+    : variableName;
+}
+
+export const cleanVariableName = memoize(cleanVariableNamePure);
 
 export type IConstantTest = string;
 
@@ -174,7 +182,7 @@ export class ParsedCondition {
     } else if (isPlaceholder(value)) {
       this.placeholderFields["2"] = true;
     } else {
-      this.constantFields["2"] = value as any;
+      this.constantFields["2"] = value;
     }
   }
 }
@@ -247,14 +255,6 @@ export function findVariableInEarlierConditions(
     }
   }
 }
-
-export function cleanVariableNamePure(variableName: string): string {
-  return variableName.charAt(0) === getVariablePrefix()
-    ? variableName.slice(1, variableName.length)
-    : variableName;
-}
-
-export const cleanVariableName = memoize(cleanVariableNamePure);
 
 export function extractBindingsFromCondition(
   c: ParsedCondition | AccumulatorCondition,

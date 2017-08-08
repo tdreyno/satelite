@@ -1,7 +1,7 @@
-import map = require("lodash/map");
-import find = require("lodash/find");
 import difference = require("lodash/difference");
+import find = require("lodash/find");
 import intersection = require("lodash/intersection");
+import map = require("lodash/map");
 import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFact, makeFact } from "../Fact";
 import { Production } from "../Production";

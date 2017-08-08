@@ -1,7 +1,7 @@
+import bindAll = require("lodash/bindAll");
+import each = require("lodash/each");
 import isFunction = require("lodash/isFunction");
 import map = require("lodash/map");
-import each = require("lodash/each");
-import bindAll = require("lodash/bindAll");
 import {
   Comparison,
   dependentVariableNames,

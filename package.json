@@ -9,8 +9,8 @@
     "prepublish": "yarn run compile",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "tslint src/**/*.ts",
-    "lint:fix": "tslint src/**/*.ts --fix",
+    "lint": "tslint --project .",
+    "lint:fix": "tslint --project . --fix",
     "compile": "rm -rf dist && tsc --sourceMap --outDir dist --declaration --target es6",
     "compile:watch": "tsc --sourceMap --outDir dist --declaration --watch"
   },
@@ -41,6 +41,7 @@
     "normalizr": "^3.2.3",
     "ts-node": "^3.3.0",
     "tslint": "^5.3.2",
+    "tslint-language-service": "^0.9.6",
     "typescript": "^2.4.0"
   },
   "dependencies": {

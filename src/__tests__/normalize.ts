@@ -1,8 +1,8 @@
 import * as fs from "fs";
-import { normalize, schema } from "normalizr";
-import * as path from "path";
 import each = require("lodash/each");
 import omit = require("lodash/omit");
+import { normalize, schema } from "normalizr";
+import * as path from "path";
 import { IFact } from "../Fact";
 
 const data = fs.readFileSync(path.join(__dirname, "info.json")).toString();
@@ -190,4 +190,5 @@ fs.writeFileSync(
   "export default " + JSON.stringify(facts),
 );
 
+// tslint:disable-next-line:no-console
 console.log(`Wrote ${facts.length} facts`);

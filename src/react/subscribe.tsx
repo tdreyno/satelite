@@ -1,5 +1,5 @@
-import isFunction = require("lodash/isFunction");
 import isEqual = require("lodash/isEqual");
+import isFunction = require("lodash/isFunction");
 import map = require("lodash/map");
 // import hoistStatics = require("hoist-non-react-statics");
 import * as PropTypes from "prop-types";

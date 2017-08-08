@@ -8,6 +8,9 @@
     "arrow-parens": false,
     "prefer-for-of": false,
     "member-access": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-unnecessary-type-assertion": true,
+    "no-use-before-declare": true,
+    "return-undefined": true
   }
 }
