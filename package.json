@@ -49,6 +49,7 @@
     "@types/react": "^15.0.37",
     "hoist-non-react-statics": "^2.1.0",
     "interstelar": "^0.0.2-0",
+    "io-ts": "^0.6.1",
     "lodash": "^4.17.4",
     "prop-types": "^15.5.10",
     "react": "^15.6.1"

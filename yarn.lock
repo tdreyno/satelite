@@ -725,6 +725,10 @@ form-data@~2.1.1:
     combined-stream "^1.0.5"
     mime-types "^2.1.12"
 
+fp-ts@^0.4.0:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-0.4.6.tgz#43934cf5ae405e6a4726f1f6d216ea1c985672e8"
+
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
@@ -893,6 +897,12 @@ invariant@^2.2.0:
 invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
+
+io-ts@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-0.6.1.tgz#dcde35600bca783296554cc9041aa56f332ed33a"
+  dependencies:
+    fp-ts "^0.4.0"
 
 is-arrayish@^0.2.1:
   version "0.2.1"
