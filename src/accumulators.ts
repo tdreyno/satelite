@@ -148,7 +148,8 @@ export function sortBy(
   const cleanKey = cleanVariableName(dataKey);
 
   return acc(bindingName, {
-    reducer: (sum: any[], item: Token): any[] => {
+    // tslint:disable-next-line:variable-name
+    reducer: (_sum: any[], item: Token): any[] => {
       return lodashOrderBy(item.bindings[cleanKey], sortKeys, orderKeys);
     },
     initialValue: [] as any[],

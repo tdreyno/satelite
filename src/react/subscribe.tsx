@@ -1,4 +1,5 @@
-import isEqual = require("lodash/isEqual");
+import eq = require("lodash/eq");
+import isEqualWith = require("lodash/isEqualWith");
 import isFunction = require("lodash/isFunction");
 import map = require("lodash/map");
 // import hoistStatics = require("hoist-non-react-statics");
@@ -8,6 +9,8 @@ import * as React from "react";
 import { Query } from "../Query";
 import { IAnyCondition, Rete } from "../Rete";
 import { IVariableBindings } from "../Token";
+
+const isEqual = (a: any, b: any) => isEqualWith(a, b, eq);
 
 export type IReteToProps<ReteProps, OwnProps> = (
   variables: IVariableBindings,
