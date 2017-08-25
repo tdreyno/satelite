@@ -1,7 +1,7 @@
 import path from "path";
 import webpack from "webpack";
 import { CheckerPlugin } from "awesome-typescript-loader";
-import BabiliPlugin from "babili-webpack-plugin";
+import MinifyPlugin from "babel-minify-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 
 const NODE_MODULES_PATH = path.resolve(__dirname, "node_modules");
@@ -52,7 +52,7 @@ module.exports = {
     ENV === "production"
       ? [
           new webpack.optimize.OccurrenceOrderPlugin(),
-          new BabiliPlugin(),
+          new MinifyPlugin(),
           new CopyWebpackPlugin([
             {
               context: "static",
