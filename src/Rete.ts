@@ -132,8 +132,10 @@ export class Rete {
       return;
     }
 
-    if (isFunction(this.loggers[eventName])) {
-      this.loggers[eventName](eventName, ...data);
+    const loggerMap = this.loggers as ILoggerMap;
+
+    if (isFunction(loggerMap[eventName])) {
+      loggerMap[eventName](eventName, ...data);
     }
   }
 

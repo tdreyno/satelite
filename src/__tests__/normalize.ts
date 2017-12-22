@@ -8,7 +8,7 @@ import { IFact } from "../Fact";
 const data = fs.readFileSync(path.join(__dirname, "info.json")).toString();
 const json = JSON.parse(data);
 
-function cleanJoinTables<T extends any>(keys: string[], entity: T): T {
+function cleanJoinTables(keys: string[], entity: any): any {
   each(keys, k => {
     if (
       entity[k] &&
