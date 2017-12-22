@@ -32,14 +32,14 @@
     ]
   },
   "devDependencies": {
-    "@types/faker": "^4.1.1",
-    "@types/jest": "^20.0.8",
+    "@types/faker": "^4.1.2",
+    "@types/jest": "^21.0.0",
     "@types/node": "^8.0.25",
     "faker": "^4.1.0",
-    "jest": "^21.0.0",
-    "jest-cli": "^21.0.0",
+    "jest": "^22.0.0",
+    "jest-cli": "^22.0.0",
     "normalizr": "^3.2.3",
-    "ts-node": "^3.3.0",
+    "ts-node": "^4.0.0",
     "tslint": "^5.3.2",
     "tslint-language-service": "^0.9.6",
     "typescript": "^2.6.2"
@@ -52,6 +52,6 @@
     "interstelar": "^0.0.2-0",
     "lodash": "^4.17.4",
     "prop-types": "^15.5.10",
-    "react": "^15.6.1"
+    "react": "^16.0.0"
   }
 }
