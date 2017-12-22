@@ -50,8 +50,7 @@ export function not(c: ICondition) {
   return c;
 }
 
-export type IAnyCondition = ICondition | AccumulatorCondition;
-export type IConditions = IAnyCondition[];
+export type IConditions = Array<ICondition | AccumulatorCondition>;
 export interface IThenCreateProduction {
   then: (callback: IActivateCallback) => Production;
 }
@@ -73,10 +72,11 @@ export interface IBatchedAction {
 }
 
 export type ILogger = (message: string, ...data: any[]) => any;
+export interface ILoggerMap {
+  [eventName: string]: ILogger;
+}
 export type ILoggers =
-  | {
-      [eventName: string]: ILogger;
-    }
+  | ILoggerMap
   | ILogger;
 
 export class Rete {
@@ -338,7 +338,11 @@ export class Rete {
   private addProduction(...conditions: IConditions): IThenCreateProduction {
     return {
       then: (callback: IActivateCallback) => {
-        const parsedConditions = map(conditions, parseCondition);
+        const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
+          conditions,
+          parseCondition,
+        );
+
         const currentNode = this.buildOrShareNetworkForConditions(
           parsedConditions,
           [],
@@ -365,7 +369,11 @@ export class Rete {
   }
 
   private addQuery(...conditions: IConditions): Query {
-    const parsedConditions = map(conditions, parseCondition);
+    const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
+      conditions,
+      parseCondition,
+    );
+
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
       [],

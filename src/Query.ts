@@ -1,6 +1,7 @@
 import map = require("lodash/map");
 import { extractBindingsFromCondition, ParsedCondition } from "./Condition";
 import { IFact } from "./Fact";
+import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { QueryNode } from "./nodes/QueryNode";
 import { IVariableBindings } from "./Token";
 
@@ -11,19 +12,19 @@ export type IQueryChangeFn = (
 
 let nextQueryId = 0;
 export class Query {
-  static create(conditions: ParsedCondition[]) {
+  static create(conditions: Array<ParsedCondition | AccumulatorCondition>) {
     return new Query(conditions);
   }
 
   id = nextQueryId++;
   queryNode: QueryNode;
   callbacks: Set<IQueryChangeFn> = new Set();
-  conditions: ParsedCondition[] = [];
-  lastCondition: ParsedCondition;
+  conditions: Array<ParsedCondition | AccumulatorCondition> = [];
+  lastCondition: ParsedCondition | AccumulatorCondition;
   facts: IFact[];
   variableBindings: IVariableBindings[];
 
-  constructor(conditions: ParsedCondition[]) {
+  constructor(conditions: Array<ParsedCondition | AccumulatorCondition>) {
     this.conditions = conditions;
     this.lastCondition = this.conditions[this.conditions.length - 1];
   }
@@ -58,16 +59,16 @@ export class Query {
   private getVariableBindings(): IVariableBindings[] {
     return this.queryNode && this.queryNode.items
       ? map(this.queryNode.items, t => {
-          let bindings = t.bindings;
-          if (this.lastCondition && t.fact) {
-            bindings = extractBindingsFromCondition(
-              this.lastCondition,
-              t.fact,
-              bindings,
-            );
-          }
-          return bindings;
-        })
+        let bindings = t.bindings;
+        if (this.lastCondition && t.fact) {
+          bindings = extractBindingsFromCondition(
+            this.lastCondition,
+            t.fact,
+            bindings,
+          );
+        }
+        return bindings;
+      })
       : [];
   }
 }

@@ -8,6 +8,7 @@ import { Production } from "../Production";
 import { IUpdateList, Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
+import { AccumulatorCondition } from "./AccumulatorNode";
 import { ReteNode } from "./ReteNode";
 
 export interface IResultingFacts {
@@ -19,17 +20,17 @@ export class ProductionNode extends ReteNode {
   static create(
     r: Rete,
     production: Production,
-    conditions: ParsedCondition[],
+    conditions: Array<ParsedCondition | AccumulatorCondition>,
   ): ProductionNode {
     return new ProductionNode(r, production, conditions);
   }
 
   items: Token[] = [];
   production: Production;
-  conditions: ParsedCondition[];
+  conditions: Array<ParsedCondition | AccumulatorCondition>;
   resultingFacts: IResultingFacts[] = [];
 
-  constructor(r: Rete, production: Production, conditions: ParsedCondition[]) {
+  constructor(r: Rete, production: Production, conditions: Array<ParsedCondition | AccumulatorCondition>) {
     super(r);
 
     this.production = production;

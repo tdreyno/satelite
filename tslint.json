@@ -11,6 +11,8 @@
     "max-classes-per-file": false,
     "no-unnecessary-type-assertion": true,
     "no-use-before-declare": true,
-    "return-undefined": true
+    "return-undefined": true,
+    "no-submodule-imports": false,
+    "no-implicit-dependencies": false
   }
 }

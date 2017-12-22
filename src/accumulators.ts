@@ -3,11 +3,11 @@ import isString = require("lodash/isString");
 import map = require("lodash/map");
 import lodashOrderBy = require("lodash/orderBy");
 import pick = require("lodash/pick");
-import { cleanVariableName, IConstantTest, parseCondition } from "./Condition";
+import { cleanVariableName, ICondition, IConstantTest, parseCondition, ParsedCondition } from "./Condition";
 import { IFact, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
-import { IAnyCondition, IConditions, placeholder as _ } from "./Rete";
+import { IConditions, placeholder as _ } from "./Rete";
 import { IVariableBindings, Token } from "./Token";
 
 export function acc<T>(
@@ -15,7 +15,11 @@ export function acc<T>(
   accumulator: IAccumulator<T>,
   ...conditions: IConditions,
 ): AccumulatorCondition<T> {
-  const parsedConditions = map(conditions, parseCondition);
+  const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
+    conditions,
+    parseCondition,
+  );
+
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
 }
 
@@ -87,15 +91,15 @@ export type ICollectionMapperFn = (f: IFact, b: IVariableBindings) => any;
 export function collect(
   bindingName: string,
   mapperAlias: string | ICollectionMapperFn,
-  ...conditions: IAnyCondition[],
+  ...conditions: Array<ICondition | AccumulatorCondition>,
 ): AccumulatorCondition;
 export function collect(
   bindingName: string,
-  ...conditions: IAnyCondition[],
+  ...conditions: Array<ICondition | AccumulatorCondition>,
 ): AccumulatorCondition;
 export function collect(
   bindingName: string,
-  ...mapperFnOrConditions: Array<string | IAnyCondition | ICollectionMapperFn>,
+  ...mapperFnOrConditions: Array<string | ICondition | AccumulatorCondition | ICollectionMapperFn>,
 ): AccumulatorCondition {
   let mapperFn: ICollectionMapperFn = (f: IFact) => f;
   const firstVariadicArgument = mapperFnOrConditions[0];
@@ -112,7 +116,7 @@ export function collect(
   }
 
   // Whatever is left are conditions
-  const conditions: IAnyCondition[] = mapperFnOrConditions as any;
+  const conditions: Array<ICondition | AccumulatorCondition> = mapperFnOrConditions as any;
 
   return acc(
     bindingName,

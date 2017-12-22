@@ -10,13 +10,15 @@ import {
 import {
   equals,
   greaterThan,
+  ICondition,
   isBetween,
   isIdentifierType,
   lessThanOrEqualTo,
 } from "../Condition";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
-import { IAnyCondition, not, placeholder as _, Rete } from "../Rete";
+import { AccumulatorCondition } from "../nodes/AccumulatorNode";
+import { not, placeholder as _, Rete } from "../Rete";
 
 const thomas = makeIdentifier("person", 1);
 const violet = makeIdentifier("person", 2);
@@ -85,10 +87,10 @@ describe("Rete", () => {
       rule,
       self,
     } = Rete.create({
-      Asserting: console.log.bind(console),
-      Retracting: console.log.bind(console),
-      Updating: console.log.bind(console),
-    });
+        Asserting: console.log.bind(console),
+        Retracting: console.log.bind(console),
+        Updating: console.log.bind(console),
+      });
 
     rule(["?e", "gender", "F"]).then(({ e }) => [e, "isLady", true]);
 
@@ -151,7 +153,7 @@ describe("Rete", () => {
     assert([1, "name", "Tom"]);
     assert([1, "age", 10]);
 
-    const conditions: IAnyCondition[] = [
+    const conditions: Array<ICondition | AccumulatorCondition> = [
       ["?e", "gender", "M"],
       max("?max", ["?e", "age", _]),
       ["?e2", "age", "?max"],
@@ -330,7 +332,7 @@ describe("Rete", () => {
     });
   });
 
-  it.only("should be able to collect from different bindings and sort", () => {
+  it("should be able to collect from different bindings and sort", () => {
     const { query, assert } = makeRete();
 
     assert([brian, "team", "WW"]);

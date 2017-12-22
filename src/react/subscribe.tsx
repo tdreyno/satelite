@@ -6,8 +6,10 @@ import map = require("lodash/map");
 import * as PropTypes from "prop-types";
 import * as React from "react";
 
+import { ICondition } from "../Condition";
+import { AccumulatorCondition } from "../nodes/AccumulatorNode";
 import { Query } from "../Query";
-import { IAnyCondition, Rete } from "../Rete";
+import { Rete } from "../Rete";
 import { IVariableBindings } from "../Token";
 
 const isEqual = (a: any, b: any) => isEqualWith(a, b, eq);
@@ -18,9 +20,9 @@ export type IReteToProps<ReteProps, OwnProps> = (
   nextProps: OwnProps,
 ) => ReteProps;
 
-export type IPropConditions<OwnProps> = (props: OwnProps) => IAnyCondition;
+export type IPropConditions<OwnProps> = (props: OwnProps) => ICondition | AccumulatorCondition;
 export type IConditionsOrPropConditions<OwnProps> =
-  | IAnyCondition
+  | ICondition | AccumulatorCondition
   | IPropConditions<OwnProps>;
 
 export function subscribe<ReteProps, OwnProps>(

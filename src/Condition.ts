@@ -127,9 +127,9 @@ export class ParsedCondition {
   attribute: string | IConstantTest | Comparison;
   value: IValue | IConstantTest | Comparison;
   constantFields: Partial<IFact>;
-  placeholderFields: { [P in IFactFields]?: true };
-  variableFields: { [P in IFactFields]?: string };
-  comparisonFields: { [P in IFactFields]?: Comparison };
+  placeholderFields: {[P in IFactFields]?: true };
+  variableFields: {[P in IFactFields]?: string };
+  comparisonFields: {[P in IFactFields]?: Comparison };
   variableNames: IVariableNames;
   isNegated: boolean;
 
@@ -191,16 +191,18 @@ export class ParsedCondition {
 // Converts condition `toJSON` for caching. Might not be worth the memory.
 const memoizedParseCondition = memoize(ParsedCondition.create);
 
-export function parseCondition(c: AccumulatorCondition): AccumulatorCondition;
-export function parseCondition(c: ICondition): ParsedCondition;
-export function parseCondition(
-  c: ICondition | AccumulatorCondition,
-): ParsedCondition | AccumulatorCondition {
+export function parseCondition<T>(c: AccumulatorCondition<T>): AccumulatorCondition<T>;
+export function parseCondition(c: ICondition | any[]): ParsedCondition;
+export function parseCondition<T>(
+  c: ICondition | any[] | AccumulatorCondition<T>,
+): ParsedCondition | AccumulatorCondition<T> {
   if (c instanceof AccumulatorCondition) {
     return c;
   }
 
-  return memoizedParseCondition(c[0], c[1], c[2], c.isNegated || false);
+  const isNegated = (c as any).isNegated || false;
+
+  return memoizedParseCondition(c[0], c[1], c[2], isNegated);
 }
 
 export function getJoinTestsFromCondition(
@@ -297,7 +299,7 @@ export function getVariableNamesFromConditions(
 ): string[] {
   return conditions.reduce(
     (acc, c) => union(acc, getVariableNamesFromCondition(c)),
-    [],
+    [] as string[],
   );
 }
 

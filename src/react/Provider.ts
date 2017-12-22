@@ -21,7 +21,7 @@ export class Provider extends Component<{
     };
   }
 
-  render() {
+  render(): JSX.Element {
     return this.props.children;
   }
 }
