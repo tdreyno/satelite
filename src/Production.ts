@@ -21,7 +21,7 @@ export class Production {
     return new Production(onActivationCallback);
   }
 
-  productionNode: ProductionNode;
+  productionNode!: ProductionNode;
   onActivationCallback: IInternalActivateCallback;
 
   constructor(onActivationCallback: IActivateCallback) {

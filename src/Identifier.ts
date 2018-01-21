@@ -3,8 +3,8 @@ import { memoize } from "interstelar";
 export type IPrimitive = string | number;
 
 export class IIdentifier<T = IPrimitive> {
-  attribute: string;
-  value: T;
+  attribute!: string;
+  value!: T;
 }
 
 export function baseMakeIdentifier<T = IPrimitive>(

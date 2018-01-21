@@ -17,12 +17,12 @@ export class Query {
   }
 
   id = nextQueryId++;
-  queryNode: QueryNode;
+  queryNode!: QueryNode;
   callbacks: Set<IQueryChangeFn> = new Set();
   conditions: Array<ParsedCondition | AccumulatorCondition> = [];
   lastCondition: ParsedCondition | AccumulatorCondition;
-  facts: IFact[];
-  variableBindings: IVariableBindings[];
+  facts!: IFact[];
+  variableBindings!: IVariableBindings[];
 
   constructor(conditions: Array<ParsedCondition | AccumulatorCondition>) {
     this.conditions = conditions;

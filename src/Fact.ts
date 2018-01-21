@@ -2,7 +2,13 @@ import { memoize } from "interstelar";
 import { IIdentifier, IPrimitive } from "./Identifier";
 
 export type IValue = any;
-export type IFact = [IIdentifier | IPrimitive, string, IValue];
+export interface IFact extends Array<IIdentifier | IPrimitive | string | IValue> {
+  0: IIdentifier | IPrimitive;
+  1: string;
+  2: IValue;
+  length: 3;
+}
+
 export type IFactFields = "0" | "1" | "2";
 
 export function makeFactPure(
