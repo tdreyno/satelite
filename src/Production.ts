@@ -6,14 +6,14 @@ export type IActivateCallback = (
   variableBindings: IVariableBindings,
   extra: {
     fact: IFact;
-  },
+  }
 ) => undefined | void | null | IFact | IFact[];
 
 export type IInternalActivateCallback = (
   v: IVariableBindings,
   extra: {
     fact: IFact;
-  },
+  }
 ) => undefined | void | null | IFact | IFact[];
 
 export class Production {
@@ -30,10 +30,10 @@ export class Production {
 
   onActivation(
     f: IFact,
-    b: IVariableBindings,
+    b: IVariableBindings
   ): undefined | void | null | IFact | IFact[] {
     return this.onActivationCallback(b, {
-      fact: f,
+      fact: f
     });
   }
 }

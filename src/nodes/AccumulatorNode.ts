@@ -7,7 +7,7 @@ import {
   compareTokens,
   compareTokensAndBindings,
   findParent,
-  Token,
+  Token
 } from "../Token";
 import {
   findInList,
@@ -15,7 +15,7 @@ import {
   replaceIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  runLeftUpdateOnNodes,
+  runLeftUpdateOnNodes
 } from "../util";
 import { AccumulatedRootNode } from "./AccumulatedRootNode";
 import { AccumulatedTailNode } from "./AccumulatedTailNode";
@@ -36,7 +36,7 @@ const getBindingIdByKeys = memoize((_keys: string[]) => nextBindingId++);
 
 const getBindingIdByValues = memoize(
   // tslint:disable-next-line:variable-name
-  (_keys: string[], _values: any[]) => nextBindingId++,
+  (_keys: string[], _values: any[]) => nextBindingId++
 );
 
 function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
@@ -57,7 +57,7 @@ export class AccumulatorCondition<T = any> {
   constructor(
     bindingName: string,
     accumulator: IAccumulator<T>,
-    conditions: Array<ParsedCondition | AccumulatorCondition>,
+    conditions: Array<ParsedCondition | AccumulatorCondition>
   ) {
     this.bindingName = bindingName;
     this.accumulator = accumulator;
@@ -75,14 +75,14 @@ export class AccumulatorNode extends ReteNode {
     subnetworkHead: AccumulatedRootNode,
     subnetworkTail: ReteNode,
     isIndependent: boolean,
-    dependentVars: string[],
+    dependentVars: string[]
   ): AccumulatorNode {
     const node = new AccumulatorNode(
       rete,
       c,
       subnetworkHead,
       isIndependent,
-      dependentVars,
+      dependentVars
     );
 
     node.parent = parent;
@@ -107,7 +107,7 @@ export class AccumulatorNode extends ReteNode {
   sharedIndependentToken = Token.create(this, null, [
     "global",
     "token",
-    "sharedIndependent",
+    "sharedIndependent"
   ]);
 
   constructor(
@@ -115,7 +115,7 @@ export class AccumulatorNode extends ReteNode {
     accumulator: AccumulatorCondition,
     subnetworkHead: ReteNode,
     isIndependent: boolean,
-    dependentVars: string[],
+    dependentVars: string[]
   ) {
     super(rete);
 
@@ -322,7 +322,7 @@ export class AccumulatorNode extends ReteNode {
     return getBindingId(
       t.bindings,
       this.dependentVars.length > 0 &&
-        this.accumulator.accumulator.tokenPerBindingMatch,
+        this.accumulator.accumulator.tokenPerBindingMatch
     );
   }
 
@@ -338,7 +338,7 @@ export class AccumulatorNode extends ReteNode {
     } else {
       result = tokens.reduce(
         this.accumulator.accumulator.reducer,
-        cloneDeep(this.accumulator.accumulator.initialValue),
+        cloneDeep(this.accumulator.accumulator.initialValue)
       );
     }
 
@@ -348,7 +348,7 @@ export class AccumulatorNode extends ReteNode {
     // Might need to have a way of getting a non-subnetwork parent token.
     const t = Token.create(this, initialToken, result, {
       ...initialToken.bindings,
-      [cleanedVariableName]: result,
+      [cleanedVariableName]: result
     });
 
     const previousResult = this.results.get(bindingId);

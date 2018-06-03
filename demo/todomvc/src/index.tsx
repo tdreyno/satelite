@@ -18,5 +18,5 @@ ReactDOM.render(
   <Provider rete={rete}>
     <TodoApp />
   </Provider>,
-  document.getElementById("todoapp"),
+  document.getElementById("todoapp")
 );

@@ -11,15 +11,15 @@ module.exports = {
   devtool: "source-map",
   entry: {
     app: "./src/index",
-    vendor: ["react", "react-dom"],
+    vendor: ["react", "react-dom"]
   },
   output: {
     path: path.join(__dirname, "dist"),
     filename: "bundle.js",
-    publicPath: "/",
+    publicPath: "/"
   },
   resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    extensions: [".js", ".jsx", ".ts", ".tsx"]
   },
   module: {
     rules: [
@@ -27,27 +27,27 @@ module.exports = {
         test: /\.js$/,
         exclude: path.resolve(__dirname, "src"),
         loader: "source-map-loader",
-        enforce: "pre",
+        enforce: "pre"
       },
       {
         test: /\.tsx?$/,
         loader: "awesome-typescript-loader",
-        exclude: /node_modules/,
-      },
-    ],
+        exclude: /node_modules/
+      }
+    ]
   },
 
   plugins: [
     new CheckerPlugin(),
     new webpack.DefinePlugin({
-      "process.env": { NODE_ENV: JSON.stringify(process.env.NODE_ENV) },
+      "process.env": { NODE_ENV: JSON.stringify(process.env.NODE_ENV) }
     }),
     new webpack.NoEmitOnErrorsPlugin(),
 
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
-      filename: "vendor.bundle.js",
-    }),
+      filename: "vendor.bundle.js"
+    })
   ].concat(
     ENV === "production"
       ? [
@@ -56,16 +56,16 @@ module.exports = {
           new CopyWebpackPlugin([
             {
               context: "static",
-              from: "*",
-            },
-          ]),
+              from: "*"
+            }
+          ])
         ]
-      : [],
+      : []
   ),
 
   devServer: {
-    contentBase: path.join(__dirname, "static"),
+    contentBase: path.join(__dirname, "static")
   },
 
-  stats: { colors: true },
+  stats: { colors: true }
 };

@@ -9,7 +9,7 @@ export class IIdentifier<T = IPrimitive> {
 
 export function baseMakeIdentifier<T = IPrimitive>(
   attribute: string,
-  value: T,
+  value: T
 ): IIdentifier<T> {
   const i = Object.create(null);
 

@@ -3,7 +3,13 @@ import isString = require("lodash/isString");
 import map = require("lodash/map");
 import lodashOrderBy = require("lodash/orderBy");
 import pick = require("lodash/pick");
-import { cleanVariableName, ICondition, IConstantTest, parseCondition, ParsedCondition } from "./Condition";
+import {
+  cleanVariableName,
+  ICondition,
+  IConstantTest,
+  parseCondition,
+  ParsedCondition
+} from "./Condition";
 import { IFact, IValue } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
@@ -17,7 +23,7 @@ export function acc<T>(
 ): AccumulatorCondition<T> {
   const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
     conditions,
-    parseCondition,
+    parseCondition
   );
 
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
@@ -30,9 +36,9 @@ export function count(bindingName: string, ...conditions: IConditions) {
       reducer: (sum: number): number => {
         return sum + 1;
       },
-      initialValue: 0,
+      initialValue: 0
     },
-    ...conditions,
+    ...conditions
   );
 }
 
@@ -49,9 +55,9 @@ export function max(bindingName: string, ...conditions: IConditions) {
 
         return value > sum ? value : sum;
       },
-      initialValue: undefined,
+      initialValue: undefined
     },
-    ...conditions,
+    ...conditions
   );
 }
 
@@ -68,9 +74,9 @@ export function min(bindingName: string, ...conditions: IConditions) {
 
         return value < sum ? value : sum;
       },
-      initialValue: undefined,
+      initialValue: undefined
     },
-    ...conditions,
+    ...conditions
   );
 }
 
@@ -78,12 +84,11 @@ export function exists(bindingName: string, ...conditions: IConditions) {
   return acc(
     bindingName,
     {
-      // tslint:disable-next-line:variable-name
-      reducer: (_acc: boolean): boolean => true,
+      reducer: (): boolean => true,
       initialValue: false,
-      tokenPerBindingMatch: true,
+      tokenPerBindingMatch: true
     },
-    ...conditions,
+    ...conditions
   );
 }
 
@@ -99,14 +104,16 @@ export function collect(
 ): AccumulatorCondition;
 export function collect(
   bindingName: string,
-  ...mapperFnOrConditions: Array<string | ICondition | AccumulatorCondition | ICollectionMapperFn>
+  ...mapperFnOrConditions: Array<
+    string | ICondition | AccumulatorCondition | ICollectionMapperFn
+  >
 ): AccumulatorCondition {
   let mapperFn: ICollectionMapperFn = (f: IFact) => f;
   const firstVariadicArgument = mapperFnOrConditions[0];
 
   if (isString(firstVariadicArgument)) {
     const stringAlias: string = cleanVariableName(
-      mapperFnOrConditions.shift() as any,
+      mapperFnOrConditions.shift() as any
     );
 
     // tslint:disable-next-line:variable-name
@@ -116,7 +123,9 @@ export function collect(
   }
 
   // Whatever is left are conditions
-  const conditions: Array<ICondition | AccumulatorCondition> = mapperFnOrConditions as any;
+  const conditions: Array<
+    ICondition | AccumulatorCondition
+  > = mapperFnOrConditions as any;
 
   return acc(
     bindingName,
@@ -126,20 +135,20 @@ export function collect(
         return sum;
       },
       initialValue: [] as any[],
-      tokenPerBindingMatch: true,
+      tokenPerBindingMatch: true
     },
-    ...conditions,
+    ...conditions
   );
 }
 
 export function collectBindings(
   bindingName: string,
-  onlyKeys?: string[],
+  onlyKeys?: string[]
 ): AccumulatorCondition {
   return collect(
     bindingName,
     // tslint:disable-next-line:variable-name
-    (_f, bindings) => (onlyKeys ? pick(bindings, onlyKeys) : bindings),
+    (_f, bindings) => (onlyKeys ? pick(bindings, onlyKeys) : bindings)
   );
 }
 
@@ -147,7 +156,7 @@ export function sortBy(
   bindingName: string,
   dataKey: string,
   sortKeys: string[],
-  orderKeys?: string[],
+  orderKeys?: string[]
 ): AccumulatorCondition {
   const cleanKey = cleanVariableName(dataKey);
 
@@ -157,7 +166,7 @@ export function sortBy(
       return lodashOrderBy(item.bindings[cleanKey], sortKeys, orderKeys);
     },
     initialValue: [] as any[],
-    tokenPerBindingMatch: true,
+    tokenPerBindingMatch: true
   });
 }
 
@@ -172,7 +181,7 @@ export function entity(
   options?: {
     renamerFn?: (key: string) => string;
     stripPrefix: boolean | string;
-  },
+  }
 ) {
   // Default renamer is just "identity".
   let renamerFn = (k: string) => k;
@@ -206,8 +215,8 @@ export function entity(
         return result;
       },
       initialValue: undefined,
-      tokenPerBindingMatch: true,
+      tokenPerBindingMatch: true
     },
-    [entityId, _, _],
+    [entityId, _, _]
   );
 }

@@ -42,8 +42,8 @@ query(
   collect(
     "?projects",
     ["?id", "project/slug", _],
-    not(["?id", "project/campaign", _]),
-  ),
+    not(["?id", "project/campaign", _])
+  )
 );
 
 // function projectsAndCampaigns() {
@@ -74,8 +74,8 @@ query(
   collect(
     "?projectsAndCampaigns",
     collect("?projects", [_, "project/slug", _]),
-    collect("?campaigns", [_, "campaign/slug", _]),
-  ),
+    collect("?campaigns", [_, "campaign/slug", _])
+  )
 );
 
 // function allProjects() {
@@ -117,7 +117,7 @@ query(collect("?projects", ["?id", "project/slug", _]));
 const outcomeKey = "somekey";
 query(
   ["?outcome", "projectOutcome/name", outcomeKey],
-  ["?outcome", "projectOutcome/link", "?link"],
+  ["?outcome", "projectOutcome/link", "?link"]
 );
 
 // function projectOutcomes() {
@@ -265,7 +265,7 @@ query(
   collect("?regions", [_, "projectRegion/slug", _]),
   collect("?people", [_, "person/slug", _]),
   collect("?phases", [_, "projectPhase/slug", _]),
-  collect("?all", [_, "project/slug", _]),
+  collect("?all", [_, "project/slug", _])
 );
 
 // function getCampaignData(campaignID) {
@@ -294,8 +294,8 @@ query(
     "?regions",
     "?regionId",
     ["?projectId", "project/campaign", campaignID],
-    ["?projectId", "project/region", "?regionId"],
-  ),
+    ["?projectId", "project/region", "?regionId"]
+  )
 );
 
 // function getProjectsOfCampaign(campaignID) {
@@ -313,8 +313,8 @@ query(
   collect("?regions", "?projectId", [
     "?projectId",
     "project/campaign",
-    campaignID,
-  ]),
+    campaignID
+  ])
 );
 
 // function getProjectRegionMarkets(regionID) {
@@ -352,8 +352,8 @@ query(
     "?marketId",
     ["?regionId", "projectRegions/slug", regionId],
     ["?projectId", "project/region", "?regionId"],
-    ["?projectId", "projectRegion/market", "?marketId"],
-  ),
+    ["?projectId", "projectRegion/market", "?marketId"]
+  )
 );
 
 // function projectPeople() {

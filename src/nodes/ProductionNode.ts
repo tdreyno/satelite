@@ -20,7 +20,7 @@ export class ProductionNode extends ReteNode {
   static create(
     r: Rete,
     production: Production,
-    conditions: Array<ParsedCondition | AccumulatorCondition>,
+    conditions: Array<ParsedCondition | AccumulatorCondition>
   ): ProductionNode {
     return new ProductionNode(r, production, conditions);
   }
@@ -30,7 +30,11 @@ export class ProductionNode extends ReteNode {
   conditions: Array<ParsedCondition | AccumulatorCondition>;
   resultingFacts: IResultingFacts[] = [];
 
-  constructor(r: Rete, production: Production, conditions: Array<ParsedCondition | AccumulatorCondition>) {
+  constructor(
+    r: Rete,
+    production: Production,
+    conditions: Array<ParsedCondition | AccumulatorCondition>
+  ) {
     super(r);
 
     this.production = production;
@@ -53,7 +57,7 @@ export class ProductionNode extends ReteNode {
 
       this.resultingFacts.push({
         token: t,
-        facts,
+        facts
       });
     }
   }
@@ -85,7 +89,7 @@ export class ProductionNode extends ReteNode {
 
       this.resultingFacts.push({
         token: t,
-        facts: newFacts,
+        facts: newFacts
       });
     }
 
@@ -95,7 +99,7 @@ export class ProductionNode extends ReteNode {
 
       this.resultingFacts = removeIndexFromList(
         this.resultingFacts,
-        resultingFactIndex,
+        resultingFactIndex
       );
 
       this.retractDependentFacts(facts);
@@ -104,7 +108,7 @@ export class ProductionNode extends ReteNode {
     if (oldFacts && newFacts) {
       const { assert, retract, update } = this.groupFactChanges(
         oldFacts.facts,
-        newFacts,
+        newFacts
       );
 
       this.retractDependentFacts(retract);
@@ -113,7 +117,7 @@ export class ProductionNode extends ReteNode {
 
       this.resultingFacts[resultingFactIndex] = {
         token: t,
-        facts: newFacts,
+        facts: newFacts
       };
     }
   }
@@ -136,7 +140,7 @@ export class ProductionNode extends ReteNode {
 
       this.resultingFacts = removeIndexFromList(
         this.resultingFacts,
-        foundResultingFactIndex,
+        foundResultingFactIndex
       );
 
       this.retractDependentFacts(facts);
@@ -179,33 +183,33 @@ export class ProductionNode extends ReteNode {
 
     if (resultingFacts && Array.isArray(resultingFacts)) {
       return Array.isArray(resultingFacts[0])
-        ? resultingFacts as IFact[]
+        ? (resultingFacts as IFact[])
         : map([resultingFacts] as IFact[], f => makeFact(f[0], f[1], f[2]));
     }
   }
 
   private groupFactChanges(oldFacts: IFact[], newFacts: IFact[]) {
     const oldFactsWithoutValues = map(oldFacts, f =>
-      makeFact(f[0], f[1], true),
+      makeFact(f[0], f[1], true)
     );
 
     const newFactsWithoutValues = map(newFacts, f =>
-      makeFact(f[0], f[1], true),
+      makeFact(f[0], f[1], true)
     );
 
     const uniqueOldFacts = difference(
       oldFactsWithoutValues,
-      newFactsWithoutValues,
+      newFactsWithoutValues
     );
 
     const uniqueNewFacts = difference(
       newFactsWithoutValues,
-      oldFactsWithoutValues,
+      oldFactsWithoutValues
     );
 
     const sharedFacts = intersection(
       newFactsWithoutValues,
-      oldFactsWithoutValues,
+      oldFactsWithoutValues
     );
 
     const toBeUpdated: IUpdateList = [];
@@ -225,14 +229,14 @@ export class ProductionNode extends ReteNode {
 
       toBeUpdated.push({
         from: oldFact as IFact,
-        to: newFact as IFact,
+        to: newFact as IFact
       });
     }
 
     return {
       retract: uniqueOldFacts,
       assert: uniqueNewFacts,
-      update: toBeUpdated,
+      update: toBeUpdated
     };
   }
 }

@@ -19,7 +19,7 @@ function cleanJoinTables(keys: string[], entity: any): any {
     } else if (entity[k] && entity[k].data) {
       entity[k] = Object.assign(
         { slug: entity[k].data[0].slug },
-        entity[k].data[0].data,
+        entity[k].data[0].data
       );
     }
   });
@@ -73,7 +73,7 @@ const campaign = new schema.Entity("campaign", undefined, {
     entity = omitEmptyFields(entity);
     entity = cleanUnnecessaryPrefixes(entity, "campaign");
     return entity;
-  },
+  }
 });
 
 const projectRegion = new schema.Entity("projectRegion", undefined, {
@@ -83,7 +83,7 @@ const projectRegion = new schema.Entity("projectRegion", undefined, {
     entity = omitEmptyFields(entity);
     entity = cleanUnnecessaryPrefixes(entity, "region");
     return entity;
-  },
+  }
 });
 
 const team = new schema.Entity("team", undefined, {
@@ -92,13 +92,13 @@ const team = new schema.Entity("team", undefined, {
     entity = omit(entity, "type");
     entity = omitEmptyFields(entity);
     return entity;
-  },
+  }
 });
 
 const person = new schema.Entity(
   "person",
   {
-    projectTeam: team,
+    projectTeam: team
   },
   {
     idAttribute: "slug",
@@ -106,14 +106,14 @@ const person = new schema.Entity(
       entity = omit(entity, "type");
       entity = omitEmptyFields(entity);
       return cleanJoinTables(["projectTeam"], entity);
-    },
-  },
+    }
+  }
 );
 
 const projectOutcome = new schema.Entity(
   "projectOutcome",
   {
-    owner: person,
+    owner: person
   },
   {
     idAttribute: "slug",
@@ -123,8 +123,8 @@ const projectOutcome = new schema.Entity(
       entity = cleanJoinTables(["outcomeOwner"], entity);
       entity = cleanUnnecessaryPrefixes(entity, "outcome");
       return entity;
-    },
-  },
+    }
+  }
 );
 
 const project = new schema.Entity(
@@ -133,7 +133,7 @@ const project = new schema.Entity(
     campaign,
     outcome: projectOutcome,
     region: projectRegion,
-    owner: person,
+    owner: person
   },
   {
     idAttribute: "slug",
@@ -150,21 +150,21 @@ const project = new schema.Entity(
 
       entity = cleanJoinTables(
         ["campaign", "projectOutcome", "projectRegion", "projectOwner"],
-        entity,
+        entity
       );
 
       entity = cleanUnnecessaryPrefixes(entity, "project");
 
       return entity;
-    },
-  },
+    }
+  }
 );
 
 const normalizedData = normalize(json.data, [project]);
 
 fs.writeFileSync(
   path.join(__dirname, "normalized.json"),
-  JSON.stringify(normalizedData),
+  JSON.stringify(normalizedData)
 );
 
 const facts: IFact[] = [];
@@ -179,7 +179,7 @@ each(Object.keys(normalizedData.entities), modelName => {
       facts.push([
         modelId,
         `${modelName}/${modelAttribute}`,
-        model[modelAttribute],
+        model[modelAttribute]
       ]);
     });
   });
@@ -187,7 +187,7 @@ each(Object.keys(normalizedData.entities), modelName => {
 
 fs.writeFileSync(
   path.join(__dirname, "facts.ts"),
-  "export default " + JSON.stringify(facts),
+  "export default " + JSON.stringify(facts)
 );
 
 // tslint:disable-next-line:no-console

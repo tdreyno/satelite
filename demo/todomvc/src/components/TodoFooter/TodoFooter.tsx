@@ -33,14 +33,14 @@ export class TodoFooter extends React.Component<ITodoFooterProps> {
           {this.renderFilterLink(COMPLETED_TODOS, "Completed")}
         </ul>
 
-        {completedCount === 0
-          ? null
-          : <button
-              className="clear-completed"
-              onClick={this.clearCompleted.bind(this)}
-            >
-              Clear completed
-            </button>}
+        {completedCount === 0 ? null : (
+          <button
+            className="clear-completed"
+            onClick={this.clearCompleted.bind(this)}
+          >
+            Clear completed
+          </button>
+        )}
       </footer>
     );
   }

@@ -52,37 +52,37 @@ export const isBetween = (a: any, c: any) =>
   compare(
     (b: number, bindings: IVariableBindings): boolean =>
       getValueOfComparisonTarget(a, bindings) <= b &&
-      b <= getValueOfComparisonTarget(c, bindings),
+      b <= getValueOfComparisonTarget(c, bindings)
   );
 export const lessThanOrEqualTo = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a <= getValueOfComparisonTarget(v, bindings),
+      a <= getValueOfComparisonTarget(v, bindings)
   );
 export const lessThan = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a < getValueOfComparisonTarget(v, bindings),
+      a < getValueOfComparisonTarget(v, bindings)
   );
 export const greaterThan = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a > getValueOfComparisonTarget(v, bindings),
+      a > getValueOfComparisonTarget(v, bindings)
   );
 export const greaterThanOrEqualTo = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a >= getValueOfComparisonTarget(v, bindings),
+      a >= getValueOfComparisonTarget(v, bindings)
   );
 export const equals = (v: any) =>
   compare(
     (a: any, bindings: IVariableBindings): boolean =>
-      a === getValueOfComparisonTarget(v, bindings),
+      a === getValueOfComparisonTarget(v, bindings)
   );
 export const notEquals = (v: any) =>
   compare(
     (a: any, bindings: IVariableBindings): boolean =>
-      a !== getValueOfComparisonTarget(v, bindings),
+      a !== getValueOfComparisonTarget(v, bindings)
   );
 
 export function isVariable(v: any): boolean {
@@ -118,7 +118,7 @@ export class ParsedCondition {
     identifier: IPrimitive | IIdentifier | IConstantTest | Comparison,
     attribute: string | IConstantTest | Comparison,
     value: IValue | IConstantTest | Comparison,
-    isNegated: boolean,
+    isNegated: boolean
   ) {
     return new ParsedCondition(identifier, attribute, value, isNegated);
   }
@@ -127,9 +127,9 @@ export class ParsedCondition {
   attribute: string | IConstantTest | Comparison;
   value: IValue | IConstantTest | Comparison;
   constantFields: Partial<IFact>;
-  placeholderFields: {[P in IFactFields]?: true };
-  variableFields: {[P in IFactFields]?: string };
-  comparisonFields: {[P in IFactFields]?: Comparison };
+  placeholderFields: { [P in IFactFields]?: true };
+  variableFields: { [P in IFactFields]?: string };
+  comparisonFields: { [P in IFactFields]?: Comparison };
   variableNames: IVariableNames;
   isNegated: boolean;
 
@@ -137,7 +137,7 @@ export class ParsedCondition {
     identifier: IPrimitive | IIdentifier | IConstantTest | Comparison,
     attribute: string | IConstantTest | Comparison,
     value: IValue | IConstantTest | Comparison,
-    isNegated: boolean,
+    isNegated: boolean
   ) {
     this.identifier = identifier;
     this.attribute = attribute;
@@ -191,10 +191,12 @@ export class ParsedCondition {
 // Converts condition `toJSON` for caching. Might not be worth the memory.
 const memoizedParseCondition = memoize(ParsedCondition.create);
 
-export function parseCondition<T>(c: AccumulatorCondition<T>): AccumulatorCondition<T>;
+export function parseCondition<T>(
+  c: AccumulatorCondition<T>
+): AccumulatorCondition<T>;
 export function parseCondition(c: ICondition | any[]): ParsedCondition;
 export function parseCondition<T>(
-  c: ICondition | any[] | AccumulatorCondition<T>,
+  c: ICondition | any[] | AccumulatorCondition<T>
 ): ParsedCondition | AccumulatorCondition<T> {
   if (c instanceof AccumulatorCondition) {
     return c;
@@ -207,7 +209,7 @@ export function parseCondition<T>(
 
 export function getJoinTestsFromCondition(
   c: ParsedCondition | AccumulatorCondition,
-  earlierConditions: Array<ParsedCondition | AccumulatorCondition>,
+  earlierConditions: Array<ParsedCondition | AccumulatorCondition>
 ): TestAtJoinNode[] {
   const variableNames: IVariableNames =
     c instanceof AccumulatorCondition ? {} : c.variableNames;
@@ -218,7 +220,7 @@ export function getJoinTestsFromCondition(
     if (variableNames.hasOwnProperty(variableName)) {
       const earlierCondition = findVariableInEarlierConditions(
         variableName,
-        earlierConditions,
+        earlierConditions
       );
 
       if (earlierCondition) {
@@ -230,7 +232,7 @@ export function getJoinTestsFromCondition(
             : earlierCondition.variableNames[variableName];
 
         results.unshift(
-          createTestAtJoinNode(fieldArg1, earlierCondition, fieldArg2),
+          createTestAtJoinNode(fieldArg1, earlierCondition, fieldArg2)
         );
       } else {
         results.unshift(createTestAtJoinNode(null, c, null));
@@ -243,7 +245,7 @@ export function getJoinTestsFromCondition(
 
 export function findVariableInEarlierConditions(
   variableName: string,
-  earlierConditions: Array<ParsedCondition | AccumulatorCondition>,
+  earlierConditions: Array<ParsedCondition | AccumulatorCondition>
 ): ParsedCondition | AccumulatorCondition | undefined {
   for (let i = 0; i < earlierConditions.length; i++) {
     const c = earlierConditions[i];
@@ -261,7 +263,7 @@ export function findVariableInEarlierConditions(
 export function extractBindingsFromCondition(
   c: ParsedCondition | AccumulatorCondition,
   f: IFact,
-  b: IVariableBindings,
+  b: IVariableBindings
 ): IVariableBindings {
   const bindings = Object.assign({}, b);
 
@@ -285,7 +287,7 @@ export function extractBindingsFromCondition(
 }
 
 export function getVariableNamesFromCondition(
-  c: ParsedCondition | AccumulatorCondition,
+  c: ParsedCondition | AccumulatorCondition
 ): string[] {
   if (c instanceof AccumulatorCondition) {
     return [c.bindingName];
@@ -295,20 +297,20 @@ export function getVariableNamesFromCondition(
 }
 
 export function getVariableNamesFromConditions(
-  conditions: Array<ParsedCondition | AccumulatorCondition>,
+  conditions: Array<ParsedCondition | AccumulatorCondition>
 ): string[] {
   return conditions.reduce(
     (acc, c) => union(acc, getVariableNamesFromCondition(c)),
-    [] as string[],
+    [] as string[]
   );
 }
 
 export function dependentVariableNames(
   parentConditions: Array<ParsedCondition | AccumulatorCondition>,
-  subConditions: Array<ParsedCondition | AccumulatorCondition>,
+  subConditions: Array<ParsedCondition | AccumulatorCondition>
 ): string[] {
   return intersection(
     getVariableNamesFromConditions(parentConditions),
-    getVariableNamesFromConditions(subConditions),
+    getVariableNamesFromConditions(subConditions)
   );
 }

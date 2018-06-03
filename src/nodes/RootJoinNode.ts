@@ -5,7 +5,7 @@ import { Token } from "../Token";
 import {
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  runLeftUpdateOnNodes,
+  runLeftUpdateOnNodes
 } from "../util";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { TestAtJoinNode } from "./JoinNode";
@@ -16,7 +16,7 @@ export class RootJoinNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[],
+    tests: TestAtJoinNode[]
   ) {
     for (let i = 0; i < parent.children.length; i++) {
       const sibling = parent.children[i];
@@ -40,7 +40,7 @@ export class RootJoinNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[],
+    tests: TestAtJoinNode[]
   ) {
     super(rete);
 

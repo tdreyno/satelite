@@ -6,7 +6,7 @@ import {
   findInList,
   removeIndexFromList,
   runLeftActivateOnNodes,
-  runLeftRetractOnNodes,
+  runLeftRetractOnNodes
 } from "../util";
 import { ReteNode } from "./ReteNode";
 
@@ -15,7 +15,7 @@ export class ComparisonNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     comparisonKey: IFactFields,
-    comparison: Comparison,
+    comparison: Comparison
   ): ComparisonNode {
     const node = new ComparisonNode(rete, parent, comparisonKey, comparison);
 
@@ -34,7 +34,7 @@ export class ComparisonNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     comparisonKey: IFactFields,
-    comparison: Comparison,
+    comparison: Comparison
   ) {
     super(rete);
 
@@ -85,7 +85,7 @@ export class ComparisonNode extends ReteNode {
 
   private executeLeft(
     t: Token,
-    action: (children: ReteNode[], t: Token) => void,
+    action: (children: ReteNode[], t: Token) => void
   ) {
     const value = t.fact[this.comparisonKey];
 

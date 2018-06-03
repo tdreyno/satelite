@@ -17,7 +17,7 @@ export class Token {
     node: RootJoinNode | JoinNode | AccumulatorNode,
     parent: Token | null,
     fact: ITokenValue,
-    bindings: IVariableBindings = {},
+    bindings: IVariableBindings = {}
   ) {
     const token = new Token(node, parent, fact, bindings);
 
@@ -39,7 +39,7 @@ export class Token {
     node: RootJoinNode | JoinNode | AccumulatorNode,
     parent: Token | null,
     fact: ITokenValue,
-    bindings: IVariableBindings = {},
+    bindings: IVariableBindings = {}
   ) {
     this.node = node;
     this.parent = parent;
@@ -49,7 +49,7 @@ export class Token {
 
   toString(): string {
     return `<Token\n\t\tid=${this.id}\n\t\tfact=${JSON.stringify(
-      this.fact,
+      this.fact
     )}\n\t\tbindings=${JSON.stringify(this.bindings)}>`;
   }
 }

@@ -1,7 +1,7 @@
 import {
   findVariableInEarlierConditions,
   getJoinTestsFromCondition,
-  parseCondition,
+  parseCondition
 } from "../Condition";
 
 describe("Condition", () => {
@@ -10,7 +10,7 @@ describe("Condition", () => {
       const { variableFields, constantFields, variableNames } = parseCondition([
         1,
         "is",
-        "odd",
+        "odd"
       ]);
 
       expect(Object.keys(variableFields)).toHaveLength(0);
@@ -25,7 +25,7 @@ describe("Condition", () => {
       const { variableFields, constantFields, variableNames } = parseCondition([
         "?a",
         "?b",
-        "?c",
+        "?c"
       ]);
 
       expect(Object.keys(constantFields)).toHaveLength(0);
@@ -43,7 +43,7 @@ describe("Condition", () => {
       const { variableFields, constantFields, variableNames } = parseCondition([
         "?a",
         "is",
-        "?c",
+        "?c"
       ]);
 
       expect(Object.keys(constantFields)).toHaveLength(1);
@@ -71,19 +71,19 @@ describe("Condition", () => {
     it("should find previous condition", () => {
       const conditions = [["?e", "age", 34]].map(parseCondition);
       expect(findVariableInEarlierConditions("?e", conditions)).toBe(
-        conditions[0],
+        conditions[0]
       );
     });
 
     it("should find multiple previous conditions", () => {
       const conditions = [["?e", "age", 34], ["?e", "name", "?v"]].map(
-        parseCondition,
+        parseCondition
       );
       expect(findVariableInEarlierConditions("?e", conditions)).toBe(
-        conditions[0],
+        conditions[0]
       );
       expect(findVariableInEarlierConditions("?v", conditions)).toBe(
-        conditions[1],
+        conditions[1]
       );
     });
 
@@ -96,7 +96,7 @@ describe("Condition", () => {
   describe("getJoinTestsFromCondition", () => {
     it("should create a join test for the known variable ?e, but not ?v", () => {
       const conditions = [[1, "name", "Thomas"], ["?e", "age", 34]].map(
-        parseCondition,
+        parseCondition
       );
 
       const baseCondition = parseCondition(["?v", "relation", "?e"]);
@@ -115,12 +115,12 @@ describe("Condition", () => {
 
     it("should create a join test for the known variables ?e and ?v", () => {
       const conditions = [["?e", "age", 34], ["?e", "status", "?v"]].map(
-        parseCondition,
+        parseCondition
       );
 
       const tests = getJoinTestsFromCondition(
         parseCondition(["?e", "name", "?v"]),
-        conditions,
+        conditions
       );
 
       expect(tests).toHaveLength(2);

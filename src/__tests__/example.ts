@@ -7,19 +7,19 @@ const { assert, retract, query } = Rete.create();
 const hasData = (v: boolean): IFact => [
   "articleModerators",
   "loader/hasData",
-  v,
+  v
 ];
 const isFetching = (v: boolean): IFact => [
   "articleModerators",
   "loader/isFetching",
-  v,
+  v
 ];
 const articleIdent = (id: string) => makeIdentifier("article/id", id);
 
 const articleModeratorsScope = (id: string) => (v: string): IFact => [
   articleIdent(id),
   "article/moderators",
-  v,
+  v
 ];
 
 // Action.
@@ -27,15 +27,18 @@ export async function load() {
   assert(isFetching(true));
 
   const json: { [articleId: string]: string[] } = await fetch(
-    "/api/articleModerators",
+    "/api/articleModerators"
   );
 
   assert(isFetching(false));
 
-  const insertions = Object.keys(json).reduce((sum, articleId) => {
-    const userIds = json[articleId];
-    return sum.concat(map(userIds, articleModeratorsScope(articleId)));
-  }, [] as IFact[]);
+  const insertions = Object.keys(json).reduce(
+    (sum, articleId) => {
+      const userIds = json[articleId];
+      return sum.concat(map(userIds, articleModeratorsScope(articleId)));
+    },
+    [] as IFact[]
+  );
 
   assert(...insertions);
   assert(hasData(true));

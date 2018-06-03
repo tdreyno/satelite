@@ -6,7 +6,7 @@ import {
   replaceIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  runLeftUpdateOnNodes,
+  runLeftUpdateOnNodes
 } from "../util";
 import { ReteNode } from "./ReteNode";
 

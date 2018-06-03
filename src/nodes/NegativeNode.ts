@@ -5,7 +5,7 @@ import {
   findInList,
   removeIndexFromList,
   runLeftActivateOnNodes,
-  runLeftRetractOnNodes,
+  runLeftRetractOnNodes
 } from "../util";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { performJoinTests, sameTests, TestAtJoinNode } from "./JoinNode";
@@ -16,7 +16,7 @@ export class NegativeNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[],
+    tests: TestAtJoinNode[]
   ): NegativeNode {
     for (let i = 0; i < parent.children.length; i++) {
       const sibling = parent.children[i];
@@ -49,7 +49,7 @@ export class NegativeNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[],
+    tests: TestAtJoinNode[]
   ) {
     super(rete);
 
@@ -112,7 +112,7 @@ export class NegativeNode extends ReteNode {
 
   private executeLeft(
     t: Token,
-    action: (children: ReteNode[], t: Token) => void,
+    action: (children: ReteNode[], t: Token) => void
   ) {
     let didMatch = false;
 
@@ -132,7 +132,7 @@ export class NegativeNode extends ReteNode {
 
   private executeRight(
     f: IFact,
-    action: (children: ReteNode[], f: Token) => void,
+    action: (children: ReteNode[], f: Token) => void
   ) {
     for (let i = 0; i < this.items.length; i++) {
       const t = this.items[i];

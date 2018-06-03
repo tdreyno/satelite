@@ -7,7 +7,7 @@ import { IVariableBindings } from "./Token";
 
 export type IQueryChangeFn = (
   facts: IFact[],
-  variableBindings: IVariableBindings[],
+  variableBindings: IVariableBindings[]
 ) => any;
 
 let nextQueryId = 0;
@@ -59,16 +59,16 @@ export class Query {
   private getVariableBindings(): IVariableBindings[] {
     return this.queryNode && this.queryNode.items
       ? map(this.queryNode.items, t => {
-        let bindings = t.bindings;
-        if (this.lastCondition && t.fact) {
-          bindings = extractBindingsFromCondition(
-            this.lastCondition,
-            t.fact,
-            bindings,
-          );
-        }
-        return bindings;
-      })
+          let bindings = t.bindings;
+          if (this.lastCondition && t.fact) {
+            bindings = extractBindingsFromCondition(
+              this.lastCondition,
+              t.fact,
+              bindings
+            );
+          }
+          return bindings;
+        })
       : [];
   }
 }

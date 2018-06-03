@@ -3,7 +3,7 @@ import {
   isComparison,
   isConstant,
   isPlaceholder,
-  ParsedCondition,
+  ParsedCondition
 } from "../Condition";
 import { IFact, IValue } from "../Fact";
 import { IIdentifier, IPrimitive } from "../Identifier";
@@ -19,8 +19,8 @@ export const getHashCode = memoize(
   (
     _identifier: IPrimitive | IIdentifier | null,
     _attribute: string | null,
-    _value: IValue | null,
-  ): number => nextHashCode++,
+    _value: IValue | null
+  ): number => nextHashCode++
 );
 // tslint:enable:variable-name
 
@@ -28,7 +28,7 @@ export function lookupInHashTable(
   hashTable: IExhaustiveHashTable,
   identifier: IPrimitive | IIdentifier | null,
   attribute: string | null,
-  value: IValue | null,
+  value: IValue | null
 ): AlphaMemoryNode | undefined {
   const hashCode = getHashCode(identifier, attribute, value);
 
@@ -55,7 +55,7 @@ export class AlphaMemoryNode extends ReteNode {
       rete.hashTable,
       identifierTest,
       attributeTest,
-      valueTest,
+      valueTest
     );
 
     if (alphaMemory) {
@@ -66,7 +66,7 @@ export class AlphaMemoryNode extends ReteNode {
       rete,
       identifierTest,
       attributeTest,
-      valueTest,
+      valueTest
     );
 
     for (const f of rete.facts) {
@@ -135,12 +135,13 @@ export function addToHashTable(
   rete: Rete,
   identifier: IPrimitive | IIdentifier | null,
   attribute: string | null,
-  value: IValue | null,
+  value: IValue | null
 ): AlphaMemoryNode {
   const node = new AlphaMemoryNode(
     rete,
-    `${identifier ? JSON.stringify(identifier) : "_"} ${attribute ||
-      "_"} ${value ? JSON.stringify(value) : "_"}`,
+    `${identifier ? JSON.stringify(identifier) : "_"} ${attribute || "_"} ${
+      value ? JSON.stringify(value) : "_"
+    }`
   );
 
   const hashCode = getHashCode(identifier, attribute, value);

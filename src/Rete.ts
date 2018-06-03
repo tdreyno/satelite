@@ -8,7 +8,7 @@ import {
   getJoinTestsFromCondition,
   ICondition,
   parseCondition,
-  ParsedCondition,
+  ParsedCondition
 } from "./Condition";
 import { IFact, IFactFields, IValue, makeFact } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
@@ -18,7 +18,7 @@ import {
   AlphaMemoryNode,
   createExhaustiveHashTable,
   IExhaustiveHashTable,
-  lookupInHashTable,
+  lookupInHashTable
 } from "./nodes/AlphaMemoryNode";
 import { ComparisonNode } from "./nodes/ComparisonNode";
 import { JoinNode } from "./nodes/JoinNode";
@@ -75,9 +75,7 @@ export type ILogger = (message: string, ...data: any[]) => any;
 export interface ILoggerMap {
   [eventName: string]: ILogger;
 }
-export type ILoggers =
-  | ILoggerMap
-  | ILogger;
+export type ILoggers = ILoggerMap | ILogger;
 
 export class Rete {
   static create(loggers?: ILoggers): Rete {
@@ -118,7 +116,7 @@ export class Rete {
       "findEntity",
       "retractEntity",
       "beginTransaction",
-      "commitTransaction",
+      "commitTransaction"
     ]);
   }
 
@@ -223,7 +221,7 @@ export class Rete {
       if (shouldRecord) {
         this.queuedActions.push({
           type: "assert",
-          value: f,
+          value: f
         });
 
         if (this.returnAfterRecording) {
@@ -236,7 +234,7 @@ export class Rete {
 
       const existingEntity: IEntityResult = this.entities.get(f[0]) || {
         facts: new Set(),
-        attributes: {},
+        attributes: {}
       };
 
       existingEntity.facts.add(f);
@@ -255,7 +253,7 @@ export class Rete {
       if (shouldRecord) {
         this.queuedActions.push({
           type: "retract",
-          value: f,
+          value: f
         });
 
         if (this.returnAfterRecording) {
@@ -295,7 +293,7 @@ export class Rete {
 
   private updateFact(
     factTuple: IFact,
-    shouldRecord = this.recordActions,
+    shouldRecord = this.recordActions
   ): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
@@ -312,7 +310,7 @@ export class Rete {
     if (shouldRecord) {
       this.queuedActions.push({
         type: "update",
-        value: { from: oldFact, to: f },
+        value: { from: oldFact, to: f }
       });
 
       if (this.returnAfterRecording) {
@@ -340,21 +338,21 @@ export class Rete {
   private addProduction(...conditions: IConditions): IThenCreateProduction {
     return {
       then: (callback: IActivateCallback) => {
-        const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
-          conditions,
-          parseCondition,
-        );
+        const parsedConditions = map<
+          any,
+          ParsedCondition | AccumulatorCondition
+        >(conditions, parseCondition);
 
         const currentNode = this.buildOrShareNetworkForConditions(
           parsedConditions,
-          [],
+          []
         );
 
         const production = Production.create(callback);
         production.productionNode = ProductionNode.create(
           this,
           production,
-          parsedConditions,
+          parsedConditions
         );
 
         currentNode.children.unshift(production.productionNode);
@@ -366,19 +364,19 @@ export class Rete {
         this.terminalNodes.push(production);
 
         return production;
-      },
+      }
     };
   }
 
   private addQuery(...conditions: IConditions): Query {
     const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
       conditions,
-      parseCondition,
+      parseCondition
     );
 
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
-      [],
+      []
     );
 
     const query = Query.create(parsedConditions);
@@ -396,7 +394,7 @@ export class Rete {
 
   private dispatchToAlphaMemories(
     f: IFact,
-    fnName: "activate" | "retract",
+    fnName: "activate" | "retract"
   ): void {
     const fn = (am?: AlphaMemoryNode) => am && am[fnName](f);
 
@@ -419,7 +417,7 @@ export class Rete {
       lookupInHashTable(this.hashTable, null, null, prev[2]),
       lookupInHashTable(this.hashTable, null, prev[1], null),
       lookupInHashTable(this.hashTable, prev[0], null, null),
-      lookupInHashTable(this.hashTable, null, null, null),
+      lookupInHashTable(this.hashTable, null, null, null)
     ];
 
     const newTables = [
@@ -430,7 +428,7 @@ export class Rete {
       lookupInHashTable(this.hashTable, null, null, f[2]),
       lookupInHashTable(this.hashTable, null, f[1], null),
       lookupInHashTable(this.hashTable, f[0], null, null),
-      lookupInHashTable(this.hashTable, null, null, null),
+      lookupInHashTable(this.hashTable, null, null, null)
     ];
 
     for (let i = 0; i < oldTables.length; i++) {
@@ -466,7 +464,7 @@ export class Rete {
   private buildOrShareNetworkForConditions(
     conditions: Array<ParsedCondition | AccumulatorCondition>,
     earlierConditions: Array<ParsedCondition | AccumulatorCondition>,
-    currentNode: ReteNode = this.root,
+    currentNode: ReteNode = this.root
   ): ReteNode {
     const conditionsHigherUp = [...earlierConditions];
 
@@ -476,7 +474,7 @@ export class Rete {
       if (c instanceof AccumulatorCondition) {
         const dependentVars = dependentVariableNames(
           conditionsHigherUp,
-          c.conditions,
+          c.conditions
         );
 
         const isIndependent =
@@ -485,7 +483,7 @@ export class Rete {
         const accTail = this.buildOrShareNetworkForConditions(
           c.conditions,
           conditionsHigherUp,
-          accRoot,
+          accRoot
         );
 
         currentNode = AccumulatorNode.create(
@@ -495,7 +493,7 @@ export class Rete {
           accRoot,
           accTail,
           isIndependent,
-          dependentVars,
+          dependentVars
         );
       } else if (
         currentNode instanceof RootNode ||
@@ -508,7 +506,7 @@ export class Rete {
           this,
           currentNode,
           alphaMemory,
-          joinTests,
+          joinTests
         );
       } else {
         const alphaMemory = AlphaMemoryNode.create(this, c);
@@ -530,7 +528,7 @@ export class Rete {
               this,
               currentNode,
               comparisonFieldKey as IFactFields,
-              comparisonField,
+              comparisonField
             );
           }
         }

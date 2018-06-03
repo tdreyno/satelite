@@ -2,7 +2,7 @@ import { memoize } from "interstelar";
 import {
   cleanVariableName,
   extractBindingsFromCondition,
-  ParsedCondition,
+  ParsedCondition
 } from "../Condition";
 import { IFact } from "../Fact";
 import { Rete } from "../Rete";
@@ -13,7 +13,7 @@ import {
   replaceIndexFromList,
   runLeftActivateOnNodes,
   runLeftRetractOnNodes,
-  runLeftUpdateOnNodes,
+  runLeftUpdateOnNodes
 } from "../util";
 import { AccumulatorCondition } from "./AccumulatorNode";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
@@ -23,7 +23,7 @@ export class TestAtJoinNode {
   static create(
     fieldArg1: number | null,
     condition: ParsedCondition | AccumulatorCondition,
-    fieldArg2: string | null,
+    fieldArg2: string | null
   ): TestAtJoinNode {
     return new TestAtJoinNode(fieldArg1, condition, fieldArg2);
   }
@@ -35,7 +35,7 @@ export class TestAtJoinNode {
   constructor(
     fieldArg1: number | null,
     condition: ParsedCondition | AccumulatorCondition,
-    fieldArg2: string | null,
+    fieldArg2: string | null
   ) {
     this.fieldArg1 = fieldArg1;
     this.condition = condition;
@@ -48,7 +48,7 @@ export const createTestAtJoinNode = memoize(TestAtJoinNode.create);
 export function performJoinTests(
   tests: TestAtJoinNode[],
   t: Token,
-  f: IFact,
+  f: IFact
 ): false | IVariableBindings {
   if (tests.length <= 0) {
     return t.bindings;
@@ -100,7 +100,7 @@ export class JoinNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[],
+    tests: TestAtJoinNode[]
   ): JoinNode {
     for (let i = 0; i < parent.children.length; i++) {
       const sibling = parent.children[i];
@@ -130,7 +130,7 @@ export class JoinNode extends ReteNode {
     rete: Rete,
     parent: ReteNode,
     alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[],
+    tests: TestAtJoinNode[]
   ) {
     super(rete);
 
@@ -274,7 +274,7 @@ export class JoinNode extends ReteNode {
     oldBindings: IVariableBindings | false,
     newBindings: IVariableBindings | false,
     oldToken: Token | false,
-    newToken: Token | false,
+    newToken: Token | false
   ) {
     // The join didn't work and still doesn't.
     if (!oldBindings && !newBindings) {

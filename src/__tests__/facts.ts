@@ -68,7 +68,7 @@ export default [
   [
     "magical-trips",
     "projectOutcome/plan",
-    "https://drive.google.com/open?id=1e57wBl-BVwjh7af6XCRQeaSvMAHr1pW8BpkqWHC3WIY",
+    "https://drive.google.com/open?id=1e57wBl-BVwjh7af6XCRQeaSvMAHr1pW8BpkqWHC3WIY"
   ],
   ["magical-trips", "projectOutcome/title", "Magical Trips"],
   ["homes-2-0", "projectOutcome/slug", "homes-2-0"],
@@ -76,7 +76,7 @@ export default [
   [
     "homes-2-0",
     "projectOutcome/plan",
-    "https://docs.google.com/document/d/1IEfcsuvfw8b57yqvB78KkEkwA6fOHsin3hLP4th3raU/edit",
+    "https://docs.google.com/document/d/1IEfcsuvfw8b57yqvB78KkEkwA6fOHsin3hLP4th3raU/edit"
   ],
   ["homes-2-0", "projectOutcome/title", "Homes 2.0 Demand"],
   ["business-travel", "projectOutcome/slug", "business-travel"],
@@ -84,7 +84,7 @@ export default [
   [
     "business-travel",
     "projectOutcome/plan",
-    "https://docs.google.com/document/d/15ElKAjLYJUgVmEwrcrIMEIjcESHMwqgYv-xMFpto7Q4/edit",
+    "https://docs.google.com/document/d/15ElKAjLYJUgVmEwrcrIMEIjcESHMwqgYv-xMFpto7Q4/edit"
   ],
   ["business-travel", "projectOutcome/title", "Business Travel"],
   ["superbrand", "projectOutcome/slug", "superbrand"],
@@ -92,7 +92,7 @@ export default [
   [
     "superbrand",
     "projectOutcome/plan",
-    "https://docs.google.com/document/d/1f5OYByQe_AAXDEiYJpz-7-f_MgCKzrGAsmzZaUDzkXc/edit",
+    "https://docs.google.com/document/d/1f5OYByQe_AAXDEiYJpz-7-f_MgCKzrGAsmzZaUDzkXc/edit"
   ],
   ["superbrand", "projectOutcome/title", "Superbrand"],
   ["payments", "projectOutcome/slug", "payments"],
@@ -100,7 +100,7 @@ export default [
   [
     "payments",
     "projectOutcome/plan",
-    "https://docs.google.com/document/d/1KUzDmw5c2O1ooVpMgDQiXWxFmEbX6UXB9LkJ5DGrHk8/edit",
+    "https://docs.google.com/document/d/1KUzDmw5c2O1ooVpMgDQiXWxFmEbX6UXB9LkJ5DGrHk8/edit"
   ],
   ["payments", "projectOutcome/title", "Payments"],
   ["china-growth", "projectOutcome/slug", "china-growth"],
@@ -108,24 +108,24 @@ export default [
   [
     "china-growth",
     "projectOutcome/plan",
-    "https://docs.google.com/document/d/10ZTgAHVi55eOnOyjZF0miAtMEPFcoz6K7lY_w1VFtvk/edit",
+    "https://docs.google.com/document/d/10ZTgAHVi55eOnOyjZF0miAtMEPFcoz6K7lY_w1VFtvk/edit"
   ],
   ["china-growth", "projectOutcome/title", "China Growth"],
   [
     "emerging-markets-latin-america",
     "projectOutcome/slug",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["emerging-markets-latin-america", "projectOutcome/owner", "andrew-speyer"],
   [
     "emerging-markets-latin-america",
     "projectOutcome/plan",
-    "https://docs.google.com/document/d/1D2jzrN6-ZynX5vFjb2-VmkCNtaxQFMOFqFweOjxGifQ/edit#heading=h.mbwn4zacl4fy",
+    "https://docs.google.com/document/d/1D2jzrN6-ZynX5vFjb2-VmkCNtaxQFMOFqFweOjxGifQ/edit#heading=h.mbwn4zacl4fy"
   ],
   [
     "emerging-markets-latin-america",
     "projectOutcome/title",
-    "Emerging Markets: Latin America",
+    "Emerging Markets: Latin America"
   ],
   ["emeafr", "projectRegion/slug", "emeafr"],
   ["emeafr", "projectRegion/name", "emea"],
@@ -185,18 +185,18 @@ export default [
   [
     "family-trips-auzzzzzzz-2",
     "project/startDate",
-    "2016-11-16 16:00:00.000000",
+    "2016-11-16 16:00:00.000000"
   ],
   ["family-trips-auzzzzzzz-2", "project/endDate", "2017-08-08 17:00:00.000000"],
   [
     "family-trips-auzzzzzzz-2",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-auzzzzzzz-2",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit",
+    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit"
   ],
   ["family-trips-auzzzzzzz-2", "project/slug", "family-trips-auzzzzzzz-2"],
   ["family-trips-au-testing", "project/campaign", "family-trips-phase-1"],
@@ -211,24 +211,24 @@ export default [
   [
     "family-trips-au-testing",
     "project/startDate",
-    "2016-11-16 16:00:00.000000",
+    "2016-11-16 16:00:00.000000"
   ],
   ["family-trips-au-testing", "project/endDate", "2017-08-08 17:00:00.000000"],
   [
     "family-trips-au-testing",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-au-testing",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit",
+    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit"
   ],
   ["family-trips-au-testing", "project/slug", "family-trips-au-testing"],
   [
     "airbnb-for-work-b2c-h1-testing3",
     "project/title",
-    "Airbnb for Work - B2C H1 testing3",
+    "Airbnb for Work - B2C H1 testing3"
   ],
   ["airbnb-for-work-b2c-h1-testing3", "project/outcome", "business-travel"],
   ["airbnb-for-work-b2c-h1-testing3", "project/region", "americasus"],
@@ -236,34 +236,34 @@ export default [
   [
     "airbnb-for-work-b2c-h1-testing3",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["airbnb-for-work-b2c-h1-testing3", "project/type", "type2a"],
   ["airbnb-for-work-b2c-h1-testing3", "project/owner", "john-g"],
   [
     "airbnb-for-work-b2c-h1-testing3",
     "project/startDate",
-    "2016-12-22 16:12:00.000000",
+    "2016-12-22 16:12:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-testing3",
     "project/endDate",
-    "2017-05-23 22:05:00.000000",
+    "2017-05-23 22:05:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-testing3",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06",
+    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06"
   ],
   [
     "airbnb-for-work-b2c-h1-testing3",
     "project/slug",
-    "airbnb-for-work-b2c-h1-testing3",
+    "airbnb-for-work-b2c-h1-testing3"
   ],
   [
     "airbnb-for-work-b2c-h1-testing2",
     "project/title",
-    "Airbnb for Work - B2C H1 testing2",
+    "Airbnb for Work - B2C H1 testing2"
   ],
   ["airbnb-for-work-b2c-h1-testing2", "project/outcome", "business-travel"],
   ["airbnb-for-work-b2c-h1-testing2", "project/region", "americasus"],
@@ -271,34 +271,34 @@ export default [
   [
     "airbnb-for-work-b2c-h1-testing2",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["airbnb-for-work-b2c-h1-testing2", "project/type", "type2a"],
   ["airbnb-for-work-b2c-h1-testing2", "project/owner", "john-g"],
   [
     "airbnb-for-work-b2c-h1-testing2",
     "project/startDate",
-    "2016-12-22 16:12:00.000000",
+    "2016-12-22 16:12:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-testing2",
     "project/endDate",
-    "2017-05-23 22:05:00.000000",
+    "2017-05-23 22:05:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-testing2",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06",
+    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06"
   ],
   [
     "airbnb-for-work-b2c-h1-testing2",
     "project/slug",
-    "airbnb-for-work-b2c-h1-testing2",
+    "airbnb-for-work-b2c-h1-testing2"
   ],
   [
     "airbnb-for-work-b2c-h1-testing",
     "project/title",
-    "Airbnb for Work - B2C H1 testing4",
+    "Airbnb for Work - B2C H1 testing4"
   ],
   ["airbnb-for-work-b2c-h1-testing", "project/outcome", "business-travel"],
   ["airbnb-for-work-b2c-h1-testing", "project/region", "americasus"],
@@ -309,27 +309,27 @@ export default [
   [
     "airbnb-for-work-b2c-h1-testing",
     "project/startDate",
-    "2016-12-22 16:12:00.000000",
+    "2016-12-22 16:12:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-testing",
     "project/endDate",
-    "2017-05-23 22:05:00.000000",
+    "2017-05-23 22:05:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-testing",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06",
+    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06"
   ],
   [
     "airbnb-for-work-b2c-h1-testing",
     "project/slug",
-    "airbnb-for-work-b2c-h1-testing",
+    "airbnb-for-work-b2c-h1-testing"
   ],
   [
     "airbnb-for-work-b2c-h1-test2",
     "project/title",
-    "Airbnb for Work - B2C H1 test2",
+    "Airbnb for Work - B2C H1 test2"
   ],
   ["airbnb-for-work-b2c-h1-test2", "project/outcome", "business-travel"],
   ["airbnb-for-work-b2c-h1-test2", "project/region", "americasus"],
@@ -340,22 +340,22 @@ export default [
   [
     "airbnb-for-work-b2c-h1-test2",
     "project/startDate",
-    "2016-12-22 16:12:00.000000",
+    "2016-12-22 16:12:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-test2",
     "project/endDate",
-    "2017-05-23 22:05:00.000000",
+    "2017-05-23 22:05:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-test2",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06",
+    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06"
   ],
   [
     "airbnb-for-work-b2c-h1-test2",
     "project/slug",
-    "airbnb-for-work-b2c-h1-test2",
+    "airbnb-for-work-b2c-h1-test2"
   ],
   ["brand-portal-testing", "project/title", "Brand Portal testing"],
   ["brand-portal-testing", "project/outcome", "superbrand"],
@@ -380,18 +380,18 @@ export default [
   [
     "family-trips-auzzzzzzz-1",
     "project/startDate",
-    "2016-11-16 16:00:00.000000",
+    "2016-11-16 16:00:00.000000"
   ],
   ["family-trips-auzzzzzzz-1", "project/endDate", "2017-08-08 17:00:00.000000"],
   [
     "family-trips-auzzzzzzz-1",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-auzzzzzzz-1",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit",
+    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit"
   ],
   ["family-trips-auzzzzzzz-1", "project/slug", "family-trips-auzzzzzzz-1"],
   ["family-trips-auzzzzzzz", "project/campaign", "family-trips-phase-1"],
@@ -408,18 +408,18 @@ export default [
   [
     "family-trips-auzzzzzzz",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-auzzzzzzz",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit",
+    "https://docs.google.com/document/d/19TOGAWzzR4X2irItBBXEGXTFodfQgJ_TYg5Djc117nM/edit"
   ],
   ["family-trips-auzzzzzzz", "project/slug", "family-trips-auzzzzzzz"],
   [
     "airbnb-for-work-b2c-h1-test-1",
     "project/title",
-    "Airbnb for Work - B2C H1 test",
+    "Airbnb for Work - B2C H1 test"
   ],
   ["airbnb-for-work-b2c-h1-test-1", "project/outcome", "business-travel"],
   ["airbnb-for-work-b2c-h1-test-1", "project/region", "americasus"],
@@ -430,27 +430,27 @@ export default [
   [
     "airbnb-for-work-b2c-h1-test-1",
     "project/startDate",
-    "2016-12-23 00:12:00.000000",
+    "2016-12-23 00:12:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-test-1",
     "project/endDate",
-    "2017-05-24 05:05:00.000000",
+    "2017-05-24 05:05:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-test-1",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06",
+    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06"
   ],
   [
     "airbnb-for-work-b2c-h1-test-1",
     "project/slug",
-    "airbnb-for-work-b2c-h1-test-1",
+    "airbnb-for-work-b2c-h1-test-1"
   ],
   [
     "airbnb-for-work-b2c-h1-test",
     "project/title",
-    "Airbnb for Work - B2C H1 test",
+    "Airbnb for Work - B2C H1 test"
   ],
   ["airbnb-for-work-b2c-h1-test", "project/outcome", "business-travel"],
   ["airbnb-for-work-b2c-h1-test", "project/region", "americasus"],
@@ -461,22 +461,22 @@ export default [
   [
     "airbnb-for-work-b2c-h1-test",
     "project/startDate",
-    "2016-12-22 16:12:00.000000",
+    "2016-12-22 16:12:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-test",
     "project/endDate",
-    "2017-05-23 22:05:00.000000",
+    "2017-05-23 22:05:00.000000"
   ],
   [
     "airbnb-for-work-b2c-h1-test",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06",
+    "https://docs.google.com/document/d/1_Az_ZewBFEwu_GmhfHzt83Y0_qCHUEt07KHMUEZvr2o/edit#heading=h.7z49oq7n9n06"
   ],
   [
     "airbnb-for-work-b2c-h1-test",
     "project/slug",
-    "airbnb-for-work-b2c-h1-test",
+    "airbnb-for-work-b2c-h1-test"
   ],
   ["test-hook-hook-11", "project/title", "test hook hook"],
   ["test-hook-hook-11", "project/outcome", "payments"],
@@ -632,107 +632,107 @@ export default [
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/title",
-    "B2B Gift Card Evergreen Content Marketing (copy)",
+    "B2B Gift Card Evergreen Content Marketing (copy)"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/outcome",
-    "business-travel",
+    "business-travel"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/region",
-    "global",
+    "global"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/budget",
-    800000,
+    800000
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/type",
-    "type2a",
+    "type2a"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/owner",
-    "john-g",
+    "john-g"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/startDate",
-    "2017-02-28 08:00:00.000000",
+    "2017-02-28 08:00:00.000000"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/endDate",
-    "2017-12-26 08:00:00.000000",
+    "2017-12-26 08:00:00.000000"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-2",
     "project/slug",
-    "b2b-gift-card-evergreen-content-marketing-copy-2",
+    "b2b-gift-card-evergreen-content-marketing-copy-2"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/title",
-    "B2B Gift Card Evergreen Content Marketing (copy)",
+    "B2B Gift Card Evergreen Content Marketing (copy)"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/outcome",
-    "business-travel",
+    "business-travel"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/region",
-    "global",
+    "global"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/budget",
-    800000,
+    800000
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/type",
-    "type2a",
+    "type2a"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/owner",
-    "john-g",
+    "john-g"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/startDate",
-    "2017-02-28 08:00:00.000000",
+    "2017-02-28 08:00:00.000000"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/endDate",
-    "2017-12-26 08:00:00.000000",
+    "2017-12-26 08:00:00.000000"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy-1",
     "project/slug",
-    "b2b-gift-card-evergreen-content-marketing-copy-1",
+    "b2b-gift-card-evergreen-content-marketing-copy-1"
   ],
   [
     "b2b-ongoing-product-marketing-copy",
     "project/title",
-    "B2B Ongoing Product Marketing (copy)",
+    "B2B Ongoing Product Marketing (copy)"
   ],
   ["b2b-ongoing-product-marketing-copy", "project/outcome", "business-travel"],
   ["b2b-ongoing-product-marketing-copy", "project/region", "global"],
@@ -740,67 +740,67 @@ export default [
   [
     "b2b-ongoing-product-marketing-copy",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["b2b-ongoing-product-marketing-copy", "project/type", "type4"],
   [
     "b2b-ongoing-product-marketing-copy",
     "project/creativePartner",
-    "ReadyState",
+    "ReadyState"
   ],
   ["b2b-ongoing-product-marketing-copy", "project/owner", "john-g"],
   [
     "b2b-ongoing-product-marketing-copy",
     "project/startDate",
-    "2017-01-02 08:00:00.000000",
+    "2017-01-02 08:00:00.000000"
   ],
   [
     "b2b-ongoing-product-marketing-copy",
     "project/endDate",
-    "2017-12-28 08:00:00.000000",
+    "2017-12-28 08:00:00.000000"
   ],
   [
     "b2b-ongoing-product-marketing-copy",
     "project/slug",
-    "b2b-ongoing-product-marketing-copy",
+    "b2b-ongoing-product-marketing-copy"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy",
     "project/title",
-    "B2B Gift Card Evergreen Content Marketing (copy)",
+    "B2B Gift Card Evergreen Content Marketing (copy)"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy",
     "project/outcome",
-    "business-travel",
+    "business-travel"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy",
     "project/region",
-    "global",
+    "global"
   ],
   ["b2b-gift-card-evergreen-content-marketing-copy", "project/budget", 800000],
   [
     "b2b-gift-card-evergreen-content-marketing-copy",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["b2b-gift-card-evergreen-content-marketing-copy", "project/type", "type2a"],
   ["b2b-gift-card-evergreen-content-marketing-copy", "project/owner", "john-g"],
   [
     "b2b-gift-card-evergreen-content-marketing-copy",
     "project/startDate",
-    "2017-02-28 16:00:00.000000",
+    "2017-02-28 16:00:00.000000"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy",
     "project/endDate",
-    "2017-12-26 16:00:00.000000",
+    "2017-12-26 16:00:00.000000"
   ],
   [
     "b2b-gift-card-evergreen-content-marketing-copy",
     "project/slug",
-    "b2b-gift-card-evergreen-content-marketing-copy",
+    "b2b-gift-card-evergreen-content-marketing-copy"
   ],
   ["hook-test-40", "project/title", "Hook test"],
   ["hook-test-40", "project/outcome", "business-travel"],
@@ -1211,7 +1211,7 @@ export default [
   [
     "hook-test-4",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_kv8xLRpktnp0G80MAJphhKlcQKC8bDanEfkqj4-uzA/edit#heading=h.t12svt8yya7h",
+    "https://docs.google.com/document/d/1_kv8xLRpktnp0G80MAJphhKlcQKC8bDanEfkqj4-uzA/edit#heading=h.t12svt8yya7h"
   ],
   ["hook-test-4", "project/slug", "hook-test-4"],
   ["hook-test-3", "project/title", "hook test"],
@@ -1227,7 +1227,7 @@ export default [
   [
     "hook-test-3",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_kv8xLRpktnp0G80MAJphhKlcQKC8bDanEfkqj4-uzA/edit#heading=h.t12svt8yya7h",
+    "https://docs.google.com/document/d/1_kv8xLRpktnp0G80MAJphhKlcQKC8bDanEfkqj4-uzA/edit#heading=h.t12svt8yya7h"
   ],
   ["hook-test-3", "project/slug", "hook-test-3"],
   ["hook-test-2", "project/title", "hook test"],
@@ -1265,194 +1265,194 @@ export default [
   [
     "hook-test",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1_kv8xLRpktnp0G80MAJphhKlcQKC8bDanEfkqj4-uzA/edit#heading=h.t12svt8yya7h",
+    "https://docs.google.com/document/d/1_kv8xLRpktnp0G80MAJphhKlcQKC8bDanEfkqj4-uzA/edit#heading=h.t12svt8yya7h"
   ],
   ["hook-test", "project/slug", "hook-test"],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/campaign",
-    "live-there",
+    "live-there"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy)akaa;lkaka (copy) (copy) (copy) (copy)alkalaklakal",
+    "Live There Extension 3.0 (MX) (copy)akaa;lkaka (copy) (copy) (copy) (copy)alkalaklakal"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/region",
-    "americas-mx",
+    "americas-mx"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/budget",
-    1500000,
+    1500000
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/type",
-    "type1",
+    "type1"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/owner",
-    "alessandra-cuetara",
+    "alessandra-cuetara"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/startDate",
-    "2017-03-07 00:00:00.000000",
+    "2017-03-07 00:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/endDate",
-    "2017-04-05 09:00:00.000000",
+    "2017-04-05 09:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2",
+    "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-2"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/campaign",
-    "live-there",
+    "live-there"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy) (copy) (copy) (copy) (copy)",
+    "Live There Extension 3.0 (MX) (copy) (copy) (copy) (copy) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/region",
-    "americas-mx",
+    "americas-mx"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/budget",
-    1500000,
+    1500000
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/type",
-    "type1",
+    "type1"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/owner",
-    "sascha-stalica",
+    "sascha-stalica"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/startDate",
-    "2017-03-07 16:03:00.000000",
+    "2017-03-07 16:03:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/endDate",
-    "2017-04-20 05:04:00.000000",
+    "2017-04-20 05:04:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1",
+    "live-there-extension-3-0-mx-copy-copy-copy-copy-copy-1"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/campaign",
-    "live-there",
+    "live-there"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy) (copy) (copy) (copy) (copy)",
+    "Live There Extension 3.0 (MX) (copy) (copy) (copy) (copy) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/region",
-    "americas-mx",
+    "americas-mx"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/budget",
-    1500000,
+    1500000
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/type",
-    "type1",
+    "type1"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/owner",
-    "alessandra-cuetara",
+    "alessandra-cuetara"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/startDate",
-    "2017-03-07 16:00:00.000000",
+    "2017-03-07 16:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/endDate",
-    "2017-04-05 23:00:00.000000",
+    "2017-04-05 23:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-copy-copy-copy-copy",
+    "live-there-extension-3-0-mx-copy-copy-copy-copy-copy"
   ],
   ["family-trips-de-test-copy-11", "project/campaign", "family-trips-phase-1"],
   [
     "family-trips-de-test-copy-11",
     "project/title",
-    "Family Trips (DE) test (copy)",
+    "Family Trips (DE) test (copy)"
   ],
   ["family-trips-de-test-copy-11", "project/outcome", "homes-2-0"],
   ["family-trips-de-test-copy-11", "project/region", "emeade"],
@@ -1464,27 +1464,27 @@ export default [
   [
     "family-trips-de-test-copy-11",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-11",
     "project/endDate",
-    "2017-08-02 03:00:00.000000",
+    "2017-08-02 03:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-11",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-copy-11",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   [
     "family-trips-de-test-copy-11",
     "project/slug",
-    "family-trips-de-test-copy-11",
+    "family-trips-de-test-copy-11"
   ],
   ["test-phase-projectzzzzzzz", "project/title", "Test Phase Projectzzzzzzz"],
   ["test-phase-projectzzzzzzz", "project/outcome", "business-travel"],
@@ -1496,12 +1496,12 @@ export default [
   [
     "test-phase-projectzzzzzzz",
     "project/startDate",
-    "2017-06-13 10:00:00.000000",
+    "2017-06-13 10:00:00.000000"
   ],
   [
     "test-phase-projectzzzzzzz",
     "project/endDate",
-    "2017-06-27 10:00:00.000000",
+    "2017-06-27 10:00:00.000000"
   ],
   ["test-phase-projectzzzzzzz", "project/globalProjectPlanUrl", "None"],
   ["test-phase-projectzzzzzzz", "project/regionalProjectPlanUrl", "None"],
@@ -1520,12 +1520,12 @@ export default [
   [
     "family-trips-ukzzzz",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-ukzzzz",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-ukzzzz", "project/slug", "family-trips-ukzzzz"],
   ["family-trips-ukzzzzzzzzz", "project/campaign", "family-trips-phase-1"],
@@ -1540,421 +1540,421 @@ export default [
   [
     "family-trips-ukzzzzzzzzz",
     "project/startDate",
-    "2016-11-17 08:00:00.000000",
+    "2016-11-17 08:00:00.000000"
   ],
   ["family-trips-ukzzzzzzzzz", "project/endDate", "2017-08-02 10:00:00.000000"],
   [
     "family-trips-ukzzzzzzzzz",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-ukzzzzzzzzz",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-ukzzzzzzzzz", "project/slug", "family-trips-ukzzzzzzzzz"],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/campaign",
-    "live-there",
+    "live-there"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy) (copy) (copy) (copy)",
+    "Live There Extension 3.0 (MX) (copy) (copy) (copy) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/region",
-    "americas-mx",
+    "americas-mx"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/budget",
-    1500000,
+    1500000
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-copy-copy-copy", "project/type", "type1"],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/owner",
-    "alessandra-cuetara",
+    "alessandra-cuetara"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/startDate",
-    "2017-03-08 00:00:00.000000",
+    "2017-03-08 00:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/endDate",
-    "2017-04-06 06:00:00.000000",
+    "2017-04-06 06:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy-copy",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-copy-copy-copy",
+    "live-there-extension-3-0-mx-copy-copy-copy-copy"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/campaign",
-    "live-there",
+    "live-there"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy) (copy) (copy)",
+    "Live There Extension 3.0 (MX) (copy) (copy) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/region",
-    "americas-mx",
+    "americas-mx"
   ],
   ["live-there-extension-3-0-mx-copy-copy-copy", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-copy-copy", "project/type", "type1"],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/owner",
-    "alessandra-cuetara",
+    "alessandra-cuetara"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/startDate",
-    "2017-03-08 16:00:00.000000",
+    "2017-03-08 16:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/endDate",
-    "2017-04-06 20:00:00.000000",
+    "2017-04-06 20:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-copy",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-copy-copy",
+    "live-there-extension-3-0-mx-copy-copy-copy"
   ],
   ["live-there-extension-3-0-mx-copy-copy-1", "project/campaign", "live-there"],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy) (copy)",
+    "Live There Extension 3.0 (MX) (copy) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["live-there-extension-3-0-mx-copy-copy-1", "project/region", "americas-mx"],
   ["live-there-extension-3-0-mx-copy-copy-1", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-copy-1", "project/type", "type1"],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/owner",
-    "alessandra-cuetara",
+    "alessandra-cuetara"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/startDate",
-    "2017-03-09 00:00:00.000000",
+    "2017-03-09 00:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/endDate",
-    "2017-04-07 03:00:00.000000",
+    "2017-04-07 03:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy-1",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-copy-1",
+    "live-there-extension-3-0-mx-copy-copy-1"
   ],
   ["live-there-extension-3-0-mx-copy-copy", "project/campaign", "live-there"],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy) (copy)",
+    "Live There Extension 3.0 (MX) (copy) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["live-there-extension-3-0-mx-copy-copy", "project/region", "americas-mx"],
   ["live-there-extension-3-0-mx-copy-copy", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-copy", "project/type", "type1"],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/owner",
-    "alessandra-cuetara",
+    "alessandra-cuetara"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/startDate",
-    "2017-03-09 00:00:00.000000",
+    "2017-03-09 00:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/endDate",
-    "2017-04-07 03:00:00.000000",
+    "2017-04-07 03:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-copy",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-copy",
+    "live-there-extension-3-0-mx-copy-copy"
   ],
   ["live-there-extension-3-0-mx-copy-4", "project/campaign", "live-there"],
   [
     "live-there-extension-3-0-mx-copy-4",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy)",
+    "Live There Extension 3.0 (MX) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-4",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["live-there-extension-3-0-mx-copy-4", "project/region", "americas-mx"],
   ["live-there-extension-3-0-mx-copy-4", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy-4",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-4", "project/type", "type1"],
   ["live-there-extension-3-0-mx-copy-4", "project/owner", "alessandra-cuetara"],
   [
     "live-there-extension-3-0-mx-copy-4",
     "project/startDate",
-    "2017-03-09 08:00:00.000000",
+    "2017-03-09 08:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-4",
     "project/endDate",
-    "2017-04-07 10:00:00.000000",
+    "2017-04-07 10:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-4",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-4",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-4",
+    "live-there-extension-3-0-mx-copy-4"
   ],
   ["live-there-extension-3-0-mx-copy-3", "project/campaign", "live-there"],
   [
     "live-there-extension-3-0-mx-copy-3",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy)",
+    "Live There Extension 3.0 (MX) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-3",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["live-there-extension-3-0-mx-copy-3", "project/region", "americas-mx"],
   ["live-there-extension-3-0-mx-copy-3", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy-3",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-3", "project/type", "type1"],
   ["live-there-extension-3-0-mx-copy-3", "project/owner", "alessandra-cuetara"],
   [
     "live-there-extension-3-0-mx-copy-3",
     "project/startDate",
-    "2017-03-09 08:00:00.000000",
+    "2017-03-09 08:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-3",
     "project/endDate",
-    "2017-04-07 10:00:00.000000",
+    "2017-04-07 10:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-3",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-3",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-3",
+    "live-there-extension-3-0-mx-copy-3"
   ],
   ["live-there-extension-3-0-mx-copy-2", "project/campaign", "live-there"],
   [
     "live-there-extension-3-0-mx-copy-2",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy)",
+    "Live There Extension 3.0 (MX) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-2",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["live-there-extension-3-0-mx-copy-2", "project/region", "americas-mx"],
   ["live-there-extension-3-0-mx-copy-2", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy-2",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-2", "project/type", "type1"],
   ["live-there-extension-3-0-mx-copy-2", "project/owner", "alessandra-cuetara"],
   [
     "live-there-extension-3-0-mx-copy-2",
     "project/startDate",
-    "2017-03-09 00:00:00.000000",
+    "2017-03-09 00:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-2",
     "project/endDate",
-    "2017-04-07 03:00:00.000000",
+    "2017-04-07 03:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-2",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-2",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-2",
+    "live-there-extension-3-0-mx-copy-2"
   ],
   ["live-there-extension-3-0-mx-copy-1", "project/campaign", "live-there"],
   [
     "live-there-extension-3-0-mx-copy-1",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy)",
+    "Live There Extension 3.0 (MX) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy-1",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["live-there-extension-3-0-mx-copy-1", "project/region", "americas-mx"],
   ["live-there-extension-3-0-mx-copy-1", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy-1",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy-1", "project/type", "type1"],
   ["live-there-extension-3-0-mx-copy-1", "project/owner", "alessandra-cuetara"],
   [
     "live-there-extension-3-0-mx-copy-1",
     "project/startDate",
-    "2017-03-09 08:00:00.000000",
+    "2017-03-09 08:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-1",
     "project/endDate",
-    "2017-04-07 10:00:00.000000",
+    "2017-04-07 10:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy-1",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy-1",
     "project/slug",
-    "live-there-extension-3-0-mx-copy-1",
+    "live-there-extension-3-0-mx-copy-1"
   ],
   ["live-there-extension-3-0-mx-copy", "project/campaign", "live-there"],
   [
     "live-there-extension-3-0-mx-copy",
     "project/title",
-    "Live There Extension 3.0 (MX) (copy)",
+    "Live There Extension 3.0 (MX) (copy)"
   ],
   [
     "live-there-extension-3-0-mx-copy",
     "project/outcome",
-    "emerging-markets-latin-america",
+    "emerging-markets-latin-america"
   ],
   ["live-there-extension-3-0-mx-copy", "project/region", "americas-mx"],
   ["live-there-extension-3-0-mx-copy", "project/budget", 1500000],
   [
     "live-there-extension-3-0-mx-copy",
     "project/beyondOriginalCommitment",
-    false,
+    false
   ],
   ["live-there-extension-3-0-mx-copy", "project/type", "type1"],
   ["live-there-extension-3-0-mx-copy", "project/owner", "alessandra-cuetara"],
   [
     "live-there-extension-3-0-mx-copy",
     "project/startDate",
-    "2017-03-09 08:00:00.000000",
+    "2017-03-09 08:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy",
     "project/endDate",
-    "2017-04-07 10:00:00.000000",
+    "2017-04-07 10:00:00.000000"
   ],
   [
     "live-there-extension-3-0-mx-copy",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit",
+    "https://docs.google.com/document/d/1K0IdGh4hjo_uEbw_vWu1T-Er0fLx9ZgnP4XcbZuMqP8/edit"
   ],
   [
     "live-there-extension-3-0-mx-copy",
     "project/slug",
-    "live-there-extension-3-0-mx-copy",
+    "live-there-extension-3-0-mx-copy"
   ],
   ["family-trips-de-test-copy-10", "project/campaign", "family-trips-phase-1"],
   [
     "family-trips-de-test-copy-10",
     "project/title",
-    "Family Trips (DE) test (copy)",
+    "Family Trips (DE) test (copy)"
   ],
   ["family-trips-de-test-copy-10", "project/outcome", "homes-2-0"],
   ["family-trips-de-test-copy-10", "project/region", "emeade"],
@@ -1966,33 +1966,33 @@ export default [
   [
     "family-trips-de-test-copy-10",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-10",
     "project/endDate",
-    "2017-08-02 03:00:00.000000",
+    "2017-08-02 03:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-10",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-copy-10",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   [
     "family-trips-de-test-copy-10",
     "project/slug",
-    "family-trips-de-test-copy-10",
+    "family-trips-de-test-copy-10"
   ],
   ["family-trips-de-test-copy-9", "project/campaign", "family-trips-phase-1"],
   [
     "family-trips-de-test-copy-9",
     "project/title",
-    "Family Trips (DE) test (copy)",
+    "Family Trips (DE) test (copy)"
   ],
   ["family-trips-de-test-copy-9", "project/outcome", "homes-2-0"],
   ["family-trips-de-test-copy-9", "project/region", "emeade"],
@@ -2004,33 +2004,33 @@ export default [
   [
     "family-trips-de-test-copy-9",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-9",
     "project/endDate",
-    "2017-08-02 03:00:00.000000",
+    "2017-08-02 03:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-9",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-copy-9",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   [
     "family-trips-de-test-copy-9",
     "project/slug",
-    "family-trips-de-test-copy-9",
+    "family-trips-de-test-copy-9"
   ],
   ["family-trips-de-test-copy-8", "project/campaign", "family-trips-phase-1"],
   [
     "family-trips-de-test-copy-8",
     "project/title",
-    "Family Trips (DE) test (copy)",
+    "Family Trips (DE) test (copy)"
   ],
   ["family-trips-de-test-copy-8", "project/outcome", "homes-2-0"],
   ["family-trips-de-test-copy-8", "project/region", "emeade"],
@@ -2042,33 +2042,33 @@ export default [
   [
     "family-trips-de-test-copy-8",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-8",
     "project/endDate",
-    "2017-08-02 03:00:00.000000",
+    "2017-08-02 03:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-8",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-copy-8",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   [
     "family-trips-de-test-copy-8",
     "project/slug",
-    "family-trips-de-test-copy-8",
+    "family-trips-de-test-copy-8"
   ],
   ["family-trips-de-test-copy-7", "project/campaign", "family-trips-phase-1"],
   [
     "family-trips-de-test-copy-7",
     "project/title",
-    "Family Trips (DE) test (copy)",
+    "Family Trips (DE) test (copy)"
   ],
   ["family-trips-de-test-copy-7", "project/outcome", "homes-2-0"],
   ["family-trips-de-test-copy-7", "project/region", "emeade"],
@@ -2080,33 +2080,33 @@ export default [
   [
     "family-trips-de-test-copy-7",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-7",
     "project/endDate",
-    "2017-08-02 03:00:00.000000",
+    "2017-08-02 03:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-7",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-copy-7",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   [
     "family-trips-de-test-copy-7",
     "project/slug",
-    "family-trips-de-test-copy-7",
+    "family-trips-de-test-copy-7"
   ],
   ["family-trips-de-test-copy-6", "project/campaign", "family-trips-phase-1"],
   [
     "family-trips-de-test-copy-6",
     "project/title",
-    "Family Trips (DE) test (copy)",
+    "Family Trips (DE) test (copy)"
   ],
   ["family-trips-de-test-copy-6", "project/outcome", "homes-2-0"],
   ["family-trips-de-test-copy-6", "project/region", "emeade"],
@@ -2118,27 +2118,27 @@ export default [
   [
     "family-trips-de-test-copy-6",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-6",
     "project/endDate",
-    "2017-08-02 03:00:00.000000",
+    "2017-08-02 03:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-6",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-copy-6",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   [
     "family-trips-de-test-copy-6",
     "project/slug",
-    "family-trips-de-test-copy-6",
+    "family-trips-de-test-copy-6"
   ],
   ["family-trips-de-copy-2", "project/campaign", "family-trips-phase-1"],
   ["family-trips-de-copy-2", "project/title", "Family Trips (DE) (copy)"],
@@ -2154,12 +2154,12 @@ export default [
   [
     "family-trips-de-copy-2",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-copy-2",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-de-copy-2", "project/slug", "family-trips-de-copy-2"],
   ["family-trips-de-copy-1", "project/campaign", "family-trips-phase-1"],
@@ -2176,12 +2176,12 @@ export default [
   [
     "family-trips-de-copy-1",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-copy-1",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-de-copy-1", "project/slug", "family-trips-de-copy-1"],
   ["family-trips-de-copy", "project/campaign", "family-trips-phase-1"],
@@ -2198,12 +2198,12 @@ export default [
   [
     "family-trips-de-copy",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-copy",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-de-copy", "project/slug", "family-trips-de-copy"],
   ["family-trips-de-test-2-1", "project/campaign", "family-trips-phase-1"],
@@ -2218,25 +2218,25 @@ export default [
   [
     "family-trips-de-test-2-1",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   ["family-trips-de-test-2-1", "project/endDate", "2017-08-02 03:00:00.000000"],
   [
     "family-trips-de-test-2-1",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-2-1",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-de-test-2-1", "project/slug", "family-trips-de-test-2-1"],
   ["family-trips-de-test-copy-5", "project/campaign", "family-trips-phase-1"],
   [
     "family-trips-de-test-copy-5",
     "project/title",
-    "Family Trips (DE) test (copy)",
+    "Family Trips (DE) test (copy)"
   ],
   ["family-trips-de-test-copy-5", "project/outcome", "homes-2-0"],
   ["family-trips-de-test-copy-5", "project/region", "emeade"],
@@ -2248,27 +2248,27 @@ export default [
   [
     "family-trips-de-test-copy-5",
     "project/startDate",
-    "2016-11-17 00:00:00.000000",
+    "2016-11-17 00:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-5",
     "project/endDate",
-    "2017-08-02 03:00:00.000000",
+    "2017-08-02 03:00:00.000000"
   ],
   [
     "family-trips-de-test-copy-5",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-copy-5",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   [
     "family-trips-de-test-copy-5",
     "project/slug",
-    "family-trips-de-test-copy-5",
+    "family-trips-de-test-copy-5"
   ],
   ["family-trips-de-2", "project/campaign", "family-trips-phase-1"],
   ["family-trips-de-2", "project/title", "Family Trips (DE)  2"],
@@ -2284,7 +2284,7 @@ export default [
   [
     "family-trips-de-2",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-de-2", "project/slug", "family-trips-de-2"],
   ["family-trips-de-test-2", "project/campaign", "family-trips-phase-1"],
@@ -2301,12 +2301,12 @@ export default [
   [
     "family-trips-de-test-2",
     "project/globalProjectPlanUrl",
-    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit",
+    "https://docs.google.com/document/d/1cMoUK6FGe5t1M_JVOw2cDX8V0S2kYAE7gakerEpV4KU/edit"
   ],
   [
     "family-trips-de-test-2",
     "project/regionalProjectPlanUrl",
-    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit",
+    "https://docs.google.com/document/d/1574wOQP9w4Bdsvv855M6ejGIrdQBhdxFFsoiA1Ve6fg/edit"
   ],
   ["family-trips-de-test-2", "project/slug", "family-trips-de-test-2"],
   ["family-trips-phase-1", "campaign/slug", "family-trips-phase-1"],
@@ -2317,5 +2317,5 @@ export default [
   ["live-there", "campaign/title", "Live There"],
   ["mops", "team/slug", "mops"],
   ["mops", "team/projectTeamsName", "MOPS"],
-  ["mops", "team/title", "MOPS"],
+  ["mops", "team/title", "MOPS"]
 ];

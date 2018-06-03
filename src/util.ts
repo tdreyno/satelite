@@ -17,7 +17,7 @@ export function replaceInList<T>(list: T[], itemA: T, itemB: T): T[] {
 export function replaceIndexFromList<T>(
   list: T[],
   index: number,
-  item: T,
+  item: T
 ): T[] {
   list[index] = item;
 
@@ -35,7 +35,7 @@ export function removeIndexFromList<T>(list: T[], index: number): T[] {
 export function findInList<T, K>(
   list: T[],
   item: K,
-  comparator: (a: T, b: K) => boolean,
+  comparator: (a: T, b: K) => boolean
 ): number {
   for (let i = 0; i < list.length; i++) {
     if (comparator(list[i], item)) {
@@ -49,7 +49,7 @@ export function findInList<T, K>(
 export function reduceList<T, V>(
   list: T[],
   reducer: (acc: V, i: T) => V,
-  initialValue: V,
+  initialValue: V
 ): V {
   let currentValue = initialValue;
 
@@ -70,7 +70,7 @@ export function runLeftActivateOnNodes(nodes: ReteNode[], t: Token): void {
 export function runLeftUpdateOnNodes(
   nodes: ReteNode[],
   prev: Token,
-  t: Token,
+  t: Token
 ): void {
   if (compareTokensAndBindings(prev, t)) {
     return;
@@ -99,7 +99,7 @@ export function runRightActivateOnNodes(nodes: ReteNode[], f: IFact): void {
 export function runRightUpdateOnNodes(
   nodes: ReteNode[],
   prev: IFact,
-  f: IFact,
+  f: IFact
 ): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];

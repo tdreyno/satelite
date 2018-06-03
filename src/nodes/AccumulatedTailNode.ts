@@ -8,7 +8,7 @@ export class AccumulatedTailNode extends ReteNode {
   static create(
     rete: Rete,
     parent: ReteNode,
-    accumulatorNode: AccumulatorNode,
+    accumulatorNode: AccumulatorNode
   ): AccumulatedTailNode {
     const node = new AccumulatedTailNode(rete, parent, accumulatorNode);
 

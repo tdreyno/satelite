@@ -13,7 +13,7 @@ function makeFakePerson(): IFact[] {
   return [
     [id, "name", faker.name.findName()],
     [id, "gender", faker.random.arrayElement(GENDERS)],
-    [id, "team", faker.random.arrayElement(TEAMS)],
+    [id, "team", faker.random.arrayElement(TEAMS)]
   ] as any;
 }
 
@@ -35,12 +35,10 @@ for (let i = 0; i < fakePeople.length; i++) {
 console.timeEnd("Adding Facts");
 
 console.time("Adding production");
-rule(
-  ["?e", "gender", "F"],
-  ["?e", "team", "Fun"],
-  ["?e", "name", "?v"],
-).then(() => {
-  // expect(f[2]).toBe("Grace");
-  // console.log(f[2]);
-});
+rule(["?e", "gender", "F"], ["?e", "team", "Fun"], ["?e", "name", "?v"]).then(
+  () => {
+    // expect(f[2]).toBe("Grace");
+    // console.log(f[2]);
+  }
+);
 console.timeEnd("Adding production");

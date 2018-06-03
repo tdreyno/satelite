@@ -17,18 +17,21 @@ const isEqual = (a: any, b: any) => isEqualWith(a, b, eq);
 export type IReteToProps<ReteProps, OwnProps> = (
   variables: IVariableBindings,
   rete: Rete,
-  nextProps: OwnProps,
+  nextProps: OwnProps
 ) => ReteProps;
 
-export type IPropConditions<OwnProps> = (props: OwnProps) => ICondition | AccumulatorCondition;
+export type IPropConditions<OwnProps> = (
+  props: OwnProps
+) => ICondition | AccumulatorCondition;
 export type IConditionsOrPropConditions<OwnProps> =
-  | ICondition | AccumulatorCondition
+  | ICondition
+  | AccumulatorCondition
   | IPropConditions<OwnProps>;
 
 export function subscribe<ReteProps, OwnProps>(
   ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>
 ): (<TFunction extends React.ComponentClass<ReteProps | OwnProps>>(
-  ComposedComponent: TFunction,
+  ComposedComponent: TFunction
 ) => React.ComponentClass<OwnProps>) {
   return ComposedComponent => {
     class Injected extends React.Component<OwnProps, ReteProps> {
@@ -36,7 +39,7 @@ export function subscribe<ReteProps, OwnProps>(
       static displayName = `Injected${ComposedComponent.displayName}`;
 
       static contextTypes = {
-        rete: PropTypes.instanceOf(Rete),
+        rete: PropTypes.instanceOf(Rete)
       };
 
       query: Query | null = null;
@@ -52,7 +55,7 @@ export function subscribe<ReteProps, OwnProps>(
 
       shouldComponentUpdate(
         nextProps: OwnProps,
-        nextState: ReteProps,
+        nextState: ReteProps
       ): boolean {
         return (
           !isEqual(this.props, nextProps) || !isEqual(this.state, nextState)
@@ -98,7 +101,7 @@ export function subscribe<ReteProps, OwnProps>(
             }
 
             return conditionsOrPropCondition(props);
-          },
+          }
         );
 
         if (conditions.length > 0) {

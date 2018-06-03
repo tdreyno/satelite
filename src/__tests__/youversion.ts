@@ -32,13 +32,13 @@ export default {
           large_url:
             "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/7a8bafd3-6397-4f49-b17d-f5920330701a/headshot_square_small.png",
           original_url:
-            "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/7a8bafd3-6397-4f49-b17d-f5920330701a/headshot_square_small.png",
-        },
-      },
+            "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/7a8bafd3-6397-4f49-b17d-f5920330701a/headshot_square_small.png"
+        }
+      }
     },
     isEditingAccount: false,
     isPasswordEditingAccount: false,
-    isSavingAccount: false,
+    isSavingAccount: false
   },
   plans: {
     plansById: {},
@@ -48,533 +48,533 @@ export default {
       Parents: {
         id: "Parents",
         name: "Parents",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       "Young Adults": {
         id: "Young Adults",
         name: "Young Adults",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Women: {
         id: "Women",
         name: "Women",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Men: {
         id: "Men",
         name: "Men",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Youth: {
         id: "Youth",
         name: "Youth",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Kids: {
         id: "Kids",
         name: "Kids",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Families: {
         id: "Families",
         name: "Families",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Groups: {
         id: "Groups",
         name: "Groups",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Singles: {
         id: "Singles",
         name: "Singles",
-        sections: ["Plans for..."],
+        sections: ["Plans for..."]
       },
       Audio: {
         id: "Audio",
         name: "Audio",
-        sections: ["Listen & Watch"],
+        sections: ["Listen & Watch"]
       },
       Video: {
         id: "Video",
         name: "Video",
-        sections: ["Listen & Watch"],
+        sections: ["Listen & Watch"]
       },
       "Biblical Study": {
         id: "Biblical Study",
         name: "Biblical Study",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Whole: {
         id: "Whole",
         name: "Whole",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Titus: {
         id: "Titus",
         name: "Titus",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Exodus: {
         id: "Exodus",
         name: "Exodus",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "2 Peter": {
         id: "2 Peter",
         name: "2 Peter",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Ephesians: {
         id: "Ephesians",
         name: "Ephesians",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Joshua: {
         id: "Joshua",
         name: "Joshua",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Proverbs: {
         id: "Proverbs",
         name: "Proverbs",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Job: {
         id: "Job",
         name: "Job",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "3 John": {
         id: "3 John",
         name: "3 John",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Joel: {
         id: "Joel",
         name: "Joel",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Revelation: {
         id: "Revelation",
         name: "Revelation",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       James: {
         id: "James",
         name: "James",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Mark: {
         id: "Mark",
         name: "Mark",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "2 John": {
         id: "2 John",
         name: "2 John",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Matthew: {
         id: "Matthew",
         name: "Matthew",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Philemon: {
         id: "Philemon",
         name: "Philemon",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "2 Corinthians": {
         id: "2 Corinthians",
         name: "2 Corinthians",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Philippians: {
         id: "Philippians",
         name: "Philippians",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Judges: {
         id: "Judges",
         name: "Judges",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Deuteronomy: {
         id: "Deuteronomy",
         name: "Deuteronomy",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "1 Thessalonians": {
         id: "1 Thessalonians",
         name: "1 Thessalonians",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "1 Timothy": {
         id: "1 Timothy",
         name: "1 Timothy",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Romans: {
         id: "Romans",
         name: "Romans",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Genesis: {
         id: "Genesis",
         name: "Genesis",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Psalm: {
         id: "Psalm",
         name: "Psalm",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Nehemiah: {
         id: "Nehemiah",
         name: "Nehemiah",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "2 Timothy": {
         id: "2 Timothy",
         name: "2 Timothy",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Acts: {
         id: "Acts",
         name: "Acts",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Isaiah: {
         id: "Isaiah",
         name: "Isaiah",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Luke: {
         id: "Luke",
         name: "Luke",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Colossians: {
         id: "Colossians",
         name: "Colossians",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Ecclesiastes: {
         id: "Ecclesiastes",
         name: "Ecclesiastes",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Numbers: {
         id: "Numbers",
         name: "Numbers",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "1 Samuel": {
         id: "1 Samuel",
         name: "1 Samuel",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Hebrews: {
         id: "Hebrews",
         name: "Hebrews",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       John: {
         id: "John",
         name: "John",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Leviticus: {
         id: "Leviticus",
         name: "Leviticus",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "1 Chronicles": {
         id: "1 Chronicles",
         name: "1 Chronicles",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "1 Corinthians": {
         id: "1 Corinthians",
         name: "1 Corinthians",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Ruth: {
         id: "Ruth",
         name: "Ruth",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "1 Peter": {
         id: "1 Peter",
         name: "1 Peter",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Daniel: {
         id: "Daniel",
         name: "Daniel",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Galatians: {
         id: "Galatians",
         name: "Galatians",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Esther: {
         id: "Esther",
         name: "Esther",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "1 John": {
         id: "1 John",
         name: "1 John",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       "2 Samuel": {
         id: "2 Samuel",
         name: "2 Samuel",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Jude: {
         id: "Jude",
         name: "Jude",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Ezra: {
         id: "Ezra",
         name: "Ezra",
-        sections: ["Through the Bible"],
+        sections: ["Through the Bible"]
       },
       Marriage: {
         id: "Marriage",
         name: "Marriage",
-        sections: ["Relationships"],
+        sections: ["Relationships"]
       },
       Dating: {
         id: "Dating",
         name: "Dating",
-        sections: ["Relationships"],
+        sections: ["Relationships"]
       },
       Divorce: {
         id: "Divorce",
         name: "Divorce",
-        sections: ["Relationships"],
+        sections: ["Relationships"]
       },
       Sex: {
         id: "Sex",
         name: "Sex",
-        sections: ["Relationships"],
+        sections: ["Relationships"]
       },
       Loss: {
         id: "Loss",
         name: "Loss",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Hope: {
         id: "Hope",
         name: "Hope",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Jealousy: {
         id: "Jealousy",
         name: "Jealousy",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Temptation: {
         id: "Temptation",
         name: "Temptation",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Pride: {
         id: "Pride",
         name: "Pride",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Peace: {
         id: "Peace",
         name: "Peace",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Patience: {
         id: "Patience",
         name: "Patience",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Depression: {
         id: "Depression",
         name: "Depression",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Love: {
         id: "Love",
         name: "Love",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Doubt: {
         id: "Doubt",
         name: "Doubt",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Anxiety: {
         id: "Anxiety",
         name: "Anxiety",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Healing: {
         id: "Healing",
         name: "Healing",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Anger: {
         id: "Anger",
         name: "Anger",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Fear: {
         id: "Fear",
         name: "Fear",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Stress: {
         id: "Stress",
         name: "Stress",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Joy: {
         id: "Joy",
         name: "Joy",
-        sections: ["Feelings"],
+        sections: ["Feelings"]
       },
       Authors: {
         id: "Authors",
         name: "Authors",
-        sections: ["You may know..."],
+        sections: ["You may know..."]
       },
       Musicians: {
         id: "Musicians",
         name: "Musicians",
-        sections: ["You may know..."],
+        sections: ["You may know..."]
       },
       Athletes: {
         id: "Athletes",
         name: "Athletes",
-        sections: ["You may know..."],
+        sections: ["You may know..."]
       },
       Fasting: {
         id: "Fasting",
         name: "Fasting",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Leadership: {
         id: "Leadership",
         name: "Leadership",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Work: {
         id: "Work",
         name: "Work",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Forgiveness: {
         id: "Forgiveness",
         name: "Forgiveness",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Trust: {
         id: "Trust",
         name: "Trust",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Addiction: {
         id: "Addiction",
         name: "Addiction",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       "New to Faith": {
         id: "New to Faith",
         name: "New to Faith",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Health: {
         id: "Health",
         name: "Health",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Finances: {
         id: "Finances",
         name: "Finances",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Missions: {
         id: "Missions",
         name: "Missions",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Purpose: {
         id: "Purpose",
         name: "Purpose",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Worship: {
         id: "Worship",
         name: "Worship",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       "Lent/Easter": {
         id: "Lent/Easter",
         name: "Lent/Easter",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Christmas: {
         id: "Christmas",
         name: "Christmas",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Advent: {
         id: "Advent",
         name: "Advent",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Grace: {
         id: "Grace",
         name: "Grace",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Humility: {
         id: "Humility",
         name: "Humility",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       "Christian Living": {
         id: "Christian Living",
         name: "Christian Living",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Encouragement: {
         id: "Encouragement",
         name: "Encouragement",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Suffering: {
         id: "Suffering",
         name: "Suffering",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Wisdom: {
         id: "Wisdom",
         name: "Wisdom",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Faith: {
         id: "Faith",
         name: "Faith",
-        sections: ["Popular Topics"],
+        sections: ["Popular Topics"]
       },
       Prayer: {
         id: "Prayer",
         name: "Prayer",
-        sections: ["Popular Topics"],
-      },
+        sections: ["Popular Topics"]
+      }
     },
     planRevisionsById: {},
     allCategoryIds: [
@@ -683,7 +683,7 @@ export default {
       "Suffering",
       "Wisdom",
       "Faith",
-      "Prayer",
+      "Prayer"
     ],
     categorySections: [
       "Plans for...",
@@ -692,7 +692,7 @@ export default {
       "Relationships",
       "Feelings",
       "You may know...",
-      "Popular Topics",
+      "Popular Topics"
     ],
     allPlanIds: [],
     allPlanRevisionIds: [],
@@ -706,7 +706,7 @@ export default {
     plansPagination: null,
     plansSorter: {
       sort: null,
-      order: "desc",
+      order: "desc"
     },
     languages: [
       {
@@ -716,7 +716,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 04.955Z",
         code: "en",
         name: "English",
-        position: 0,
+        position: 0
       },
       {
         object: "language",
@@ -725,7 +725,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 04.974Z",
         code: "af",
         name: "Afrikaans",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -734,7 +734,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.580Z",
         code: "sq",
         name: "Albanian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -743,7 +743,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 04.989Z",
         code: "ar",
         name: "Arabic",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -752,7 +752,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.007Z",
         code: "be",
         name: "Belarusian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -761,7 +761,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.034Z",
         code: "bg",
         name: "Bulgarian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -770,7 +770,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.410Z",
         code: "my",
         name: "Burmese",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -779,7 +779,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.059Z",
         code: "ca",
         name: "Catalan",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -788,7 +788,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.695Z",
         code: "zh_CN",
         name: "Chinese Simplified",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -797,7 +797,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.705Z",
         code: "zh_TW",
         name: "Chinese Traditional",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -806,7 +806,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.259Z",
         code: "hr",
         name: "Croatian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -815,7 +815,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.075Z",
         code: "cs",
         name: "Czech",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -824,7 +824,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.117Z",
         code: "da",
         name: "Danish",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -833,7 +833,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.424Z",
         code: "nl",
         name: "Dutch",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -842,7 +842,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.197Z",
         code: "fa",
         name: "Farsi",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -851,7 +851,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.639Z",
         code: "tl",
         name: "Filipino",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -860,7 +860,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.216Z",
         code: "fi",
         name: "Finnish",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -869,7 +869,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.227Z",
         code: "fr",
         name: "French",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -878,7 +878,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.130Z",
         code: "de",
         name: "German",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -887,7 +887,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.150Z",
         code: "el",
         name: "Greek",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -896,7 +896,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.247Z",
         code: "hi",
         name: "Hindi",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -905,7 +905,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.274Z",
         code: "hu",
         name: "Hungarian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -914,7 +914,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.289Z",
         code: "id",
         name: "Indonesian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -923,7 +923,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.306Z",
         code: "it",
         name: "Italian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -932,7 +932,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.323Z",
         code: "ja",
         name: "Japanese",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -941,7 +941,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.336Z",
         code: "km",
         name: "Khmer",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -950,7 +950,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.347Z",
         code: "ko",
         name: "Korean",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -959,7 +959,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.358Z",
         code: "lv",
         name: "Latvian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -968,7 +968,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.370Z",
         code: "mk",
         name: "Macedonian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -977,7 +977,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.399Z",
         code: "ms",
         name: "Malay",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -986,7 +986,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.381Z",
         code: "mn",
         name: "Mongolian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -995,7 +995,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.436Z",
         code: "no",
         name: "Norwegian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1004,7 +1004,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.474Z",
         code: "pl",
         name: "Polish",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1013,7 +1013,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.489Z",
         code: "pt",
         name: "Portuguese (BR)",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1022,7 +1022,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.511Z",
         code: "pt_PT",
         name: "Portuguese (PT)",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1031,7 +1031,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.523Z",
         code: "ro",
         name: "Romanian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1040,7 +1040,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.546Z",
         code: "ru",
         name: "Russian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1049,7 +1049,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.569Z",
         code: "sn",
         name: "Shona",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1058,7 +1058,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.558Z",
         code: "sk",
         name: "Slovak",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1067,7 +1067,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.164Z",
         code: "es",
         name: "Spanish (MX)",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1076,7 +1076,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.186Z",
         code: "es_ES",
         name: "Spanish (Spain)",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1085,7 +1085,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.601Z",
         code: "sw",
         name: "Swahili",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1094,7 +1094,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.591Z",
         code: "sv",
         name: "Swedish",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1103,7 +1103,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.620Z",
         code: "ta",
         name: "Tamil",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1112,7 +1112,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.630Z",
         code: "th",
         name: "Thai",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1121,7 +1121,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.651Z",
         code: "tr",
         name: "Turkish",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1130,7 +1130,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.664Z",
         code: "uk",
         name: "Ukranian",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1139,7 +1139,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.675Z",
         code: "ur",
         name: "Urdu",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1148,7 +1148,7 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.686Z",
         code: "vi",
         name: "Vietnamese",
-        position: null,
+        position: null
       },
       {
         object: "language",
@@ -1157,9 +1157,9 @@ export default {
         updated_at: "2017-03-06T18: 39: 05.105Z",
         code: "cy",
         name: "Welsh",
-        position: null,
-      },
-    ],
+        position: null
+      }
+    ]
   },
   organizations: {
     preferredOrgId: "ALL_ORGS",
@@ -1195,8 +1195,8 @@ export default {
             large_url:
               "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/279/large/topPlansSymbol.png?1495434773",
             original_url:
-              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/279/original/topPlansSymbol.png?1495434773",
-          },
+              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/279/original/topPlansSymbol.png?1495434773"
+          }
         },
         partnership_agreement: {
           object: "attachment",
@@ -1209,9 +1209,9 @@ export default {
             "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/c8b9596f-c528-419a-a0d1-f13f4f512f30/sample.pdf",
           asset: {
             original_url:
-              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/148/original/sample.pdf?1491541028",
-          },
-        },
+              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/148/original/sample.pdf?1491541028"
+          }
+        }
       },
       2: {
         object: "organization",
@@ -1229,7 +1229,7 @@ export default {
         analytics_id: 3,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       3: {
         object: "organization",
@@ -1247,7 +1247,7 @@ export default {
         analytics_id: 8,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       4: {
         object: "organization",
@@ -1276,9 +1276,9 @@ export default {
             "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/437e0c6e-b99b-4a4c-af0a-628681eed8d1/2017+Summer+Internship+Program+with+NBCF+-+Application.pdf",
           asset: {
             original_url:
-              "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/437e0c6e-b99b-4a4c-af0a-628681eed8d1/2017+Summer+Internship+Program+with+NBCF+-+Application.pdf",
-          },
-        },
+              "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/437e0c6e-b99b-4a4c-af0a-628681eed8d1/2017+Summer+Internship+Program+with+NBCF+-+Application.pdf"
+          }
+        }
       },
       5: {
         object: "organization",
@@ -1310,8 +1310,8 @@ export default {
             large_url:
               "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/138/large/12640317_10156436418430612_5205911284315347660_o.jpg?1491466635",
             original_url:
-              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/138/original/12640317_10156436418430612_5205911284315347660_o.jpg?1491466635",
-          },
+              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/138/original/12640317_10156436418430612_5205911284315347660_o.jpg?1491466635"
+          }
         },
         partnership_agreement: {
           object: "attachment",
@@ -1324,9 +1324,9 @@ export default {
             "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/9483dd6a-10a9-437f-a562-7f95dcaa02b4/nomnom.js",
           asset: {
             original_url:
-              "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/9483dd6a-10a9-437f-a562-7f95dcaa02b4/nomnom.js",
-          },
-        },
+              "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/9483dd6a-10a9-437f-a562-7f95dcaa02b4/nomnom.js"
+          }
+        }
       },
       6: {
         object: "organization",
@@ -1344,7 +1344,7 @@ export default {
         analytics_id: 10,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       7: {
         object: "organization",
@@ -1362,7 +1362,7 @@ export default {
         analytics_id: 9,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       8: {
         object: "organization",
@@ -1380,7 +1380,7 @@ export default {
         analytics_id: 15,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       9: {
         object: "organization",
@@ -1398,7 +1398,7 @@ export default {
         analytics_id: 16,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       10: {
         object: "organization",
@@ -1416,7 +1416,7 @@ export default {
         analytics_id: 14,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       11: {
         object: "organization",
@@ -1434,7 +1434,7 @@ export default {
         analytics_id: 18,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       12: {
         object: "organization",
@@ -1452,7 +1452,7 @@ export default {
         analytics_id: 20,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       13: {
         object: "organization",
@@ -1470,7 +1470,7 @@ export default {
         analytics_id: 21,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       14: {
         object: "organization",
@@ -1488,7 +1488,7 @@ export default {
         analytics_id: 22,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       15: {
         object: "organization",
@@ -1520,8 +1520,8 @@ export default {
             large_url:
               "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/151/large/2014-10-01.jpg?1491595529",
             original_url:
-              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/151/original/2014-10-01.jpg?1491595529",
-          },
+              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/151/original/2014-10-01.jpg?1491595529"
+          }
         },
         partnership_agreement: {
           object: "attachment",
@@ -1534,9 +1534,9 @@ export default {
             "https://yv-partner-portal-dev.s3.amazonaws.com/uploads/8cb4e43e-2041-43e3-b8d7-9e4dedbe89d8/p0fo-_fo.png",
           asset: {
             original_url:
-              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/152/original/p0fo-_fo.png?1491595557",
-          },
-        },
+              "https://s3.amazonaws.com/yv-partner-portal-dev/attachments/assets/000/000/152/original/p0fo-_fo.png?1491595557"
+          }
+        }
       },
       16: {
         object: "organization",
@@ -1554,7 +1554,7 @@ export default {
         analytics_id: 5,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       18: {
         object: "organization",
@@ -1572,7 +1572,7 @@ export default {
         analytics_id: null,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       19: {
         object: "organization",
@@ -1590,7 +1590,7 @@ export default {
         analytics_id: 17,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       20: {
         object: "organization",
@@ -1608,7 +1608,7 @@ export default {
         analytics_id: 2,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       21: {
         object: "organization",
@@ -1626,7 +1626,7 @@ export default {
         analytics_id: 1,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
+        partnership_agreement: null
       },
       22: {
         object: "organization",
@@ -1644,8 +1644,8 @@ export default {
         analytics_id: null,
         role: "admin",
         profile_photo: null,
-        partnership_agreement: null,
-      },
+        partnership_agreement: null
+      }
     },
     usersById: {},
     curentPageOrgIds: [
@@ -1669,7 +1669,7 @@ export default {
       21,
       18,
       22,
-      1,
+      1
     ],
     activeOrgUserIds: [],
     activeOrgId: 1,
@@ -1683,11 +1683,11 @@ export default {
       nextPage: null,
       prevPage: null,
       totalPages: 1,
-      totalCount: 21,
+      totalCount: 21
     },
     orgsSorter: {
       sort: null,
-      order: "desc",
+      order: "desc"
     },
     userLoadError: false,
     isSavingUser: false,
@@ -1696,74 +1696,74 @@ export default {
     usersPagination: null,
     usersSorter: {
       sort: null,
-      order: "desc",
+      order: "desc"
     },
     analyticsAuth: {
       username: "partner-portal",
-      password: "6d67c237075e493bc523cb6dabd48dd42c7982ce",
+      password: "6d67c237075e493bc523cb6dabd48dd42c7982ce"
     },
     analyticsDataByKey: {
       "plan-activity-by-year": {
         isLoading: true,
         failedLoad: false,
         resultset: null,
-        year: 2017,
+        year: 2017
       },
       "top-plans-completions": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "historical-completions": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "per-day-completion-rate": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "per-day-subscription-rate": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "rp-sub-yoy": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "top-plans-subscribers": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "completions-by-day": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "rp-completed": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "rp-comp-yoy": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
+        resultset: null
       },
       "plan-activity-historical": {
         isLoading: true,
         failedLoad: false,
-        resultset: null,
-      },
+        resultset: null
+      }
     },
     totalSubscriptions: {
       isLoading: true,
       failedLoad: false,
-      resultset: null,
+      resultset: null
     },
     allOrgIds: [
       3,
@@ -1786,17 +1786,17 @@ export default {
       21,
       18,
       22,
-      1,
+      1
     ],
-    error: null,
+    error: null
   },
   globalNotifications: {
-    notifications: [],
+    notifications: []
   },
   form: {
     newPlan: {
       error: {
-        imagesError: "Please provide large and small images for this plan.",
+        imagesError: "Please provide large and small images for this plan."
       },
       syncError: true,
       syncErrors: {
@@ -1806,55 +1806,55 @@ export default {
           draft_description: "Please enter a plan description.",
           draft_keywords: "Please add at least one keyword.",
           draft_launches_at: "Please add a launch date.",
-          draft_categories: "Please add at least one category.",
-        },
+          draft_categories: "Please add at least one category."
+        }
       },
       registeredFields: [
         {
           name: "plan.draft_lang",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_name",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_description",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_large_image",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_small_image",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_alternate_organizations",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_launches_at",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_categories",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.draft_keywords",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.partner_url",
-          type: "Field",
+          type: "Field"
         },
         {
           name: "plan.initial_comment",
-          type: "Field",
-        },
-      ],
-    },
-  },
+          type: "Field"
+        }
+      ]
+    }
+  }
 };

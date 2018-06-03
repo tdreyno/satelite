@@ -5,7 +5,7 @@ import {
   entity,
   max,
   min,
-  sortBy,
+  sortBy
 } from "../accumulators";
 import {
   equals,
@@ -13,7 +13,7 @@ import {
   ICondition,
   isBetween,
   isIdentifierType,
-  lessThanOrEqualTo,
+  lessThanOrEqualTo
 } from "../Condition";
 import { IFact } from "../Fact";
 import { makeIdentifier } from "../Identifier";
@@ -41,7 +41,7 @@ const DATA_SET: IFact[] = [
 
   [grace, "name", "Grace"],
   [grace, "gender", "F"],
-  [grace, "team", "Fun"],
+  [grace, "team", "Fun"]
 ] as any;
 
 function makeRete(loggers?: any) {
@@ -63,7 +63,7 @@ describe("Rete", () => {
     rule(
       ["?e", "gender", "F"],
       ["?e", "team", "Fun"],
-      ["?e", "name", "?v"],
+      ["?e", "name", "?v"]
     ).then(({ e, v }) => {
       expect(e).toBe(grace);
       expect(v).toBe("Grace");
@@ -72,7 +72,7 @@ describe("Rete", () => {
     rule(
       ["?e", "gender", "M"],
       ["?e", "team", "WW"],
-      ["?e", "name", "?v"],
+      ["?e", "name", "?v"]
     ).then(({ e, v }) => {
       expect(e).toBe(thomas);
       expect(v).toBe("Thomas");
@@ -85,12 +85,12 @@ describe("Rete", () => {
       commitTransaction,
       assert,
       rule,
-      self,
+      self
     } = Rete.create({
-        Asserting: console.log.bind(console),
-        Retracting: console.log.bind(console),
-        Updating: console.log.bind(console),
-      });
+      Asserting: console.log.bind(console),
+      Retracting: console.log.bind(console),
+      Updating: console.log.bind(console)
+    });
 
     rule(["?e", "gender", "F"]).then(({ e }) => [e, "isLady", true]);
 
@@ -117,7 +117,7 @@ describe("Rete", () => {
     rule(["?e", "gender", "F"], not(["?e", "team", "Fun"]), [
       "?e",
       "name",
-      "?v",
+      "?v"
     ]).then(({ e, v }) => {
       expect(e).toBe(violet);
       expect(v).toBe("Violet");
@@ -157,7 +157,7 @@ describe("Rete", () => {
       ["?e", "gender", "M"],
       max("?max", ["?e", "age", _]),
       ["?e2", "age", "?max"],
-      ["?e2", "name", "?v"],
+      ["?e2", "name", "?v"]
     ];
 
     const q = query(...conditions);
@@ -170,14 +170,14 @@ describe("Rete", () => {
         return [
           [1, "hasBro", true],
           ["global", "hasTName", true],
-          ["global", "isFirst", true],
+          ["global", "isFirst", true]
         ] as IFact[];
       } else {
         expect(v).toBe("Thomas");
         return [
           ["global", "hasTName", true],
           [1, "isNotBro", true],
-          ["global", "isFirst", false],
+          ["global", "isFirst", false]
         ] as IFact[];
       }
     });
@@ -278,20 +278,17 @@ describe("Rete", () => {
     expect(coolFacts[0][0]).toBe(thomas);
   });
 
-  it.skip(
-    "should make sure 2 queries for the same conditions return the same object",
-    () => {
-      const { self, query } = makeRete();
+  it.skip("should make sure 2 queries for the same conditions return the same object", () => {
+    const { self, query } = makeRete();
 
-      const query1 = query(["?e", "isLady", true]);
-      const query2 = query(["?e", "isLady", true]);
+    const query1 = query(["?e", "isLady", true]);
+    const query2 = query(["?e", "isLady", true]);
 
-      expect(self.root.children).toHaveLength(1);
-      expect(query1 === query2).toBeFalsy();
-      expect(query1.queryNode === query2.queryNode).toBeFalsy();
-      expect(query1.queryNode.parent === query2.queryNode.parent).toBeTruthy();
-    },
-  );
+    expect(self.root.children).toHaveLength(1);
+    expect(query1 === query2).toBeFalsy();
+    expect(query1.queryNode === query2.queryNode).toBeFalsy();
+    expect(query1.queryNode.parent === query2.queryNode.parent).toBeTruthy();
+  });
 
   it("should be able to accumulate facts", () => {
     expect.assertions(6);
@@ -302,7 +299,7 @@ describe("Rete", () => {
       [thomas, "age", 40],
       [violet, "age", 30],
       [marc, "age", 20],
-      [grace, "age", 10],
+      [grace, "age", 10]
     );
 
     rule(count("?c", ["?e", "gender", "F"])).then(({ c }) => {
@@ -316,7 +313,7 @@ describe("Rete", () => {
     // Mapping an alias
     rule(
       max("?age", [_, "age", _]),
-      collect("?olds", "?e", ["?e", "age", "?age"]),
+      collect("?olds", "?e", ["?e", "age", "?age"])
     ).then(({ olds }) => {
       expect(olds).toHaveLength(1);
       expect(olds[0]).toBe(thomas);
@@ -325,7 +322,7 @@ describe("Rete", () => {
     // Mapping a function
     rule(
       min("?age", [_, "age", _]),
-      collect("?youngs", f => f[0], [_, "age", "?age"]),
+      collect("?youngs", f => f[0], [_, "age", "?age"])
     ).then(({ youngs }) => {
       expect(youngs).toHaveLength(1);
       expect(youngs[0]).toBe(grace);
@@ -341,7 +338,7 @@ describe("Rete", () => {
       [_, "team", "?teamId"],
       collect("?teamMembers", "?e", ["?e", "team", "?teamId"]),
       collectBindings("?teamsWithMembers"),
-      sortBy("?sortedTeamsWithMembers", "?teamsWithMembers", ["teamId"]),
+      sortBy("?sortedTeamsWithMembers", "?teamsWithMembers", ["teamId"])
     );
 
     const result = q.variableBindings[0].sortedTeamsWithMembers;
@@ -364,7 +361,7 @@ describe("Rete", () => {
       [thomas, "age", 40],
       [violet, "age", 30],
       [marc, "age", 20],
-      [grace, "age", 10],
+      [grace, "age", 10]
     );
 
     rule(["?e", "age", lessThanOrEqualTo(20)]).then(({ e }, { fact }) => {
@@ -383,13 +380,11 @@ describe("Rete", () => {
       expect(e).toBe(marc);
     });
 
-    rule(min("?age", [_, "age", _]), [
-      "?e",
-      "age",
-      equals("?age"),
-    ]).then(({ e }) => {
-      expect(e).toBe(grace);
-    });
+    rule(min("?age", [_, "age", _]), ["?e", "age", equals("?age")]).then(
+      ({ e }) => {
+        expect(e).toBe(grace);
+      }
+    );
   });
 
   it("should be able to query by identifier type", () => {
@@ -412,7 +407,7 @@ describe("Rete", () => {
       [personA, "tag", tagA],
       [personB, "tag", tagB],
       [tagA, "name", "New"],
-      [tagB, "name", "Old"],
+      [tagB, "name", "Old"]
     );
 
     rule([isPerson, "name", "?v"]).then(({ v }, { fact }) => {
@@ -450,7 +445,7 @@ describe("Rete", () => {
     const maxQuery = query(
       max("?max", [_, "age", _]),
       ["?e", "age", "?max"],
-      ["?e", "name", "?v"],
+      ["?e", "name", "?v"]
     );
 
     const maxFacts = maxQuery.facts;
@@ -461,7 +456,7 @@ describe("Rete", () => {
       ["?e", "gender", "M"],
       max("?max", ["?e", "age", _]),
       ["?e2", "age", "?max"],
-      ["?e2", "name", "?v"],
+      ["?e2", "name", "?v"]
     );
 
     const maxMaleFacts = maxMaleQuery.facts;
@@ -471,7 +466,7 @@ describe("Rete", () => {
     const maxMaleQuery2 = query(
       max("?max", ["?e", "gender", "M"], ["?e", "age", _]),
       ["?e2", "age", "?max"],
-      ["?e2", "name", "?v"],
+      ["?e2", "name", "?v"]
     );
 
     const maxMaleFacts2 = maxMaleQuery2.facts;
@@ -545,7 +540,7 @@ describe("Rete", () => {
       collect("?women", [_, "gender", "F"]), // All The Women
       ["?e", "team", "WW"],
       ["?e", "?attr", "Thomas"], // A field called "name"
-      collect("?grace", [_, "team", "?fun"]), // Fun folk
+      collect("?grace", [_, "team", "?fun"]) // Fun folk
     );
 
     const bindings = multiQuery.variableBindings;

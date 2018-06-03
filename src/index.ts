@@ -11,5 +11,5 @@ export {
   lessThanOrEqualTo,
   equals,
   notEquals,
-  isIdentifierType,
+  isIdentifierType
 } from "./Condition";

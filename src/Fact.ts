@@ -2,7 +2,8 @@ import { memoize } from "interstelar";
 import { IIdentifier, IPrimitive } from "./Identifier";
 
 export type IValue = any;
-export interface IFact extends Array<IIdentifier | IPrimitive | string | IValue> {
+export interface IFact
+  extends Array<IIdentifier | IPrimitive | string | IValue> {
   0: IIdentifier | IPrimitive;
   1: string;
   2: IValue;
@@ -14,7 +15,7 @@ export type IFactFields = "0" | "1" | "2";
 export function makeFactPure(
   identifier: IIdentifier | IPrimitive,
   attribute: string,
-  value: IValue,
+  value: IValue
 ): IFact {
   return [identifier, attribute, value];
 }

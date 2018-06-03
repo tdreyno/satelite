@@ -12,6 +12,5 @@
     "**/typings/**": true
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "prettier.trailingComma": "all",
-  "editor.formatOnSave": false
+  "editor.formatOnSave": true
 }

@@ -28,7 +28,7 @@ export class TodoEntry extends React.Component<ITodoEntryProps> {
     event.preventDefault();
 
     const val = (ReactDOM.findDOMNode(
-      this.refs.newField,
+      this.refs.newField
     ) as HTMLInputElement).value.trim();
 
     if (val) {

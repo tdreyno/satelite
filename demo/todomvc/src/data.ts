@@ -3,7 +3,7 @@ import { Rete } from "../../../src";
 const rete = Rete.create({
   Asserting: console.log.bind(console),
   Retracting: console.log.bind(console),
-  Updating: console.log.bind(console),
+  Updating: console.log.bind(console)
 });
 
 const { assert, retract, update, findEntity, retractEntity } = rete;

@@ -8,16 +8,16 @@ export class Provider extends Component<{
 }> {
   static propTypes = {
     rete: PropTypes.instanceOf(Rete).isRequired,
-    children: PropTypes.any.isRequired,
+    children: PropTypes.any.isRequired
   };
 
   static childContextTypes = {
-    rete: PropTypes.object.isRequired,
+    rete: PropTypes.object.isRequired
   };
 
   getChildContext() {
     return {
-      rete: this.props.rete,
+      rete: this.props.rete
     };
   }
 

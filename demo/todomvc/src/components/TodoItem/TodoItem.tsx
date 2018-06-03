@@ -23,7 +23,7 @@ export interface ITodoItemState {
 
 export class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
   state = {
-    editText: "",
+    editText: ""
   };
 
   render() {
@@ -37,7 +37,7 @@ export class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
       <li
         className={[
           completed ? "completed" : "",
-          isBeingEdited ? "editing" : "",
+          isBeingEdited ? "editing" : ""
         ].join(" ")}
       >
         <div className="view">
@@ -47,9 +47,7 @@ export class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
             checked={completed}
             onChange={this.handleToggle.bind(this)}
           />
-          <label onDoubleClick={this.handleEdit.bind(this)}>
-            {text}
-          </label>
+          <label onDoubleClick={this.handleEdit.bind(this)}>{text}</label>
           <button className="destroy" onClick={this.handleDestroy.bind(this)} />
         </div>
         <input
