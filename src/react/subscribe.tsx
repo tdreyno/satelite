@@ -26,7 +26,7 @@ export type IConditionsOrPropConditions<OwnProps> =
   | IPropConditions<OwnProps>;
 
 export function subscribe<ReteProps, OwnProps>(
-  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>,
+  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>
 ): (<TFunction extends React.ComponentClass<ReteProps | OwnProps>>(
   ComposedComponent: TFunction,
 ) => React.ComponentClass<OwnProps>) {

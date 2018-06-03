@@ -13,7 +13,7 @@ import { IVariableBindings, Token } from "./Token";
 export function acc<T>(
   bindingName: string,
   accumulator: IAccumulator<T>,
-  ...conditions: IConditions,
+  ...conditions: IConditions
 ): AccumulatorCondition<T> {
   const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
     conditions,
@@ -91,15 +91,15 @@ export type ICollectionMapperFn = (f: IFact, b: IVariableBindings) => any;
 export function collect(
   bindingName: string,
   mapperAlias: string | ICollectionMapperFn,
-  ...conditions: Array<ICondition | AccumulatorCondition>,
+  ...conditions: Array<ICondition | AccumulatorCondition>
 ): AccumulatorCondition;
 export function collect(
   bindingName: string,
-  ...conditions: Array<ICondition | AccumulatorCondition>,
+  ...conditions: Array<ICondition | AccumulatorCondition>
 ): AccumulatorCondition;
 export function collect(
   bindingName: string,
-  ...mapperFnOrConditions: Array<string | ICondition | AccumulatorCondition | ICollectionMapperFn>,
+  ...mapperFnOrConditions: Array<string | ICondition | AccumulatorCondition | ICollectionMapperFn>
 ): AccumulatorCondition {
   let mapperFn: ICollectionMapperFn = (f: IFact) => f;
   const firstVariadicArgument = mapperFnOrConditions[0];
