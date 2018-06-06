@@ -2,36 +2,36 @@ import { IFact } from "./Fact";
 import { ProductionNode } from "./nodes/ProductionNode";
 import { IVariableBindings } from "./Token";
 
-export type IActivateCallback = (
-  variableBindings: IVariableBindings,
+export type IActivateCallback<Schema extends IFact> = (
+  variableBindings: IVariableBindings<Schema>,
   extra: {
-    fact: IFact;
+    fact: Schema;
   }
-) => undefined | void | null | IFact | IFact[];
+) => undefined | void | null | Schema | Schema[];
 
-export type IInternalActivateCallback = (
-  v: IVariableBindings,
+export type IInternalActivateCallback<Schema extends IFact> = (
+  v: IVariableBindings<Schema>,
   extra: {
-    fact: IFact;
+    fact: Schema;
   }
-) => undefined | void | null | IFact | IFact[];
+) => undefined | void | null | Schema | Schema[];
 
-export class Production {
-  static create(onActivationCallback: IActivateCallback) {
-    return new Production(onActivationCallback);
+export class Production<Schema extends IFact> {
+  static create<S extends IFact>(onActivationCallback: IActivateCallback<S>) {
+    return new Production<S>(onActivationCallback);
   }
 
-  productionNode!: ProductionNode;
-  onActivationCallback: IInternalActivateCallback;
+  productionNode!: ProductionNode<Schema>;
+  onActivationCallback: IInternalActivateCallback<Schema>;
 
-  constructor(onActivationCallback: IActivateCallback) {
+  constructor(onActivationCallback: IActivateCallback<Schema>) {
     this.onActivationCallback = onActivationCallback;
   }
 
   onActivation(
-    f: IFact,
-    b: IVariableBindings
-  ): undefined | void | null | IFact | IFact[] {
+    f: Schema,
+    b: IVariableBindings<Schema>
+  ): undefined | void | null | Schema | Schema[] {
     return this.onActivationCallback(b, {
       fact: f
     });

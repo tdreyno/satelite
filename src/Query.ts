@@ -5,26 +5,32 @@ import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { QueryNode } from "./nodes/QueryNode";
 import { IVariableBindings } from "./Token";
 
-export type IQueryChangeFn = (
-  facts: IFact[],
-  variableBindings: IVariableBindings[]
+export type IQueryChangeFn<Schema extends IFact> = (
+  facts: Schema[],
+  variableBindings: Array<IVariableBindings<Schema>>
 ) => any;
 
 let nextQueryId = 0;
-export class Query {
-  static create(conditions: Array<ParsedCondition | AccumulatorCondition>) {
-    return new Query(conditions);
+export class Query<Schema extends IFact> {
+  static create<S extends IFact>(
+    conditions: Array<ParsedCondition<S> | AccumulatorCondition<S>>
+  ) {
+    return new Query<S>(conditions);
   }
 
   id = nextQueryId++;
-  queryNode!: QueryNode;
-  callbacks: Set<IQueryChangeFn> = new Set();
-  conditions: Array<ParsedCondition | AccumulatorCondition> = [];
-  lastCondition: ParsedCondition | AccumulatorCondition;
-  facts!: IFact[];
-  variableBindings!: IVariableBindings[];
+  queryNode!: QueryNode<Schema>;
+  callbacks: Set<IQueryChangeFn<Schema>> = new Set();
+  conditions: Array<
+    ParsedCondition<Schema> | AccumulatorCondition<Schema>
+  > = [];
+  lastCondition: ParsedCondition<Schema> | AccumulatorCondition<Schema>;
+  facts!: Schema[];
+  variableBindings!: Array<IVariableBindings<Schema>>;
 
-  constructor(conditions: Array<ParsedCondition | AccumulatorCondition>) {
+  constructor(
+    conditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>
+  ) {
     this.conditions = conditions;
     this.lastCondition = this.conditions[this.conditions.length - 1];
   }
@@ -38,25 +44,25 @@ export class Query {
     }
   }
 
-  onChange(cb: IQueryChangeFn): void {
+  onChange(cb: IQueryChangeFn<Schema>): void {
     this.callbacks.add(cb);
   }
 
-  then(cb: IQueryChangeFn): void {
+  then(cb: IQueryChangeFn<Schema>): void {
     this.onChange(cb);
   }
 
-  offChange(cb: IQueryChangeFn): void {
+  offChange(cb: IQueryChangeFn<Schema>): void {
     this.callbacks.delete(cb);
   }
 
-  private getFacts(): IFact[] {
+  private getFacts(): Schema[] {
     return this.queryNode && this.queryNode.items
       ? map(this.queryNode.items, t => t.fact)
       : [];
   }
 
-  private getVariableBindings(): IVariableBindings[] {
+  private getVariableBindings(): Array<IVariableBindings<Schema>> {
     return this.queryNode && this.queryNode.items
       ? map(this.queryNode.items, t => {
           let bindings = t.bindings;

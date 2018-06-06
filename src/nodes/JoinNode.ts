@@ -19,22 +19,22 @@ import { AccumulatorCondition } from "./AccumulatorNode";
 import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { ReteNode } from "./ReteNode";
 
-export class TestAtJoinNode {
-  static create(
+export class TestAtJoinNode<Schema extends IFact> {
+  static create<S extends IFact>(
     fieldArg1: number | null,
-    condition: ParsedCondition | AccumulatorCondition,
+    condition: ParsedCondition<S> | AccumulatorCondition<S>,
     fieldArg2: string | null
-  ): TestAtJoinNode {
-    return new TestAtJoinNode(fieldArg1, condition, fieldArg2);
+  ): TestAtJoinNode<S> {
+    return new TestAtJoinNode<S>(fieldArg1, condition, fieldArg2);
   }
 
   fieldArg1: number | null;
-  condition: ParsedCondition | AccumulatorCondition;
+  condition: ParsedCondition<Schema> | AccumulatorCondition<Schema>;
   fieldArg2: string | null;
 
   constructor(
     fieldArg1: number | null,
-    condition: ParsedCondition | AccumulatorCondition,
+    condition: ParsedCondition<Schema> | AccumulatorCondition<Schema>,
     fieldArg2: string | null
   ) {
     this.fieldArg1 = fieldArg1;
@@ -45,11 +45,11 @@ export class TestAtJoinNode {
 
 export const createTestAtJoinNode = memoize(TestAtJoinNode.create);
 
-export function performJoinTests(
-  tests: TestAtJoinNode[],
-  t: Token,
-  f: IFact
-): false | IVariableBindings {
+export function performJoinTests<Schema extends IFact>(
+  tests: Array<TestAtJoinNode<Schema>>,
+  t: Token<Schema>,
+  f: Schema
+): false | IVariableBindings<Schema> {
   if (tests.length <= 0) {
     return t.bindings;
   }
@@ -81,7 +81,10 @@ export function performJoinTests(
   return bindings;
 }
 
-export function sameTests(a: TestAtJoinNode[], b: TestAtJoinNode[]): boolean {
+export function sameTests<Schema extends IFact>(
+  a: Array<TestAtJoinNode<Schema>>,
+  b: Array<TestAtJoinNode<Schema>>
+): boolean {
   if (a.length !== b.length) {
     return false;
   }
@@ -95,13 +98,13 @@ export function sameTests(a: TestAtJoinNode[], b: TestAtJoinNode[]): boolean {
   return true;
 }
 
-export class JoinNode extends ReteNode {
-  static create(
-    rete: Rete,
-    parent: ReteNode,
-    alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[]
-  ): JoinNode {
+export class JoinNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    parent: ReteNode<S>,
+    alphaMemory: AlphaMemoryNode<S>,
+    tests: Array<TestAtJoinNode<S>>
+  ): JoinNode<S> {
     for (let i = 0; i < parent.children.length; i++) {
       const sibling = parent.children[i];
 
@@ -112,7 +115,7 @@ export class JoinNode extends ReteNode {
       }
     }
 
-    const node = new JoinNode(rete, parent, alphaMemory, tests);
+    const node = new JoinNode<S>(rete, parent, alphaMemory, tests);
 
     parent.children.unshift(node);
     alphaMemory.successors.unshift(node);
@@ -122,15 +125,15 @@ export class JoinNode extends ReteNode {
     return node;
   }
 
-  items: Token[] = [];
-  alphaMemory: AlphaMemoryNode;
-  tests: TestAtJoinNode[];
+  items: Array<Token<Schema>> = [];
+  alphaMemory: AlphaMemoryNode<Schema>;
+  tests: Array<TestAtJoinNode<Schema>>;
 
   constructor(
-    rete: Rete,
-    parent: ReteNode,
-    alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[]
+    rete: Rete<Schema>,
+    parent: ReteNode<Schema>,
+    alphaMemory: AlphaMemoryNode<Schema>,
+    tests: Array<TestAtJoinNode<Schema>>
   ) {
     super(rete);
 
@@ -139,7 +142,7 @@ export class JoinNode extends ReteNode {
     this.tests = tests;
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
@@ -160,7 +163,7 @@ export class JoinNode extends ReteNode {
     }
   }
 
-  leftUpdate(prev: Token, t: Token): void {
+  leftUpdate(prev: Token<Schema>, t: Token<Schema>): void {
     const foundIndex = findInList(this.items, prev, compareTokens);
 
     if (foundIndex === -1) {
@@ -185,7 +188,7 @@ export class JoinNode extends ReteNode {
     }
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
     if (foundIndex === -1) {
@@ -208,7 +211,7 @@ export class JoinNode extends ReteNode {
     }
   }
 
-  rightActivate(f: IFact): void {
+  rightActivate(f: Schema): void {
     this.log("rightActivate", f);
 
     for (let i = 0; i < this.items.length; i++) {
@@ -223,7 +226,7 @@ export class JoinNode extends ReteNode {
     }
   }
 
-  rightUpdate(prev: IFact, f: IFact): void {
+  rightUpdate(prev: Schema, f: Schema): void {
     this.log("rightUpdate", prev, f);
 
     for (let i = 0; i < this.items.length; i++) {
@@ -240,7 +243,7 @@ export class JoinNode extends ReteNode {
     }
   }
 
-  rightRetract(f: IFact): void {
+  rightRetract(f: Schema): void {
     this.log("rightRetract", f);
 
     for (let i = 0; i < this.items.length; i++) {
@@ -256,7 +259,7 @@ export class JoinNode extends ReteNode {
     }
   }
 
-  rerunForChild(child: ReteNode) {
+  rerunForChild(child: ReteNode<Schema>) {
     const facts = this.alphaMemory.facts;
 
     const savedListOfChildren = this.children;
@@ -271,10 +274,10 @@ export class JoinNode extends ReteNode {
   }
 
   private propagateUpdates(
-    oldBindings: IVariableBindings | false,
-    newBindings: IVariableBindings | false,
-    oldToken: Token | false,
-    newToken: Token | false
+    oldBindings: IVariableBindings<Schema> | false,
+    newBindings: IVariableBindings<Schema> | false,
+    oldToken: Token<Schema> | false,
+    newToken: Token<Schema> | false
   ) {
     // The join didn't work and still doesn't.
     if (!oldBindings && !newBindings) {

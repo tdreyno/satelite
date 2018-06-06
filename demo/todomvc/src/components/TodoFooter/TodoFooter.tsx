@@ -1,18 +1,19 @@
 import * as React from "react";
 import { ACTIVE_TODOS, ALL_TODOS, COMPLETED_TODOS } from "../../constants";
-import { IFact } from "../../data";
 import { pluralize } from "../../utils";
 
-export interface ITodoFooterProps {
+export interface ITodoFooterProps<Schema> {
   todoFilter: string;
   activeTodoCount: number;
   completedCount: number;
-  completed: IFact[];
+  completed: Schema[];
   clearCompleted: () => any;
   changeFilter: (filter: string) => any;
 }
 
-export class TodoFooter extends React.Component<ITodoFooterProps> {
+export class TodoFooter<Schema> extends React.Component<
+  ITodoFooterProps<Schema>
+> {
   render() {
     const { activeTodoCount, completedCount } = this.props;
 

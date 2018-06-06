@@ -2,13 +2,13 @@
 declare var console: any;
 
 import * as faker from "faker";
-import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 
+type Schema = any;
 const TEAMS = ["Spirit", "WW", "Fun", "Content", "Ops"];
 const GENDERS = ["M", "F"];
 
-function makeFakePerson(): IFact[] {
+function makeFakePerson(): Schema[] {
   const id = faker.random.uuid();
   return [
     [id, "name", faker.name.findName()],
@@ -20,7 +20,7 @@ function makeFakePerson(): IFact[] {
 const { assert, rule } = Rete.create();
 
 console.time("Generating Data");
-const fakePeople: IFact[][] = [];
+const fakePeople: Schema[][] = [];
 for (let i = 0; i < 20000; i++) {
   fakePeople.push(makeFakePerson());
 }

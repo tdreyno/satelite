@@ -1,22 +1,23 @@
 import map = require("lodash/map");
-import { IFact, makeIdentifier, placeholder as _, Rete } from "../index";
+import { makeIdentifier, placeholder as _, Rete } from "../index";
 declare const fetch: (path: string) => Promise<any>;
 
-const { assert, retract, query } = Rete.create();
+type Schema = any;
+const { assert, retract, query } = Rete.create<Schema>();
 
-const hasData = (v: boolean): IFact => [
+const hasData = (v: boolean): Schema => [
   "articleModerators",
   "loader/hasData",
   v
 ];
-const isFetching = (v: boolean): IFact => [
+const isFetching = (v: boolean): Schema => [
   "articleModerators",
   "loader/isFetching",
   v
 ];
 const articleIdent = (id: string) => makeIdentifier("article/id", id);
 
-const articleModeratorsScope = (id: string) => (v: string): IFact => [
+const articleModeratorsScope = (id: string) => (v: string): Schema => [
   articleIdent(id),
   "article/moderators",
   v
@@ -37,7 +38,7 @@ export async function load() {
       const userIds = json[articleId];
       return sum.concat(map(userIds, articleModeratorsScope(articleId)));
     },
-    [] as IFact[]
+    [] as Schema[]
   );
 
   assert(...insertions);

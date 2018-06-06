@@ -1,5 +1,5 @@
 import { Comparison } from "../Condition";
-import { IFactFields } from "../Fact";
+import { IFact, SchemaFields } from "../Fact";
 import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import {
@@ -10,14 +10,14 @@ import {
 } from "../util";
 import { ReteNode } from "./ReteNode";
 
-export class ComparisonNode extends ReteNode {
-  static create(
-    rete: Rete,
-    parent: ReteNode,
-    comparisonKey: IFactFields,
-    comparison: Comparison
-  ): ComparisonNode {
-    const node = new ComparisonNode(rete, parent, comparisonKey, comparison);
+export class ComparisonNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    parent: ReteNode<S>,
+    comparisonKey: SchemaFields,
+    comparison: Comparison<S>
+  ): ComparisonNode<S> {
+    const node = new ComparisonNode<S>(rete, parent, comparisonKey, comparison);
 
     parent.children.unshift(node);
 
@@ -26,15 +26,15 @@ export class ComparisonNode extends ReteNode {
     return node;
   }
 
-  items: Token[] = [];
-  comparisonKey: IFactFields;
-  comparison: Comparison;
+  items: Array<Token<Schema>> = [];
+  comparisonKey: SchemaFields;
+  comparison: Comparison<Schema>;
 
   constructor(
-    rete: Rete,
-    parent: ReteNode,
-    comparisonKey: IFactFields,
-    comparison: Comparison
+    rete: Rete<Schema>,
+    parent: ReteNode<Schema>,
+    comparisonKey: SchemaFields,
+    comparison: Comparison<Schema>
   ) {
     super(rete);
 
@@ -43,7 +43,7 @@ export class ComparisonNode extends ReteNode {
     this.comparison = comparison;
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
@@ -55,7 +55,7 @@ export class ComparisonNode extends ReteNode {
     this.executeLeft(t, runLeftActivateOnNodes);
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
     if (foundIndex === -1) {
@@ -69,7 +69,7 @@ export class ComparisonNode extends ReteNode {
     this.executeLeft(t, runLeftRetractOnNodes);
   }
 
-  rerunForChild(child: ReteNode) {
+  rerunForChild(child: ReteNode<Schema>) {
     const tokens = this.items;
 
     const savedListOfChildren = this.children;
@@ -84,8 +84,8 @@ export class ComparisonNode extends ReteNode {
   }
 
   private executeLeft(
-    t: Token,
-    action: (children: ReteNode[], t: Token) => void
+    t: Token<Schema>,
+    action: (children: Array<ReteNode<Schema>>, t: Token<Schema>) => void
   ) {
     const value = t.fact[this.comparisonKey];
 

@@ -16,20 +16,23 @@ import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
 import { IConditions, placeholder as _ } from "./Rete";
 import { IVariableBindings, Token } from "./Token";
 
-export function acc<T>(
+export function acc<Schema extends IFact, T>(
   bindingName: string,
-  accumulator: IAccumulator<T>,
-  ...conditions: IConditions
-): AccumulatorCondition<T> {
-  const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
-    conditions,
-    parseCondition
-  );
+  accumulator: IAccumulator<Schema, T>,
+  ...conditions: IConditions<Schema>
+): AccumulatorCondition<Schema, T> {
+  const parsedConditions = map<
+    any,
+    ParsedCondition<Schema> | AccumulatorCondition<Schema>
+  >(conditions, parseCondition);
 
   return new AccumulatorCondition(bindingName, accumulator, parsedConditions);
 }
 
-export function count(bindingName: string, ...conditions: IConditions) {
+export function count<Schema extends IFact>(
+  bindingName: string,
+  ...conditions: IConditions<Schema>
+) {
   return acc(
     bindingName,
     {
@@ -42,11 +45,14 @@ export function count(bindingName: string, ...conditions: IConditions) {
   );
 }
 
-export function max(bindingName: string, ...conditions: IConditions) {
+export function max<Schema extends IFact>(
+  bindingName: string,
+  ...conditions: IConditions<Schema>
+) {
   return acc(
     bindingName,
     {
-      reducer: (sum: number | undefined, item: Token): number => {
+      reducer: (sum: number | undefined, item: Token<Schema>): number => {
         const value = item.fact[2] as number;
 
         if (typeof sum === "undefined") {
@@ -61,11 +67,14 @@ export function max(bindingName: string, ...conditions: IConditions) {
   );
 }
 
-export function min(bindingName: string, ...conditions: IConditions) {
+export function min<Schema extends IFact>(
+  bindingName: string,
+  ...conditions: IConditions<Schema>
+) {
   return acc(
     bindingName,
     {
-      reducer: (sum: number | undefined, item: Token): number => {
+      reducer: (sum: number | undefined, item: Token<Schema>): number => {
         const value = item.fact[2] as number;
 
         if (typeof sum === "undefined") {
@@ -80,7 +89,10 @@ export function min(bindingName: string, ...conditions: IConditions) {
   );
 }
 
-export function exists(bindingName: string, ...conditions: IConditions) {
+export function exists<Schema extends IFact>(
+  bindingName: string,
+  ...conditions: IConditions<Schema>
+) {
   return acc(
     bindingName,
     {
@@ -92,23 +104,29 @@ export function exists(bindingName: string, ...conditions: IConditions) {
   );
 }
 
-export type ICollectionMapperFn = (f: IFact, b: IVariableBindings) => any;
-export function collect(
+export type ICollectionMapperFn<Schema extends IFact> = (
+  f: Schema,
+  b: IVariableBindings<Schema>
+) => any;
+export function collect<Schema extends IFact>(
   bindingName: string,
-  mapperAlias: string | ICollectionMapperFn,
-  ...conditions: Array<ICondition | AccumulatorCondition>
-): AccumulatorCondition;
-export function collect(
+  mapperAlias: string | ICollectionMapperFn<Schema>,
+  ...conditions: Array<ICondition<Schema> | AccumulatorCondition<Schema>>
+): AccumulatorCondition<Schema>;
+export function collect<Schema extends IFact>(
   bindingName: string,
-  ...conditions: Array<ICondition | AccumulatorCondition>
-): AccumulatorCondition;
-export function collect(
+  ...conditions: Array<ICondition<Schema> | AccumulatorCondition<Schema>>
+): AccumulatorCondition<Schema>;
+export function collect<Schema extends IFact>(
   bindingName: string,
   ...mapperFnOrConditions: Array<
-    string | ICondition | AccumulatorCondition | ICollectionMapperFn
+    | string
+    | ICondition<Schema>
+    | AccumulatorCondition<Schema>
+    | ICollectionMapperFn<Schema>
   >
-): AccumulatorCondition {
-  let mapperFn: ICollectionMapperFn = (f: IFact) => f;
+): AccumulatorCondition<Schema> {
+  let mapperFn: ICollectionMapperFn<Schema> = (f: Schema) => f;
   const firstVariadicArgument = mapperFnOrConditions[0];
 
   if (isString(firstVariadicArgument)) {
@@ -124,13 +142,13 @@ export function collect(
 
   // Whatever is left are conditions
   const conditions: Array<
-    ICondition | AccumulatorCondition
+    ICondition<Schema> | AccumulatorCondition<Schema>
   > = mapperFnOrConditions as any;
 
   return acc(
     bindingName,
     {
-      reducer: (sum: any[], item: Token): any[] => {
+      reducer: (sum: any[], item: Token<Schema>): any[] => {
         sum.push(mapperFn(item.fact, item.bindings));
         return sum;
       },
@@ -141,10 +159,10 @@ export function collect(
   );
 }
 
-export function collectBindings(
+export function collectBindings<Schema extends IFact>(
   bindingName: string,
   onlyKeys?: string[]
-): AccumulatorCondition {
+): AccumulatorCondition<Schema> {
   return collect(
     bindingName,
     // tslint:disable-next-line:variable-name
@@ -152,18 +170,18 @@ export function collectBindings(
   );
 }
 
-export function sortBy(
+export function sortBy<Schema extends IFact>(
   bindingName: string,
   dataKey: string,
   sortKeys: string[],
   orderKeys?: string[]
-): AccumulatorCondition {
+): AccumulatorCondition<Schema> {
   const cleanKey = cleanVariableName(dataKey);
 
   return acc(bindingName, {
     // tslint:disable-next-line:variable-name
-    reducer: (_sum: any[], item: Token): any[] => {
-      return lodashOrderBy(item.bindings[cleanKey], sortKeys, orderKeys);
+    reducer: (_sum: any[], item: Token<Schema>): any[] => {
+      return lodashOrderBy(item.bindings[cleanKey] as any, sortKeys, orderKeys);
     },
     initialValue: [] as any[],
     tokenPerBindingMatch: true
@@ -175,7 +193,7 @@ export interface IEntity {
   [attribute: string]: IValue;
 }
 
-export function entity(
+export function entity<Schema extends IFact>(
   bindingName: string,
   entityId: IPrimitive | IIdentifier | IConstantTest,
   options?: {
@@ -204,7 +222,7 @@ export function entity(
   return acc(
     bindingName,
     {
-      reducer: (sum: IEntity | undefined, item: Token): IEntity => {
+      reducer: (sum: IEntity | undefined, item: Token<Schema>): IEntity => {
         const f = item.fact;
 
         const result: IEntity = sum || { id: f[0] };

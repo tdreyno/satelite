@@ -2,7 +2,7 @@ import { memoize } from "interstelar";
 import intersection = require("lodash/intersection");
 import isString = require("lodash/isString");
 import union = require("lodash/union");
-import { IFact, IFactFields, IValue } from "./Fact";
+import { IFact, IValue, SchemaFields } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatorCondition } from "./nodes/AccumulatorNode";
 import { createTestAtJoinNode, TestAtJoinNode } from "./nodes/JoinNode";
@@ -19,21 +19,29 @@ export const cleanVariableName = memoize(cleanVariableNamePure);
 
 export type IConstantTest = string;
 
-export type ICompareFn = (a: any, b: IVariableBindings) => boolean;
+export type ICompareFn<Schema extends IFact> = (
+  a: any,
+  b: IVariableBindings<Schema>
+) => boolean;
 
-export class Comparison {
-  compareFn: ICompareFn;
+export class Comparison<Schema extends IFact> {
+  compareFn: ICompareFn<Schema>;
 
-  constructor(compareFn: ICompareFn) {
+  constructor(compareFn: ICompareFn<Schema>) {
     this.compareFn = compareFn;
   }
 }
 
-export function compare(compareFn: ICompareFn): Comparison {
+export function compare<Schema extends IFact>(
+  compareFn: ICompareFn<Schema>
+): Comparison<Schema> {
   return new Comparison(compareFn);
 }
 
-function getValueOfComparisonTarget(v: any, bindings: IVariableBindings) {
+function getValueOfComparisonTarget<Schema extends IFact>(
+  v: any,
+  bindings: IVariableBindings<Schema>
+) {
   if (isVariable(v)) {
     return getVariableFromBindings(v, bindings);
   }
@@ -41,7 +49,10 @@ function getValueOfComparisonTarget(v: any, bindings: IVariableBindings) {
   return v;
 }
 
-function getVariableFromBindings(name: string, bindings: IVariableBindings) {
+function getVariableFromBindings<Schema extends IFact>(
+  name: string,
+  bindings: IVariableBindings<Schema>
+) {
   return bindings[cleanVariableName(name)];
 }
 
@@ -50,40 +61,36 @@ export const isIdentifierType = (type: string) =>
 export const isNegative = compare((a: number): boolean => a < 0);
 export const isBetween = (a: any, c: any) =>
   compare(
-    (b: number, bindings: IVariableBindings): boolean =>
+    (b: number, bindings): boolean =>
       getValueOfComparisonTarget(a, bindings) <= b &&
       b <= getValueOfComparisonTarget(c, bindings)
   );
 export const lessThanOrEqualTo = (v: any) =>
   compare(
-    (a: number, bindings: IVariableBindings): boolean =>
+    (a: number, bindings): boolean =>
       a <= getValueOfComparisonTarget(v, bindings)
   );
 export const lessThan = (v: any) =>
   compare(
-    (a: number, bindings: IVariableBindings): boolean =>
+    (a: number, bindings): boolean =>
       a < getValueOfComparisonTarget(v, bindings)
   );
 export const greaterThan = (v: any) =>
   compare(
-    (a: number, bindings: IVariableBindings): boolean =>
+    (a: number, bindings): boolean =>
       a > getValueOfComparisonTarget(v, bindings)
   );
 export const greaterThanOrEqualTo = (v: any) =>
   compare(
-    (a: number, bindings: IVariableBindings): boolean =>
+    (a: number, bindings): boolean =>
       a >= getValueOfComparisonTarget(v, bindings)
   );
 export const equals = (v: any) =>
   compare(
-    (a: any, bindings: IVariableBindings): boolean =>
-      a === getValueOfComparisonTarget(v, bindings)
+    (a: any, bindings): boolean => a === getValueOfComparisonTarget(v, bindings)
   );
 export const notEquals = (v: any) =>
-  compare(
-    (a: any, bindings: IVariableBindings): boolean =>
-      a !== getValueOfComparisonTarget(v, bindings)
-  );
+  compare((a, bindings) => a !== getValueOfComparisonTarget(v, bindings));
 
 export function isVariable(v: any): boolean {
   return isString(v) && v.startsWith(getVariablePrefix());
@@ -101,42 +108,42 @@ export function isConstant(v: any): boolean {
   return !isVariable(v) && !isPlaceholder(v) && !isComparison(v);
 }
 
-export interface ICondition extends Array<any> {
-  [0]: IPrimitive | IIdentifier | IConstantTest | Comparison;
-  [1]: string | IConstantTest | Comparison;
-  [2]: IValue | IConstantTest | Comparison;
+export interface ICondition<S extends IFact> {
+  0: S[0] | IConstantTest | Comparison<S>;
+  1: S[1] | IConstantTest | Comparison<S>;
+  2: S[2] | IConstantTest | Comparison<S>;
 
   isNegated?: boolean;
 }
 
 export interface IVariableNames {
-  [varName: string]: IFactFields;
+  [varName: string]: SchemaFields;
 }
 
-export class ParsedCondition {
-  static create(
-    identifier: IPrimitive | IIdentifier | IConstantTest | Comparison,
-    attribute: string | IConstantTest | Comparison,
-    value: IValue | IConstantTest | Comparison,
+export class ParsedCondition<Schema extends IFact> {
+  static create<S extends IFact>(
+    identifier: S[0] | IConstantTest | Comparison<S>,
+    attribute: S[1] | IConstantTest | Comparison<S>,
+    value: S[2] | IConstantTest | Comparison<S>,
     isNegated: boolean
   ) {
-    return new ParsedCondition(identifier, attribute, value, isNegated);
+    return new ParsedCondition<S>(identifier, attribute, value, isNegated);
   }
 
-  identifier: IPrimitive | IIdentifier | IConstantTest | Comparison;
-  attribute: string | IConstantTest | Comparison;
-  value: IValue | IConstantTest | Comparison;
-  constantFields: Partial<IFact>;
-  placeholderFields: { [P in IFactFields]?: true };
-  variableFields: { [P in IFactFields]?: string };
-  comparisonFields: { [P in IFactFields]?: Comparison };
+  identifier: Schema[0] | IConstantTest | Comparison<Schema>;
+  attribute: Schema[1] | IConstantTest | Comparison<Schema>;
+  value: Schema[2] | IConstantTest | Comparison<Schema>;
+  constantFields: Partial<Schema>;
+  placeholderFields: { [P in SchemaFields]?: true };
+  variableFields: { [P in SchemaFields]?: string };
+  comparisonFields: { [P in SchemaFields]?: Comparison<Schema> };
   variableNames: IVariableNames;
   isNegated: boolean;
 
   constructor(
-    identifier: IPrimitive | IIdentifier | IConstantTest | Comparison,
-    attribute: string | IConstantTest | Comparison,
-    value: IValue | IConstantTest | Comparison,
+    identifier: IPrimitive | IIdentifier | IConstantTest | Comparison<Schema>,
+    attribute: string | IConstantTest | Comparison<Schema>,
+    value: IValue | IConstantTest | Comparison<Schema>,
     isNegated: boolean
   ) {
     this.identifier = identifier;
@@ -150,7 +157,7 @@ export class ParsedCondition {
     this.isNegated = isNegated;
 
     if (isComparison(identifier)) {
-      this.comparisonFields["0"] = identifier as Comparison;
+      this.comparisonFields["0"] = identifier as Comparison<Schema>;
       this.placeholderFields["0"] = true;
     } else if (isVariable(identifier)) {
       this.variableNames[identifier as string] = "0";
@@ -162,7 +169,7 @@ export class ParsedCondition {
     }
 
     if (isComparison(attribute)) {
-      this.comparisonFields["1"] = attribute as Comparison;
+      this.comparisonFields["1"] = attribute as Comparison<Schema>;
       this.placeholderFields["1"] = true;
     } else if (isVariable(attribute)) {
       this.variableNames[attribute as string] = "1";
@@ -174,7 +181,7 @@ export class ParsedCondition {
     }
 
     if (isComparison(value)) {
-      this.comparisonFields["2"] = value as Comparison;
+      this.comparisonFields["2"] = value as Comparison<Schema>;
       this.placeholderFields["2"] = true;
     } else if (isVariable(value)) {
       this.variableNames[value as string] = "2";
@@ -191,13 +198,15 @@ export class ParsedCondition {
 // Converts condition `toJSON` for caching. Might not be worth the memory.
 const memoizedParseCondition = memoize(ParsedCondition.create);
 
-export function parseCondition<T>(
-  c: AccumulatorCondition<T>
-): AccumulatorCondition<T>;
-export function parseCondition(c: ICondition | any[]): ParsedCondition;
-export function parseCondition<T>(
-  c: ICondition | any[] | AccumulatorCondition<T>
-): ParsedCondition | AccumulatorCondition<T> {
+export function parseCondition<Schema extends IFact, T>(
+  c: AccumulatorCondition<Schema, T>
+): AccumulatorCondition<Schema, T>;
+export function parseCondition<Schema extends IFact>(
+  c: ICondition<Schema>
+): ParsedCondition<Schema>;
+export function parseCondition<Schema extends IFact, T>(
+  c: ICondition<Schema> | AccumulatorCondition<Schema, T>
+): ParsedCondition<Schema> | AccumulatorCondition<Schema, T> {
   if (c instanceof AccumulatorCondition) {
     return c;
   }
@@ -207,14 +216,16 @@ export function parseCondition<T>(
   return memoizedParseCondition(c[0], c[1], c[2], isNegated);
 }
 
-export function getJoinTestsFromCondition(
-  c: ParsedCondition | AccumulatorCondition,
-  earlierConditions: Array<ParsedCondition | AccumulatorCondition>
-): TestAtJoinNode[] {
+export function getJoinTestsFromCondition<Schema extends IFact>(
+  c: ParsedCondition<Schema> | AccumulatorCondition<Schema>,
+  earlierConditions: Array<
+    ParsedCondition<Schema> | AccumulatorCondition<Schema>
+  >
+): Array<TestAtJoinNode<Schema>> {
   const variableNames: IVariableNames =
     c instanceof AccumulatorCondition ? {} : c.variableNames;
 
-  const results: TestAtJoinNode[] = [];
+  const results: Array<TestAtJoinNode<Schema>> = [];
 
   for (const variableName in variableNames) {
     if (variableNames.hasOwnProperty(variableName)) {
@@ -243,10 +254,12 @@ export function getJoinTestsFromCondition(
   return results;
 }
 
-export function findVariableInEarlierConditions(
+export function findVariableInEarlierConditions<Schema extends IFact>(
   variableName: string,
-  earlierConditions: Array<ParsedCondition | AccumulatorCondition>
-): ParsedCondition | AccumulatorCondition | undefined {
+  earlierConditions: Array<
+    ParsedCondition<Schema> | AccumulatorCondition<Schema>
+  >
+): ParsedCondition<Schema> | AccumulatorCondition<Schema> | undefined {
   for (let i = 0; i < earlierConditions.length; i++) {
     const c = earlierConditions[i];
 
@@ -260,11 +273,11 @@ export function findVariableInEarlierConditions(
   }
 }
 
-export function extractBindingsFromCondition(
-  c: ParsedCondition | AccumulatorCondition,
-  f: IFact,
-  b: IVariableBindings
-): IVariableBindings {
+export function extractBindingsFromCondition<Schema extends IFact>(
+  c: ParsedCondition<Schema> | AccumulatorCondition<Schema>,
+  f: Schema,
+  b: IVariableBindings<Schema>
+): IVariableBindings<Schema> {
   const bindings = Object.assign({}, b);
 
   if (c instanceof AccumulatorCondition) {
@@ -286,8 +299,8 @@ export function extractBindingsFromCondition(
   return bindings;
 }
 
-export function getVariableNamesFromCondition(
-  c: ParsedCondition | AccumulatorCondition
+export function getVariableNamesFromCondition<Schema extends IFact>(
+  c: ParsedCondition<Schema> | AccumulatorCondition<Schema>
 ): string[] {
   if (c instanceof AccumulatorCondition) {
     return [c.bindingName];
@@ -296,8 +309,8 @@ export function getVariableNamesFromCondition(
   }
 }
 
-export function getVariableNamesFromConditions(
-  conditions: Array<ParsedCondition | AccumulatorCondition>
+export function getVariableNamesFromConditions<Schema extends IFact>(
+  conditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>
 ): string[] {
   return conditions.reduce(
     (acc, c) => union(acc, getVariableNamesFromCondition(c)),
@@ -305,9 +318,11 @@ export function getVariableNamesFromConditions(
   );
 }
 
-export function dependentVariableNames(
-  parentConditions: Array<ParsedCondition | AccumulatorCondition>,
-  subConditions: Array<ParsedCondition | AccumulatorCondition>
+export function dependentVariableNames<Schema extends IFact>(
+  parentConditions: Array<
+    ParsedCondition<Schema> | AccumulatorCondition<Schema>
+  >,
+  subConditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>
 ): string[] {
   return intersection(
     getVariableNamesFromConditions(parentConditions),

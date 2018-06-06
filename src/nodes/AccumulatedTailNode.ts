@@ -1,16 +1,19 @@
+import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { AccumulatorNode } from "./AccumulatorNode";
 import { ReteNode } from "./ReteNode";
 
-export class AccumulatedTailNode extends ReteNode {
-  static create(
-    rete: Rete,
-    parent: ReteNode,
-    accumulatorNode: AccumulatorNode
-  ): AccumulatedTailNode {
-    const node = new AccumulatedTailNode(rete, parent, accumulatorNode);
+export class AccumulatedTailNode<Schema extends IFact> extends ReteNode<
+  Schema
+> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    parent: ReteNode<S>,
+    accumulatorNode: AccumulatorNode<S>
+  ): AccumulatedTailNode<S> {
+    const node = new AccumulatedTailNode<S>(rete, parent, accumulatorNode);
 
     parent.children.unshift(node);
 
@@ -19,17 +22,21 @@ export class AccumulatedTailNode extends ReteNode {
     return node;
   }
 
-  items: Token[] = [];
-  accumulatorNode: AccumulatorNode;
+  items: Array<Token<Schema>> = [];
+  accumulatorNode: AccumulatorNode<Schema>;
 
-  constructor(rete: Rete, parent: ReteNode, accumulatorNode: AccumulatorNode) {
+  constructor(
+    rete: Rete<Schema>,
+    parent: ReteNode<Schema>,
+    accumulatorNode: AccumulatorNode<Schema>
+  ) {
     super(rete);
 
     this.parent = parent;
     this.accumulatorNode = accumulatorNode;
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
@@ -41,7 +48,7 @@ export class AccumulatedTailNode extends ReteNode {
     this.accumulatorNode.rightActivateReduced(t);
   }
 
-  leftUpdate(prev: Token, t: Token): void {
+  leftUpdate(prev: Token<Schema>, t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
     if (foundIndex === -1) {
@@ -55,7 +62,7 @@ export class AccumulatedTailNode extends ReteNode {
     this.accumulatorNode.rightUpdateReduced(prev, t);
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
     if (foundIndex === -1) {

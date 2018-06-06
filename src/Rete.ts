@@ -10,7 +10,7 @@ import {
   parseCondition,
   ParsedCondition
 } from "./Condition";
-import { IFact, IFactFields, IValue, makeFact } from "./Fact";
+import { IFact, IValue, makeFact, SchemaFields } from "./Fact";
 import { IIdentifier, IPrimitive } from "./Identifier";
 import { AccumulatedRootNode } from "./nodes/AccumulatedRootNode";
 import { AccumulatorCondition, AccumulatorNode } from "./nodes/AccumulatorNode";
@@ -31,7 +31,9 @@ import { IActivateCallback, Production } from "./Production";
 import { Query } from "./Query";
 import { removeIndexFromList } from "./util";
 
-export type ITerminalNode = Production | Query;
+export type ITerminalNode<Schema extends IFact> =
+  | Production<Schema>
+  | Query<Schema>;
 
 let variablePrefix = "?";
 
@@ -45,30 +47,32 @@ export function setVariablePrefix(p: string): void {
 
 export const placeholder = "__placeholder__";
 
-export function not(c: ICondition) {
+export function not<Schema extends IFact>(c: ICondition<Schema>) {
   c.isNegated = true;
   return c;
 }
 
-export type IConditions = Array<ICondition | AccumulatorCondition>;
-export interface IThenCreateProduction {
-  then: (callback: IActivateCallback) => Production;
+export type IConditions<Schema extends IFact> = Array<
+  ICondition<Schema> | AccumulatorCondition<Schema>
+>;
+export interface IThenCreateProduction<Schema extends IFact> {
+  then: (callback: IActivateCallback<Schema>) => Production<Schema>;
 }
 
-export interface IEntityResult {
-  facts: Set<IFact>;
+export interface IEntityResult<Schema> {
+  facts: Set<Schema>;
   attributes: { [attribute: string]: IValue };
 }
 
-export interface IUpdate {
-  from: IFact;
-  to: IFact;
+export interface IUpdate<Schema> {
+  from: Schema;
+  to: Schema;
 }
-export type IUpdateList = IUpdate[];
+export type IUpdateList<Schema> = Array<IUpdate<Schema>>;
 
-export interface IBatchedAction {
+export interface IBatchedAction<Schema> {
   type: "update" | "assert" | "retract";
-  value: IFact | IUpdate;
+  value: Schema | IUpdate<Schema>;
 }
 
 export type ILogger = (message: string, ...data: any[]) => any;
@@ -77,24 +81,27 @@ export interface ILoggerMap {
 }
 export type ILoggers = ILoggerMap | ILogger;
 
-export class Rete {
-  static create(loggers?: ILoggers): Rete {
-    return new Rete(loggers);
+export class Rete<Schema extends IFact> {
+  static create<S extends IFact>(loggers?: ILoggers): Rete<S> {
+    return new Rete<S>(loggers);
   }
 
   _ = placeholder;
   self = this;
-  root = RootNode.create(this);
-  hashTable: IExhaustiveHashTable = createExhaustiveHashTable();
-  facts: IFact[] = [];
+  root: RootNode<Schema> = RootNode.create<Schema>(this);
+  hashTable: IExhaustiveHashTable<Schema> = createExhaustiveHashTable<Schema>();
+  facts: Schema[] = [];
   loggers?: ILoggers;
 
   returnAfterRecording = false;
   recordActions = false;
-  queuedActions: IBatchedAction[] = [];
+  queuedActions: Array<IBatchedAction<Schema>> = [];
 
-  private terminalNodes: ITerminalNode[] = [];
-  private entities: Map<IIdentifier | IPrimitive, IEntityResult> = new Map();
+  private terminalNodes: Array<ITerminalNode<Schema>> = [];
+  private entities: Map<
+    IIdentifier | IPrimitive,
+    IEntityResult<Schema>
+  > = new Map();
 
   constructor(loggers?: ILoggers) {
     this.loggers = loggers;
@@ -138,27 +145,27 @@ export class Rete {
   }
 
   // External API.
-  assert(...facts: IFact[]): void {
+  assert(...facts: Schema[]): void {
     each(facts, f => this.addFact(f));
   }
 
-  retract(...facts: IFact[]): void {
+  retract(...facts: Schema[]): void {
     each(facts, f => this.removeFact(f));
   }
 
-  update(...facts: IFact[]): void {
+  update(...facts: Schema[]): void {
     each(facts, f => this.updateFact(f));
   }
 
-  rule(...conditions: IConditions): IThenCreateProduction {
+  rule(...conditions: IConditions<Schema>): IThenCreateProduction<Schema> {
     return this.addProduction(...conditions);
   }
 
-  query(...conditions: IConditions): Query {
+  query(...conditions: IConditions<Schema>): Query<Schema> {
     return this.addQuery(...conditions);
   }
 
-  findEntity(id: IIdentifier | IPrimitive): IEntityResult | undefined {
+  findEntity(id: IIdentifier | IPrimitive): IEntityResult<Schema> | undefined {
     return this.entities.get(id);
   }
 
@@ -179,7 +186,7 @@ export class Rete {
     this.recordActions = true;
   }
 
-  commitTransaction(): IBatchedAction[] {
+  commitTransaction(): Array<IBatchedAction<Schema>> {
     if (!this.returnAfterRecording) {
       throw new Error(`Not in a transation!`);
     }
@@ -189,13 +196,13 @@ export class Rete {
     each(this.queuedActions, ({ type, value }) => {
       switch (type) {
         case "assert":
-          this.addFact(value as IFact, false);
+          this.addFact(value as Schema, false);
           break;
         case "retract":
-          this.removeFact(value as IFact, false);
+          this.removeFact(value as Schema, false);
           break;
         case "update":
-          this.updateFact((value as IUpdate).to, false);
+          this.updateFact((value as IUpdate<Schema>).to, false);
           break;
       }
     });
@@ -214,7 +221,7 @@ export class Rete {
 
   // Internal API.
 
-  private addFact(factTuple: IFact, shouldRecord = this.recordActions): void {
+  private addFact(factTuple: Schema, shouldRecord = this.recordActions): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
 
     if (this.facts.indexOf(f) === -1) {
@@ -232,7 +239,7 @@ export class Rete {
       this.log("Asserting", f);
       this.facts.push(f);
 
-      const existingEntity: IEntityResult = this.entities.get(f[0]) || {
+      const existingEntity: IEntityResult<Schema> = this.entities.get(f[0]) || {
         facts: new Set(),
         attributes: {}
       };
@@ -245,7 +252,7 @@ export class Rete {
     }
   }
 
-  private removeFact(fact: IFact, shouldRecord = this.recordActions): void {
+  private removeFact(fact: Schema, shouldRecord = this.recordActions): void {
     const f = makeFact(fact[0], fact[1], fact[2]);
 
     const factIndex = this.facts.indexOf(f);
@@ -283,7 +290,7 @@ export class Rete {
     this.root.rightRetract(f);
   }
 
-  private getOldFact(newFact: IFact): IFact | undefined {
+  private getOldFact(newFact: Schema): Schema | undefined {
     for (const f of this.facts) {
       if (f[0] === newFact[0] && f[1] === newFact[1]) {
         return f;
@@ -292,7 +299,7 @@ export class Rete {
   }
 
   private updateFact(
-    factTuple: IFact,
+    factTuple: Schema,
     shouldRecord = this.recordActions
   ): void {
     const f = makeFact(factTuple[0], factTuple[1], factTuple[2]);
@@ -325,7 +332,7 @@ export class Rete {
 
     this.facts.push(f);
 
-    const existingEntity = this.entities.get(f[0]) as IEntityResult;
+    const existingEntity = this.entities.get(f[0]) as IEntityResult<Schema>;
     existingEntity.facts.delete(oldFact);
     existingEntity.facts.add(f);
 
@@ -335,12 +342,14 @@ export class Rete {
     this.updateAlphaMemories(oldFact, f);
   }
 
-  private addProduction(...conditions: IConditions): IThenCreateProduction {
+  private addProduction(
+    ...conditions: IConditions<Schema>
+  ): IThenCreateProduction<Schema> {
     return {
-      then: (callback: IActivateCallback) => {
+      then: (callback: IActivateCallback<Schema>) => {
         const parsedConditions = map<
           any,
-          ParsedCondition | AccumulatorCondition
+          ParsedCondition<Schema> | AccumulatorCondition<Schema>
         >(conditions, parseCondition);
 
         const currentNode = this.buildOrShareNetworkForConditions(
@@ -368,11 +377,11 @@ export class Rete {
     };
   }
 
-  private addQuery(...conditions: IConditions): Query {
-    const parsedConditions = map<any, ParsedCondition | AccumulatorCondition>(
-      conditions,
-      parseCondition
-    );
+  private addQuery(...conditions: IConditions<Schema>): Query<Schema> {
+    const parsedConditions = map<
+      any,
+      ParsedCondition<Schema> | AccumulatorCondition<Schema>
+    >(conditions, parseCondition);
 
     const currentNode = this.buildOrShareNetworkForConditions(
       parsedConditions,
@@ -393,10 +402,10 @@ export class Rete {
   }
 
   private dispatchToAlphaMemories(
-    f: IFact,
+    f: Schema,
     fnName: "activate" | "retract"
   ): void {
-    const fn = (am?: AlphaMemoryNode) => am && am[fnName](f);
+    const fn = (am?: AlphaMemoryNode<Schema>) => am && am[fnName](f);
 
     fn(lookupInHashTable(this.hashTable, f[0], f[1], f[2]));
     fn(lookupInHashTable(this.hashTable, f[0], f[1], null));
@@ -408,7 +417,7 @@ export class Rete {
     fn(lookupInHashTable(this.hashTable, null, null, null));
   }
 
-  private updateAlphaMemories(prev: IFact, f: IFact): void {
+  private updateAlphaMemories(prev: Schema, f: Schema): void {
     const oldTables = [
       lookupInHashTable(this.hashTable, prev[0], prev[1], prev[2]),
       lookupInHashTable(this.hashTable, prev[0], prev[1], null),
@@ -462,10 +471,12 @@ export class Rete {
   }
 
   private buildOrShareNetworkForConditions(
-    conditions: Array<ParsedCondition | AccumulatorCondition>,
-    earlierConditions: Array<ParsedCondition | AccumulatorCondition>,
-    currentNode: ReteNode = this.root
-  ): ReteNode {
+    conditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>,
+    earlierConditions: Array<
+      ParsedCondition<Schema> | AccumulatorCondition<Schema>
+    >,
+    currentNode: ReteNode<Schema> = this.root
+  ): ReteNode<Schema> {
     const conditionsHigherUp = [...earlierConditions];
 
     for (let i = 0; i < conditions.length; i++) {
@@ -522,12 +533,12 @@ export class Rete {
           if (c.comparisonFields.hasOwnProperty(comparisonFieldKey)) {
             const comparisonField = (c.comparisonFields as any)[
               comparisonFieldKey
-            ] as Comparison;
+            ] as Comparison<Schema>;
 
             currentNode = ComparisonNode.create(
               this,
               currentNode,
-              comparisonFieldKey as IFactFields,
+              comparisonFieldKey as SchemaFields,
               comparisonField
             );
           }

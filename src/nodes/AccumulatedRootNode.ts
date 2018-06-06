@@ -1,3 +1,4 @@
+import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 import { compareTokens, Token } from "../Token";
 import {
@@ -10,21 +11,26 @@ import {
 } from "../util";
 import { ReteNode } from "./ReteNode";
 
-export class AccumulatedRootNode extends ReteNode {
-  static create(rete: Rete, isIndependent: boolean): AccumulatedRootNode {
-    return new AccumulatedRootNode(rete, isIndependent);
+export class AccumulatedRootNode<Schema extends IFact> extends ReteNode<
+  Schema
+> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    isIndependent: boolean
+  ): AccumulatedRootNode<S> {
+    return new AccumulatedRootNode<S>(rete, isIndependent);
   }
 
-  items: Token[] = [];
+  items: Array<Token<Schema>> = [];
   isIndependent: boolean;
 
-  constructor(rete: Rete, isIndependent: boolean) {
+  constructor(rete: Rete<Schema>, isIndependent: boolean) {
     super(rete);
 
     this.isIndependent = isIndependent;
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
@@ -36,7 +42,7 @@ export class AccumulatedRootNode extends ReteNode {
     runLeftActivateOnNodes(this.children, t);
   }
 
-  leftUpdate(prev: Token, t: Token): void {
+  leftUpdate(prev: Token<Schema>, t: Token<Schema>): void {
     const foundIndex = findInList(this.items, prev, compareTokens);
 
     if (foundIndex === -1) {
@@ -50,7 +56,7 @@ export class AccumulatedRootNode extends ReteNode {
     runLeftUpdateOnNodes(this.children, prev, t);
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
     if (foundIndex === -1) {
@@ -64,7 +70,7 @@ export class AccumulatedRootNode extends ReteNode {
     runLeftRetractOnNodes(this.children, t);
   }
 
-  rerunForChild(child: ReteNode) {
+  rerunForChild(child: ReteNode<Schema>) {
     const tokens = this.items;
 
     const savedListOfChildren = this.children;

@@ -11,12 +11,12 @@ import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { TestAtJoinNode } from "./JoinNode";
 import { ReteNode } from "./ReteNode";
 
-export class RootJoinNode extends ReteNode {
-  static create(
-    rete: Rete,
-    parent: ReteNode,
-    alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[]
+export class RootJoinNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    parent: ReteNode<S>,
+    alphaMemory: AlphaMemoryNode<S>,
+    tests: Array<TestAtJoinNode<S>>
   ) {
     for (let i = 0; i < parent.children.length; i++) {
       const sibling = parent.children[i];
@@ -33,14 +33,14 @@ export class RootJoinNode extends ReteNode {
     return new RootJoinNode(rete, parent, alphaMemory, tests);
   }
 
-  alphaMemory: AlphaMemoryNode;
-  tests: TestAtJoinNode[];
+  alphaMemory: AlphaMemoryNode<Schema>;
+  tests: Array<TestAtJoinNode<Schema>>;
 
   constructor(
-    rete: Rete,
-    parent: ReteNode,
-    alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[]
+    rete: Rete<Schema>,
+    parent: ReteNode<Schema>,
+    alphaMemory: AlphaMemoryNode<Schema>,
+    tests: Array<TestAtJoinNode<Schema>>
   ) {
     super(rete);
 
@@ -52,7 +52,7 @@ export class RootJoinNode extends ReteNode {
     this.alphaMemory.successors.unshift(this);
   }
 
-  rightActivate(f: IFact): void {
+  rightActivate(f: Schema): void {
     this.log("rightActivate", f);
 
     const bindings = this.tests[0]
@@ -64,7 +64,7 @@ export class RootJoinNode extends ReteNode {
     runLeftActivateOnNodes(this.children, t);
   }
 
-  rightUpdate(prev: IFact, f: IFact): void {
+  rightUpdate(prev: Schema, f: Schema): void {
     this.log("rightUpdate", prev, f);
 
     const bindingsPrev = this.tests[0]
@@ -83,7 +83,7 @@ export class RootJoinNode extends ReteNode {
     runLeftUpdateOnNodes(this.children, tPrev, t);
   }
 
-  rightRetract(f: IFact): void {
+  rightRetract(f: Schema): void {
     this.log("rightRetract", f);
 
     const bindings = this.tests[0]
@@ -95,13 +95,13 @@ export class RootJoinNode extends ReteNode {
     runLeftRetractOnNodes(this.children, t);
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     this.log("leftActivate", t);
 
     runLeftActivateOnNodes(this.children, t);
   }
 
-  rerunForChild(child: ReteNode) {
+  rerunForChild(child: ReteNode<Schema>) {
     const facts = this.alphaMemory.facts;
 
     const savedListOfChildren = this.children;

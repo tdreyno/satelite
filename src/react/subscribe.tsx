@@ -7,6 +7,7 @@ import * as PropTypes from "prop-types";
 import * as React from "react";
 
 import { ICondition } from "../Condition";
+import { IFact } from "../Fact";
 import { AccumulatorCondition } from "../nodes/AccumulatorNode";
 import { Query } from "../Query";
 import { Rete } from "../Rete";
@@ -14,22 +15,24 @@ import { IVariableBindings } from "../Token";
 
 const isEqual = (a: any, b: any) => isEqualWith(a, b, eq);
 
-export type IReteToProps<ReteProps, OwnProps> = (
-  variables: IVariableBindings,
-  rete: Rete,
+export type IReteToProps<Schema extends IFact, ReteProps, OwnProps> = (
+  variables: IVariableBindings<Schema>,
+  rete: Rete<Schema>,
   nextProps: OwnProps
 ) => ReteProps;
 
-export type IPropConditions<OwnProps> = (
+export type IPropConditions<Schema extends IFact, OwnProps> = (
   props: OwnProps
-) => ICondition | AccumulatorCondition;
-export type IConditionsOrPropConditions<OwnProps> =
-  | ICondition
-  | AccumulatorCondition
-  | IPropConditions<OwnProps>;
+) => ICondition<Schema> | AccumulatorCondition<Schema>;
+export type IConditionsOrPropConditions<Schema extends IFact, OwnProps> =
+  | ICondition<Schema>
+  | AccumulatorCondition<Schema>
+  | IPropConditions<Schema, OwnProps>;
 
-export function subscribe<ReteProps, OwnProps>(
-  ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>
+export function subscribe<Schema extends IFact, ReteProps, OwnProps>(
+  ...conditionsOrPropConditions: Array<
+    IConditionsOrPropConditions<Schema, OwnProps>
+  >
 ): (<TFunction extends React.ComponentClass<ReteProps | OwnProps>>(
   ComposedComponent: TFunction
 ) => React.ComponentClass<OwnProps>) {
@@ -42,7 +45,7 @@ export function subscribe<ReteProps, OwnProps>(
         rete: PropTypes.instanceOf(Rete)
       };
 
-      query: Query | null = null;
+      query: Query<Schema> | null = null;
 
       // True until the query is parsed.
       hasPropConditions: boolean = true;
@@ -105,7 +108,7 @@ export function subscribe<ReteProps, OwnProps>(
         );
 
         if (conditions.length > 0) {
-          this.query = (this.context.rete as Rete).query(...conditions);
+          this.query = (this.context.rete as Rete<Schema>).query(...conditions);
           this.query.onChange(this.executeReteToProps);
         }
 

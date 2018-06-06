@@ -8,15 +8,17 @@ import {
   sortBy
 } from "../accumulators";
 import {
+  Comparison,
   equals,
   greaterThan,
   ICondition,
+  IConstantTest,
   isBetween,
   isIdentifierType,
   lessThanOrEqualTo
 } from "../Condition";
 import { IFact } from "../Fact";
-import { makeIdentifier } from "../Identifier";
+import { IIdentifier, makeIdentifier } from "../Identifier";
 import { AccumulatorCondition } from "../nodes/AccumulatorNode";
 import { not, placeholder as _, Rete } from "../Rete";
 
@@ -26,7 +28,14 @@ const marc = makeIdentifier("person", 3);
 const grace = makeIdentifier("person", 4);
 const brian = makeIdentifier("person", 5);
 
-const DATA_SET: IFact[] = [
+type ISchemaId = typeof thomas;
+
+type IDateSetSchema =
+  | [ISchemaId, "name", string]
+  | [ISchemaId, "gender", string]
+  | [ISchemaId, "team", string];
+
+const DATA_SET: IDateSetSchema[] = [
   [thomas, "name", "Thomas"],
   [thomas, "gender", "M"],
   [thomas, "team", "WW"],
@@ -42,13 +51,13 @@ const DATA_SET: IFact[] = [
   [grace, "name", "Grace"],
   [grace, "gender", "F"],
   [grace, "team", "Fun"]
-] as any;
+];
 
-function makeRete(loggers?: any) {
-  const rete = Rete.create(loggers);
+function makeRete<S extends IFact>(data: S[], loggers?: any) {
+  const rete = Rete.create<S>(loggers);
 
   for (let i = 0; i < DATA_SET.length; i++) {
-    rete.assert(DATA_SET[i]);
+    rete.assert(data[i]);
   }
 
   return rete;
@@ -58,7 +67,7 @@ describe("Rete", () => {
   it("should add a production", () => {
     expect.assertions(4);
 
-    const { rule } = makeRete();
+    const { rule } = makeRete(DATA_SET);
 
     rule(
       ["?e", "gender", "F"],
@@ -112,7 +121,7 @@ describe("Rete", () => {
   it("should allow negative conditions", () => {
     expect.assertions(2);
 
-    const { rule } = makeRete();
+    const { rule } = makeRete(DATA_SET);
 
     rule(["?e", "gender", "F"], not(["?e", "team", "Fun"]), [
       "?e",
@@ -127,7 +136,7 @@ describe("Rete", () => {
   it("should be able to remove fact", () => {
     expect.assertions(3);
 
-    const { retract, rule } = makeRete();
+    const { retract, rule } = makeRete(DATA_SET);
 
     rule(["?e", "gender", "F"], ["?e", "name", "?v"]).then(({ e, v }) => {
       if (e === violet) {
@@ -146,14 +155,26 @@ describe("Rete", () => {
 
   it("should be able to update fact", () => {
     expect.assertions(10);
-    const { update, query, rule, assert } = new Rete();
+
+    type ISchema =
+      | [number, "gender", string]
+      | [number, "job", string]
+      | [number, "name", string]
+      | [number, "age", number]
+      | [number, "hasBro", boolean]
+      | ["global", "hasTName", boolean]
+      | ["global", "isFirst", boolean];
+
+    const { update, query, rule, assert } = new Rete<ISchema>();
 
     assert([1, "gender", "M"]);
     assert([1, "job", "Dev"]);
     assert([1, "name", "Tom"]);
     assert([1, "age", 10]);
 
-    const conditions: Array<ICondition | AccumulatorCondition> = [
+    const conditions: Array<
+      ICondition<ISchema> | AccumulatorCondition<ISchema>
+    > = [
       ["?e", "gender", "M"],
       max("?max", ["?e", "age", _]),
       ["?e2", "age", "?max"],
@@ -171,14 +192,14 @@ describe("Rete", () => {
           [1, "hasBro", true],
           ["global", "hasTName", true],
           ["global", "isFirst", true]
-        ] as IFact[];
+        ] as ISchema[];
       } else {
         expect(v).toBe("Thomas");
         return [
           ["global", "hasTName", true],
           [1, "isNotBro", true],
           ["global", "isFirst", false]
-        ] as IFact[];
+        ] as ISchema[];
       }
     });
 
@@ -213,7 +234,9 @@ describe("Rete", () => {
   it("should be able to have dependent facts", () => {
     expect.assertions(4);
 
-    const { rule } = makeRete();
+    type IExtraSchema = IDateSetSchema | [ISchemaId, "isLady", boolean];
+
+    const { rule } = makeRete<IExtraSchema>(DATA_SET);
 
     rule(["?e", "isLady", true]).then(({ e }, { fact }) => {
       expect(fact).toEqual([violet, "isLady", true]);
@@ -231,12 +254,17 @@ describe("Rete", () => {
   });
 
   it("should allow queries", () => {
-    const { assert, retract, rule, query } = makeRete();
+    type IExtraSchema =
+      | IDateSetSchema
+      | [ISchemaId, "superCool", boolean]
+      | [ISchemaId, "isLady", boolean];
+
+    const { assert, retract, rule, query } = makeRete<IExtraSchema>(DATA_SET);
 
     rule(["?e", "gender", "F"]).then(({ e }) => {
       assert([thomas, "superCool", true]);
 
-      return [[e, "isLady", true]] as IFact[];
+      return [[e, "isLady", true]] as IExtraSchema[];
     });
 
     const coolQuery = query(["?e", "superCool", true]);
@@ -279,7 +307,9 @@ describe("Rete", () => {
   });
 
   it.skip("should make sure 2 queries for the same conditions return the same object", () => {
-    const { self, query } = makeRete();
+    type IExtraSchema = IDateSetSchema | [ISchemaId, "isLady", boolean];
+
+    const { self, query } = makeRete<IExtraSchema>(DATA_SET);
 
     const query1 = query(["?e", "isLady", true]);
     const query2 = query(["?e", "isLady", true]);
@@ -293,7 +323,9 @@ describe("Rete", () => {
   it("should be able to accumulate facts", () => {
     expect.assertions(6);
 
-    const { rule, assert } = makeRete();
+    type IExtraSchema = IDateSetSchema | [ISchemaId, "age", number];
+
+    const { rule, assert } = makeRete<IExtraSchema>(DATA_SET);
 
     assert(
       [thomas, "age", 40],
@@ -330,7 +362,7 @@ describe("Rete", () => {
   });
 
   it("should be able to collect from different bindings and sort", () => {
-    const { query, assert } = makeRete();
+    const { query, assert } = makeRete(DATA_SET);
 
     assert([brian, "team", "WW"]);
 
@@ -355,7 +387,9 @@ describe("Rete", () => {
   it("should be able to run arbitrary comparisons", () => {
     expect.assertions(5);
 
-    const { rule, assert } = makeRete();
+    type IExtraSchema = IDateSetSchema | [ISchemaId, "age", number];
+
+    const { rule, assert } = makeRete<IExtraSchema>(DATA_SET);
 
     assert(
       [thomas, "age", 40],
@@ -372,9 +406,11 @@ describe("Rete", () => {
       }
     });
 
-    rule(min("?age", [_, "age", greaterThan(10)])).then(({ age }) => {
-      expect(age).toBe(20);
-    });
+    rule(min<IExtraSchema>("?age", [_, "age", greaterThan(10)])).then(
+      ({ age }) => {
+        expect(age).toBe(20);
+      }
+    );
 
     rule(["?e", "age", isBetween(19, 21)]).then(({ e }) => {
       expect(e).toBe(marc);
@@ -390,7 +426,11 @@ describe("Rete", () => {
   it("should be able to query by identifier type", () => {
     expect.assertions(4);
 
-    const { rule, assert } = new Rete();
+    type ISchema =
+      | [ISchemaId, "name", string]
+      | [ISchemaId, "tag", IIdentifier<number>];
+
+    const { rule, assert } = new Rete<ISchema>();
 
     const personA = makeIdentifier("person", 1);
     const personB = makeIdentifier("person", 2);
@@ -475,7 +515,7 @@ describe("Rete", () => {
   });
 
   it("should have an entity cache", () => {
-    const { retract, findEntity } = makeRete();
+    const { retract, findEntity } = makeRete(DATA_SET);
 
     const thomasDefinition1 = findEntity(thomas);
 
@@ -509,7 +549,7 @@ describe("Rete", () => {
   it("should have entity level subscriptions", () => {
     expect.assertions(4);
 
-    const { retract, query } = makeRete();
+    const { retract, query } = makeRete(DATA_SET);
 
     const entityQuery = query(["?e", "gender", "M"], entity("?entity", "?e"));
 
@@ -531,7 +571,7 @@ describe("Rete", () => {
   });
 
   it("should allow unrelated query items", () => {
-    const { query } = makeRete();
+    const { query } = makeRete(DATA_SET);
 
     const multiQuery = query(
       [grace, "team", "?fun"], // A team named fun.

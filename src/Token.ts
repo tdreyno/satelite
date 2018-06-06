@@ -4,22 +4,22 @@ import { AccumulatorNode } from "./nodes/AccumulatorNode";
 import { JoinNode } from "./nodes/JoinNode";
 import { RootJoinNode } from "./nodes/RootJoinNode";
 
-export type ITokenValue = IFact;
+export interface IVariableBindings<Schema extends IFact> {
+  [key: string]: any; // TODO, remove any
 
-export interface IVariableBindings {
-  [variableName: string]: any;
+  thingy?: Schema;
 }
 
 let nextTokenId = 0;
 
-export class Token {
-  static create(
-    node: RootJoinNode | JoinNode | AccumulatorNode,
-    parent: Token | null,
-    fact: ITokenValue,
-    bindings: IVariableBindings = {}
+export class Token<Schema extends IFact> {
+  static create<S extends IFact>(
+    node: RootJoinNode<S> | JoinNode<S> | AccumulatorNode<S>,
+    parent: Token<S> | null,
+    fact: S,
+    bindings: IVariableBindings<S> = {}
   ) {
-    const token = new Token(node, parent, fact, bindings);
+    const token = new Token<S>(node, parent, fact, bindings);
 
     if (parent) {
       parent.children.unshift(token);
@@ -29,17 +29,20 @@ export class Token {
   }
 
   readonly id: number = nextTokenId++;
-  readonly parent: Token | null;
-  readonly fact: ITokenValue;
-  readonly bindings: IVariableBindings;
-  readonly node: JoinNode | RootJoinNode | AccumulatorNode;
-  readonly children: Token[] = [];
+  readonly parent: Token<Schema> | null;
+  readonly fact: Schema;
+  readonly bindings: IVariableBindings<Schema>;
+  readonly node:
+    | JoinNode<Schema>
+    | RootJoinNode<Schema>
+    | AccumulatorNode<Schema>;
+  readonly children: Array<Token<Schema>> = [];
 
   constructor(
-    node: RootJoinNode | JoinNode | AccumulatorNode,
-    parent: Token | null,
-    fact: ITokenValue,
-    bindings: IVariableBindings = {}
+    node: RootJoinNode<Schema> | JoinNode<Schema> | AccumulatorNode<Schema>,
+    parent: Token<Schema> | null,
+    fact: Schema,
+    bindings: IVariableBindings<Schema> = {}
   ) {
     this.node = node;
     this.parent = parent;
@@ -54,11 +57,17 @@ export class Token {
   }
 }
 
-export function compareTokens(t1: Token, t2: Token): boolean {
+export function compareTokens<Schema extends IFact>(
+  t1: Token<Schema>,
+  t2: Token<Schema>
+): boolean {
   return t1.node === t2.node && t1.fact === t2.fact;
 }
 
-export function compareTokensAndBindings(t1: Token, t2: Token): boolean {
+export function compareTokensAndBindings<Schema extends IFact>(
+  t1: Token<Schema>,
+  t2: Token<Schema>
+): boolean {
   if (!compareTokens(t1, t2)) {
     return false;
   }
@@ -66,7 +75,10 @@ export function compareTokensAndBindings(t1: Token, t2: Token): boolean {
   return isEqual(t1.bindings, t2.bindings);
 }
 
-export function isParent(parent: Token, child: Token): boolean {
+export function isParent<Schema extends IFact>(
+  parent: Token<Schema>,
+  child: Token<Schema>
+): boolean {
   if (parent === child) {
     return true;
   }
@@ -83,7 +95,10 @@ export function isParent(parent: Token, child: Token): boolean {
   return false;
 }
 
-export function findParent(parents: Token[], child: Token): Token | undefined {
+export function findParent<Schema extends IFact>(
+  parents: Array<Token<Schema>>,
+  child: Token<Schema>
+): Token<Schema> | undefined {
   for (let i = 0; i < parents.length; i++) {
     const parent = parents[i];
 

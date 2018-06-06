@@ -1,9 +1,10 @@
 import * as PropTypes from "prop-types";
 import { Component } from "react";
+import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 
-export class Provider extends Component<{
-  rete: Rete;
+export class Provider<Schema extends IFact> extends Component<{
+  rete: Rete<Schema>;
   children: JSX.Element;
 }> {
   static propTypes = {

@@ -2,6 +2,7 @@ import { memoize } from "interstelar";
 import cloneDeep = require("lodash/cloneDeep");
 import map = require("lodash/map");
 import { cleanVariableName, ParsedCondition } from "../Condition";
+import { IFact } from "../Fact";
 import { Rete } from "../Rete";
 import {
   compareTokens,
@@ -21,8 +22,8 @@ import { AccumulatedRootNode } from "./AccumulatedRootNode";
 import { AccumulatedTailNode } from "./AccumulatedTailNode";
 import { ReteNode } from "./ReteNode";
 
-export interface IAccumulator<T> {
-  reducer: IAccumulatorReducer<T>;
+export interface IAccumulator<Schema extends IFact, T> {
+  reducer: IAccumulatorReducer<Schema, T>;
   initialValue: T;
   tokenPerBindingMatch?: boolean;
 }
@@ -49,15 +50,15 @@ function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
   return getBindingIdByValues(keys, map(keys, k => bindings[k]));
 }
 
-export class AccumulatorCondition<T = any> {
+export class AccumulatorCondition<Schema extends IFact, T = any> {
   bindingName: string;
-  accumulator: IAccumulator<T>;
-  conditions: Array<ParsedCondition | AccumulatorCondition>;
+  accumulator: IAccumulator<Schema, T>;
+  conditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>;
 
   constructor(
     bindingName: string,
-    accumulator: IAccumulator<T>,
-    conditions: Array<ParsedCondition | AccumulatorCondition>
+    accumulator: IAccumulator<Schema, T>,
+    conditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>
   ) {
     this.bindingName = bindingName;
     this.accumulator = accumulator;
@@ -65,19 +66,22 @@ export class AccumulatorCondition<T = any> {
   }
 }
 
-export type IAccumulatorReducer<T> = (acc: T, t: Token) => T;
+export type IAccumulatorReducer<Schema extends IFact, T> = (
+  acc: T,
+  t: Token<Schema>
+) => T;
 
-export class AccumulatorNode extends ReteNode {
-  static create(
-    rete: Rete,
-    parent: ReteNode,
-    c: AccumulatorCondition,
-    subnetworkHead: AccumulatedRootNode,
-    subnetworkTail: ReteNode,
+export class AccumulatorNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    parent: ReteNode<S>,
+    c: AccumulatorCondition<S>,
+    subnetworkHead: AccumulatedRootNode<S>,
+    subnetworkTail: ReteNode<S>,
     isIndependent: boolean,
     dependentVars: string[]
-  ): AccumulatorNode {
-    const node = new AccumulatorNode(
+  ): AccumulatorNode<S> {
+    const node = new AccumulatorNode<S>(
       rete,
       c,
       subnetworkHead,
@@ -95,25 +99,25 @@ export class AccumulatorNode extends ReteNode {
     return node;
   }
 
-  subnetworkHead: ReteNode;
-  items: Token[] = [];
-  facts: Map<IBindingId, Token[]> = new Map();
-  results: Map<IBindingId, Token> = new Map();
-  pendingSubnetwork: Set<Token> = new Set();
-  accumulator: AccumulatorCondition;
+  subnetworkHead: ReteNode<Schema>;
+  items: Array<Token<Schema>> = [];
+  facts: Map<IBindingId, Array<Token<Schema>>> = new Map();
+  results: Map<IBindingId, Token<Schema>> = new Map();
+  pendingSubnetwork: Set<Token<Schema>> = new Set();
+  accumulator: AccumulatorCondition<Schema>;
   isIndependent: boolean;
   dependentVars: string[];
 
-  sharedIndependentToken = Token.create(this, null, [
+  sharedIndependentToken = Token.create<Schema>(this, null, [
     "global",
     "token",
     "sharedIndependent"
-  ]);
+  ] as any);
 
   constructor(
-    rete: Rete,
-    accumulator: AccumulatorCondition,
-    subnetworkHead: ReteNode,
+    rete: Rete<Schema>,
+    accumulator: AccumulatorCondition<Schema>,
+    subnetworkHead: ReteNode<Schema>,
     isIndependent: boolean,
     dependentVars: string[]
   ) {
@@ -129,7 +133,7 @@ export class AccumulatorNode extends ReteNode {
     }
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
@@ -151,7 +155,7 @@ export class AccumulatorNode extends ReteNode {
     }
   }
 
-  leftUpdate(prev: Token, t: Token): void {
+  leftUpdate(prev: Token<Schema>, t: Token<Schema>): void {
     const i = findInList(this.items, prev, compareTokens);
 
     if (i === -1) {
@@ -175,7 +179,7 @@ export class AccumulatorNode extends ReteNode {
     replaceIndexFromList(this.items, i, t);
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const i = findInList(this.items, t, compareTokens);
 
     if (i === -1) {
@@ -199,10 +203,10 @@ export class AccumulatorNode extends ReteNode {
     removeIndexFromList(this.items, i);
   }
 
-  rightActivateReduced(t: Token): void {
+  rightActivateReduced(t: Token<Schema>): void {
     this.log("rightActivateReduced", t);
 
-    let initialToken: Token | undefined;
+    let initialToken: Token<Schema> | undefined;
 
     if (this.isIndependent) {
       initialToken = this.sharedIndependentToken;
@@ -234,10 +238,10 @@ export class AccumulatorNode extends ReteNode {
     this.executeAccumulator(initialToken);
   }
 
-  rightUpdateReduced(prev: Token, t: Token) {
+  rightUpdateReduced(prev: Token<Schema>, t: Token<Schema>) {
     this.log("rightUpdateReduced", prev, t);
 
-    let initialToken: Token | undefined;
+    let initialToken: Token<Schema> | undefined;
 
     if (this.isIndependent) {
       initialToken = this.sharedIndependentToken;
@@ -270,10 +274,10 @@ export class AccumulatorNode extends ReteNode {
     this.executeAccumulator(initialToken);
   }
 
-  rightRetractReduced(t: Token): void {
+  rightRetractReduced(t: Token<Schema>): void {
     this.log("rightRetractReduced", t);
 
-    let initialToken: Token | undefined;
+    let initialToken: Token<Schema> | undefined;
 
     if (this.isIndependent) {
       initialToken = this.sharedIndependentToken;
@@ -306,7 +310,7 @@ export class AccumulatorNode extends ReteNode {
     this.executeAccumulator(initialToken);
   }
 
-  rerunForChild(child: ReteNode) {
+  rerunForChild(child: ReteNode<Schema>) {
     const savedListOfChildren = this.children;
     this.children = [child];
 
@@ -318,7 +322,7 @@ export class AccumulatorNode extends ReteNode {
     this.children = savedListOfChildren;
   }
 
-  private getBindingId(t: Token): number {
+  private getBindingId(t: Token<Schema>): number {
     return getBindingId(
       t.bindings,
       this.dependentVars.length > 0 &&
@@ -326,7 +330,7 @@ export class AccumulatorNode extends ReteNode {
     );
   }
 
-  private executeAccumulator(initialToken: Token): void {
+  private executeAccumulator(initialToken: Token<Schema>): void {
     const bindingId = this.getBindingId(initialToken);
 
     const tokens = this.facts.get(bindingId);

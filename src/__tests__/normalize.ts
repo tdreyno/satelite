@@ -3,7 +3,6 @@ import each = require("lodash/each");
 import omit = require("lodash/omit");
 import { normalize, schema } from "normalizr";
 import * as path from "path";
-import { IFact } from "../Fact";
 
 const data = fs.readFileSync(path.join(__dirname, "info.json")).toString();
 const json = JSON.parse(data);
@@ -167,7 +166,8 @@ fs.writeFileSync(
   JSON.stringify(normalizedData)
 );
 
-const facts: IFact[] = [];
+type Schema = any;
+const facts: Schema[] = [];
 
 each(Object.keys(normalizedData.entities), modelName => {
   const models = normalizedData.entities[modelName];

@@ -1,25 +1,26 @@
+import { IFact } from "../Fact";
 import { Query } from "../Query";
 import { Rete } from "../Rete";
 import { compareTokensAndBindings, Token } from "../Token";
 import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { ReteNode } from "./ReteNode";
 
-export class QueryNode extends ReteNode {
-  static create(rete: Rete, query: Query) {
-    return new QueryNode(rete, query);
+export class QueryNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(rete: Rete<S>, query: Query<S>) {
+    return new QueryNode<S>(rete, query);
   }
 
-  items: Token[] = [];
-  query: Query;
+  items: Array<Token<Schema>> = [];
+  query: Query<Schema>;
   facts: any[] = [];
 
-  constructor(rete: Rete, query: Query) {
+  constructor(rete: Rete<Schema>, query: Query<Schema>) {
     super(rete);
 
     this.query = query;
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokensAndBindings) !== -1) {
       return;
     }
@@ -31,7 +32,7 @@ export class QueryNode extends ReteNode {
     this.query.didChange();
   }
 
-  leftUpdate(prev: Token, t: Token): void {
+  leftUpdate(prev: Token<Schema>, t: Token<Schema>): void {
     const foundIndex = findInList(this.items, prev, compareTokensAndBindings);
 
     if (foundIndex === -1) {
@@ -45,7 +46,7 @@ export class QueryNode extends ReteNode {
     this.query.didChange();
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokensAndBindings);
 
     if (foundIndex === -1) {

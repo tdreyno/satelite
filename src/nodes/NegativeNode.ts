@@ -11,13 +11,13 @@ import { AlphaMemoryNode } from "./AlphaMemoryNode";
 import { performJoinTests, sameTests, TestAtJoinNode } from "./JoinNode";
 import { ReteNode } from "./ReteNode";
 
-export class NegativeNode extends ReteNode {
-  static create(
-    rete: Rete,
-    parent: ReteNode,
-    alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[]
-  ): NegativeNode {
+export class NegativeNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    parent: ReteNode<S>,
+    alphaMemory: AlphaMemoryNode<S>,
+    tests: Array<TestAtJoinNode<S>>
+  ): NegativeNode<S> {
     for (let i = 0; i < parent.children.length; i++) {
       const sibling = parent.children[i];
 
@@ -31,7 +31,7 @@ export class NegativeNode extends ReteNode {
       }
     }
 
-    const node = new NegativeNode(rete, parent, alphaMemory, tests);
+    const node = new NegativeNode<S>(rete, parent, alphaMemory, tests);
 
     parent.children.unshift(node);
     alphaMemory.successors.unshift(node);
@@ -41,15 +41,15 @@ export class NegativeNode extends ReteNode {
     return node;
   }
 
-  items: Token[] = [];
-  alphaMemory: AlphaMemoryNode;
-  tests: TestAtJoinNode[];
+  items: Array<Token<Schema>> = [];
+  alphaMemory: AlphaMemoryNode<Schema>;
+  tests: Array<TestAtJoinNode<Schema>>;
 
   constructor(
-    rete: Rete,
-    parent: ReteNode,
-    alphaMemory: AlphaMemoryNode,
-    tests: TestAtJoinNode[]
+    rete: Rete<Schema>,
+    parent: ReteNode<Schema>,
+    alphaMemory: AlphaMemoryNode<Schema>,
+    tests: Array<TestAtJoinNode<Schema>>
   ) {
     super(rete);
 
@@ -58,7 +58,7 @@ export class NegativeNode extends ReteNode {
     this.tests = tests;
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
@@ -70,7 +70,7 @@ export class NegativeNode extends ReteNode {
     this.executeLeft(t, runLeftActivateOnNodes);
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
     if (foundIndex === -1) {
@@ -84,19 +84,19 @@ export class NegativeNode extends ReteNode {
     this.executeLeft(t, runLeftRetractOnNodes);
   }
 
-  rightRetract(f: IFact): void {
+  rightRetract(f: Schema): void {
     this.log("rightRetract", f);
 
     this.executeRight(f, runLeftRetractOnNodes);
   }
 
-  rightActivate(f: IFact): void {
+  rightActivate(f: Schema): void {
     this.log("rightActivate", f);
 
     this.executeRight(f, runLeftActivateOnNodes);
   }
 
-  rerunForChild(child: ReteNode) {
+  rerunForChild(child: ReteNode<Schema>) {
     const facts = this.alphaMemory.facts;
 
     const savedListOfChildren = this.children;
@@ -111,8 +111,8 @@ export class NegativeNode extends ReteNode {
   }
 
   private executeLeft(
-    t: Token,
-    action: (children: ReteNode[], t: Token) => void
+    t: Token<Schema>,
+    action: (children: Array<ReteNode<Schema>>, t: Token<Schema>) => void
   ) {
     let didMatch = false;
 
@@ -131,8 +131,8 @@ export class NegativeNode extends ReteNode {
   }
 
   private executeRight(
-    f: IFact,
-    action: (children: ReteNode[], f: Token) => void
+    f: Schema,
+    action: (children: Array<ReteNode<Schema>>, f: Token<Schema>) => void
   ) {
     for (let i = 0; i < this.items.length; i++) {
       const t = this.items[i];

@@ -4,60 +4,60 @@ import { Rete } from "../Rete";
 import { Token } from "../Token";
 
 let nextNodeId = 0;
-export class ReteNode {
+export abstract class ReteNode<Schema extends IFact> {
   id = nextNodeId++;
-  rete: Rete;
-  children: ReteNode[] = [];
-  parent: ReteNode | null = null;
+  rete: Rete<Schema>;
+  children: Array<ReteNode<Schema>> = [];
+  parent: ReteNode<Schema> | null = null;
 
-  constructor(rete: Rete) {
+  constructor(rete: Rete<Schema>) {
     this.rete = rete;
   }
 
   // tslint:disable-next-line:variable-name
-  rightActivate(_f: IFact): void {
+  rightActivate(_f: Schema): void {
     throw new Error(
       `${this.toString()} Tried to rightActivate a node without an implementation`
     );
   }
 
   // tslint:disable-next-line:variable-name
-  rightUpdate(_prev: IFact, _f: IFact): void {
+  rightUpdate(_prev: Schema, _f: Schema): void {
     throw new Error(
       `${this.toString()} Tried to rightUpdate a node without an implementation`
     );
   }
 
   // tslint:disable-next-line:variable-name
-  rightRetract(_f: IFact): void {
+  rightRetract(_f: Schema): void {
     throw new Error(
       `${this.toString()} Tried to rightRetract a node without an implementation`
     );
   }
 
   // tslint:disable-next-line:variable-name
-  leftActivate(_t: Token): void {
+  leftActivate(_t: Token<Schema>): void {
     throw new Error(
       `${this.toString()} Tried to leftActivate a node without an implementation`
     );
   }
 
   // tslint:disable-next-line:variable-name
-  leftUpdate(_prev: Token, _t: Token): void {
+  leftUpdate(_prev: Token<Schema>, _t: Token<Schema>): void {
     throw new Error(
       `${this.toString()} Tried to leftUpdate a node without an implementation`
     );
   }
 
   // tslint:disable-next-line:variable-name
-  leftRetract(_t: Token): void {
+  leftRetract(_t: Token<Schema>): void {
     throw new Error(
       `${this.toString()} Tried to leftRetract a node without an implementation`
     );
   }
 
   // tslint:disable-next-line:variable-name
-  rerunForChild(_child: ReteNode) {
+  rerunForChild(_child: ReteNode<Schema>) {
     throw new Error(
       `${this.toString()} Tried to leftRetract a node without an implementation`
     );
@@ -106,16 +106,16 @@ export class ReteNode {
   }
 }
 
-export class RootNode extends ReteNode {
-  static create(rete: Rete) {
-    return new RootNode(rete);
+export class RootNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(rete: Rete<S>) {
+    return new RootNode<S>(rete);
   }
 
   // tslint:disable-next-line:no-empty variable-name
-  rightRetract(f: IFact) {
+  rightRetract(f: Schema) {
     this.log("rightRetract", f);
   }
 
   // tslint:disable-next-line:no-empty variable-name
-  rerunForChild(_child: ReteNode) {}
+  rerunForChild(_child: ReteNode<Schema>) {}
 }

@@ -11,7 +11,10 @@ import { Rete } from "../Rete";
 import { removeFromList, replaceInList } from "../util";
 import { ReteNode } from "./ReteNode";
 
-export type IExhaustiveHashTable = Map<number, AlphaMemoryNode>;
+export type IExhaustiveHashTable<Schema extends IFact> = Map<
+  number,
+  AlphaMemoryNode<Schema>
+>;
 
 let nextHashCode = 0;
 // tslint:disable:variable-name
@@ -24,19 +27,22 @@ export const getHashCode = memoize(
 );
 // tslint:enable:variable-name
 
-export function lookupInHashTable(
-  hashTable: IExhaustiveHashTable,
+export function lookupInHashTable<Schema extends IFact>(
+  hashTable: IExhaustiveHashTable<Schema>,
   identifier: IPrimitive | IIdentifier | null,
   attribute: string | null,
   value: IValue | null
-): AlphaMemoryNode | undefined {
+): AlphaMemoryNode<Schema> | undefined {
   const hashCode = getHashCode(identifier, attribute, value);
 
   return hashTable.get(hashCode);
 }
 
-export class AlphaMemoryNode extends ReteNode {
-  static create(rete: Rete, c: ParsedCondition): AlphaMemoryNode {
+export class AlphaMemoryNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(
+    rete: Rete<S>,
+    c: ParsedCondition<S>
+  ): AlphaMemoryNode<S> {
     const identifierTest: any | null = isConstant(c.identifier)
       ? c.identifier
       : null;
@@ -88,16 +94,16 @@ export class AlphaMemoryNode extends ReteNode {
   }
 
   name: string;
-  facts: IFact[] = [];
-  successors: ReteNode[] = [];
+  facts: Schema[] = [];
+  successors: Array<ReteNode<Schema>> = [];
 
-  constructor(rete: Rete, name: string) {
+  constructor(rete: Rete<Schema>, name: string) {
     super(rete);
 
     this.name = name;
   }
 
-  activate(f: IFact): void {
+  activate(f: Schema): void {
     this.log("activate", f);
 
     this.facts.push(f);
@@ -108,7 +114,7 @@ export class AlphaMemoryNode extends ReteNode {
     }
   }
 
-  update(prev: IFact, f: IFact): void {
+  update(prev: Schema, f: Schema): void {
     this.log("update", prev, f);
 
     replaceInList(this.facts, prev, f);
@@ -119,7 +125,7 @@ export class AlphaMemoryNode extends ReteNode {
     }
   }
 
-  retract(f: IFact): void {
+  retract(f: Schema): void {
     this.log("retract", f);
 
     for (let j = 0; j < this.successors.length; j++) {
@@ -131,13 +137,13 @@ export class AlphaMemoryNode extends ReteNode {
   }
 }
 
-export function addToHashTable(
-  rete: Rete,
+export function addToHashTable<Schema extends IFact>(
+  rete: Rete<Schema>,
   identifier: IPrimitive | IIdentifier | null,
   attribute: string | null,
   value: IValue | null
-): AlphaMemoryNode {
-  const node = new AlphaMemoryNode(
+): AlphaMemoryNode<Schema> {
+  const node = new AlphaMemoryNode<Schema>(
     rete,
     `${identifier ? JSON.stringify(identifier) : "_"} ${attribute || "_"} ${
       value ? JSON.stringify(value) : "_"
@@ -150,6 +156,8 @@ export function addToHashTable(
   return node;
 }
 
-export function createExhaustiveHashTable(): IExhaustiveHashTable {
+export function createExhaustiveHashTable<
+  Schema extends IFact
+>(): IExhaustiveHashTable<Schema> {
   return new Map();
 }

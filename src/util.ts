@@ -60,17 +60,20 @@ export function reduceList<T, V>(
   return currentValue;
 }
 
-export function runLeftActivateOnNodes(nodes: ReteNode[], t: Token): void {
+export function runLeftActivateOnNodes<Schema extends IFact>(
+  nodes: Array<ReteNode<Schema>>,
+  t: Token<Schema>
+): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
     child.leftActivate(t);
   }
 }
 
-export function runLeftUpdateOnNodes(
-  nodes: ReteNode[],
-  prev: Token,
-  t: Token
+export function runLeftUpdateOnNodes<Schema extends IFact>(
+  nodes: Array<ReteNode<Schema>>,
+  prev: Token<Schema>,
+  t: Token<Schema>
 ): void {
   if (compareTokensAndBindings(prev, t)) {
     return;
@@ -82,24 +85,30 @@ export function runLeftUpdateOnNodes(
   }
 }
 
-export function runLeftRetractOnNodes(nodes: ReteNode[], t: Token): void {
+export function runLeftRetractOnNodes<Schema extends IFact>(
+  nodes: Array<ReteNode<Schema>>,
+  t: Token<Schema>
+): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
     child.leftRetract(t);
   }
 }
 
-export function runRightActivateOnNodes(nodes: ReteNode[], f: IFact): void {
+export function runRightActivateOnNodes<Schema extends IFact>(
+  nodes: Array<ReteNode<Schema>>,
+  f: Schema
+): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
     child.rightActivate(f);
   }
 }
 
-export function runRightUpdateOnNodes(
-  nodes: ReteNode[],
-  prev: IFact,
-  f: IFact
+export function runRightUpdateOnNodes<Schema extends IFact>(
+  nodes: Array<ReteNode<Schema>>,
+  prev: Schema,
+  f: Schema
 ): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
@@ -107,7 +116,10 @@ export function runRightUpdateOnNodes(
   }
 }
 
-export function runRightRetractOnNodes(nodes: ReteNode[], f: IFact): void {
+export function runRightRetractOnNodes<Schema extends IFact>(
+  nodes: Array<ReteNode<Schema>>,
+  f: Schema
+): void {
   for (let i = 0; i < nodes.length; i++) {
     const child = nodes[i];
     child.rightRetract(f);

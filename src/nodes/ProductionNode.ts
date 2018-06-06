@@ -11,29 +11,29 @@ import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { AccumulatorCondition } from "./AccumulatorNode";
 import { ReteNode } from "./ReteNode";
 
-export interface IResultingFacts {
-  token: Token;
-  facts: IFact[];
+export interface IResultingFacts<Schema extends IFact> {
+  token: Token<Schema>;
+  facts: Schema[];
 }
 
-export class ProductionNode extends ReteNode {
-  static create(
-    r: Rete,
-    production: Production,
-    conditions: Array<ParsedCondition | AccumulatorCondition>
-  ): ProductionNode {
-    return new ProductionNode(r, production, conditions);
+export class ProductionNode<Schema extends IFact> extends ReteNode<Schema> {
+  static create<S extends IFact>(
+    r: Rete<S>,
+    production: Production<S>,
+    conditions: Array<ParsedCondition<S> | AccumulatorCondition<S>>
+  ): ProductionNode<S> {
+    return new ProductionNode<S>(r, production, conditions);
   }
 
-  items: Token[] = [];
-  production: Production;
-  conditions: Array<ParsedCondition | AccumulatorCondition>;
-  resultingFacts: IResultingFacts[] = [];
+  items: Array<Token<Schema>> = [];
+  production: Production<Schema>;
+  conditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>;
+  resultingFacts: Array<IResultingFacts<Schema>> = [];
 
   constructor(
-    r: Rete,
-    production: Production,
-    conditions: Array<ParsedCondition | AccumulatorCondition>
+    r: Rete<Schema>,
+    production: Production<Schema>,
+    conditions: Array<ParsedCondition<Schema> | AccumulatorCondition<Schema>>
   ) {
     super(r);
 
@@ -41,7 +41,7 @@ export class ProductionNode extends ReteNode {
     this.conditions = conditions;
   }
 
-  leftActivate(t: Token): void {
+  leftActivate(t: Token<Schema>): void {
     if (findInList(this.items, t, compareTokens) !== -1) {
       return;
     }
@@ -62,7 +62,7 @@ export class ProductionNode extends ReteNode {
     }
   }
 
-  leftUpdate(prev: Token, t: Token) {
+  leftUpdate(prev: Token<Schema>, t: Token<Schema>) {
     const foundIndex = findInList(this.items, prev, compareTokens);
 
     if (foundIndex === -1) {
@@ -122,7 +122,7 @@ export class ProductionNode extends ReteNode {
     }
   }
 
-  leftRetract(t: Token): void {
+  leftRetract(t: Token<Schema>): void {
     const foundIndex = findInList(this.items, t, compareTokens);
 
     if (foundIndex === -1) {
@@ -147,31 +147,31 @@ export class ProductionNode extends ReteNode {
     }
   }
 
-  private findResultingFactsIndex(t: Token): number {
+  private findResultingFactsIndex(t: Token<Schema>): number {
     return findInList(this.resultingFacts, t, (resultingFact, token) => {
       return compareTokens(resultingFact.token, token);
     });
   }
 
-  private assertDependentFacts(facts: IFact[]): void {
+  private assertDependentFacts(facts: Schema[]): void {
     for (let i = 0; i < facts.length; i++) {
       this.rete.assert(facts[i]);
     }
   }
 
-  private updateDependentFacts(updates: IUpdateList): void {
+  private updateDependentFacts(updates: IUpdateList<Schema>): void {
     for (let i = 0; i < updates.length; i++) {
       this.rete.update(updates[i].from, updates[i].to);
     }
   }
 
-  private retractDependentFacts(facts: IFact[]): void {
+  private retractDependentFacts(facts: Schema[]): void {
     for (let i = 0; i < facts.length; i++) {
       this.rete.retract(facts[i]);
     }
   }
 
-  private activateForToken(t: Token): IFact[] | undefined {
+  private activateForToken(t: Token<Schema>): Schema[] | undefined {
     const lastCondition = this.conditions[this.conditions.length - 1];
 
     let bindings = t.bindings;
@@ -183,12 +183,12 @@ export class ProductionNode extends ReteNode {
 
     if (resultingFacts && Array.isArray(resultingFacts)) {
       return Array.isArray(resultingFacts[0])
-        ? (resultingFacts as IFact[])
-        : map([resultingFacts] as IFact[], f => makeFact(f[0], f[1], f[2]));
+        ? (resultingFacts as Schema[])
+        : map([resultingFacts] as Schema[], f => makeFact(f[0], f[1], f[2]));
     }
   }
 
-  private groupFactChanges(oldFacts: IFact[], newFacts: IFact[]) {
+  private groupFactChanges(oldFacts: Schema[], newFacts: Schema[]) {
     const oldFactsWithoutValues = map(oldFacts, f =>
       makeFact(f[0], f[1], true)
     );
@@ -212,12 +212,12 @@ export class ProductionNode extends ReteNode {
       oldFactsWithoutValues
     );
 
-    const toBeUpdated: IUpdateList = [];
+    const toBeUpdated: IUpdateList<Schema> = [];
 
     for (let i = 0; i < sharedFacts.length; i++) {
       const sharedFact = sharedFacts[i];
 
-      const finder = (f: IFact) =>
+      const finder = (f: Schema) =>
         f[0] === sharedFact[0] && f[1] === sharedFact[1];
 
       const oldFact = find(oldFacts, finder);
@@ -228,8 +228,8 @@ export class ProductionNode extends ReteNode {
       }
 
       toBeUpdated.push({
-        from: oldFact as IFact,
-        to: newFact as IFact
+        from: oldFact as Schema,
+        to: newFact as Schema
       });
     }
 
