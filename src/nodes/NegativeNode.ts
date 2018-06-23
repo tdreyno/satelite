@@ -131,16 +131,19 @@ export class NegativeNode extends ReteNode {
   }
 
   private executeRight(
-    f: IFact,
+    _: IFact,
     action: (children: ReteNode[], f: Token) => void
   ) {
+    /**
+     * Negative conditions need the entire alphaMemory
+     * set to check for non-existence. So, we simply
+     * retry all our tokens when notified of a change
+     * on the alpha side.
+     */
     for (let i = 0; i < this.items.length; i++) {
       const t = this.items[i];
 
-      if (!performJoinTests(this.tests, t, f)) {
-        action(this.children, t);
-        continue;
-      }
+      this.executeLeft(t, action);
     }
   }
 }

@@ -124,6 +124,21 @@ describe("Rete", () => {
     });
   });
 
+  it("should allow reflective negative conditions", () => {
+    expect.assertions(2);
+
+    const { rule, assert } = Rete.create();
+
+    assert(["Thomas", "hosts", "Paul"]);
+    assert(["Brian", "hosts", "Paul"]);
+    assert(["Paul", "hosts", "Brian"]);
+
+    rule(["?a", "hosts", "?b"], not(["?b", "hosts", "?a"])).then(({ a, b }) => {
+      expect(a).toBe("Thomas");
+      expect(b).toBe("Paul");
+    });
+  });
+
   it("should be able to remove fact", () => {
     expect.assertions(3);
 
