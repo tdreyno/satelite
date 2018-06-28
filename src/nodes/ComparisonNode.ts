@@ -1,7 +1,7 @@
 import { Comparison } from "../Condition";
 import { IFactFields } from "../Fact";
 import { Rete } from "../Rete";
-import { compareTokens, Token } from "../Token";
+import { compareTokensAndBindings, Token } from "../Token";
 import {
   findInList,
   removeIndexFromList,
@@ -44,7 +44,7 @@ export class ComparisonNode extends ReteNode {
   }
 
   leftActivate(t: Token): void {
-    if (findInList(this.items, t, compareTokens) !== -1) {
+    if (findInList(this.items, t, compareTokensAndBindings) !== -1) {
       return;
     }
 
@@ -56,7 +56,7 @@ export class ComparisonNode extends ReteNode {
   }
 
   leftRetract(t: Token): void {
-    const foundIndex = findInList(this.items, t, compareTokens);
+    const foundIndex = findInList(this.items, t, compareTokensAndBindings);
 
     if (foundIndex === -1) {
       return;
