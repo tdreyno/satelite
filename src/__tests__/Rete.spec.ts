@@ -86,11 +86,11 @@ describe("Rete", () => {
       assert,
       rule,
       self
-    } = Rete.create({
+    } = Rete.create(/*{
       Asserting: console.log.bind(console),
       Retracting: console.log.bind(console),
       Updating: console.log.bind(console)
-    });
+    }*/);
 
     rule(["?e", "gender", "F"]).then(({ e }) => [e, "isLady", true]);
 
