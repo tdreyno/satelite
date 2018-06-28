@@ -65,16 +65,8 @@ export class AccumulatedRootNode extends ReteNode {
   }
 
   rerunForChild(child: ReteNode) {
-    const tokens = this.items;
-
-    const savedListOfChildren = this.children;
-    this.children = [child];
-
-    for (let i = 0; i < tokens.length; i++) {
-      const t = tokens[i];
-      runLeftActivateOnNodes(this.children, t);
+    for (let i = 0; i < this.items.length; i++) {
+      runLeftActivateOnNodes([child], this.items[i]);
     }
-
-    this.children = savedListOfChildren;
   }
 }

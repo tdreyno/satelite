@@ -16,6 +16,18 @@ import { AccumulatorCondition, IAccumulator } from "./nodes/AccumulatorNode";
 import { IConditions, placeholder as _ } from "./Rete";
 import { IVariableBindings, Token } from "./Token";
 
+export function identifier(fact: IFact) {
+  return fact[0];
+}
+
+export function attribute(fact: IFact) {
+  return fact[1];
+}
+
+export function value(fact: IFact) {
+  return fact[2];
+}
+
 export function acc<T>(
   bindingName: string,
   accumulator: IAccumulator<T>,

@@ -38,16 +38,22 @@ export class Query {
     }
   }
 
-  onChange(cb: IQueryChangeFn): void {
+  onChange(cb: IQueryChangeFn): this {
     this.callbacks.add(cb);
+
+    return this;
   }
 
-  then(cb: IQueryChangeFn): void {
+  then(cb: IQueryChangeFn): this {
     this.onChange(cb);
+
+    return this;
   }
 
-  offChange(cb: IQueryChangeFn): void {
+  offChange(cb: IQueryChangeFn): this {
     this.callbacks.delete(cb);
+
+    return this;
   }
 
   private getFacts(): IFact[] {

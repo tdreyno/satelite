@@ -321,7 +321,7 @@ export class AccumulatorNode extends ReteNode {
   private getBindingId(t: Token): number {
     return getBindingId(
       t.bindings,
-      this.dependentVars.length > 0 &&
+      this.dependentVars.length > 0 ||
         this.accumulator.accumulator.tokenPerBindingMatch
     );
   }

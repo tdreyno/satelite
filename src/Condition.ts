@@ -23,14 +23,19 @@ export type ICompareFn = (a: any, b: IVariableBindings) => boolean;
 
 export class Comparison {
   compareFn: ICompareFn;
+  boundResult?: string;
 
-  constructor(compareFn: ICompareFn) {
+  constructor(compareFn: ICompareFn, boundResult?: string) {
     this.compareFn = compareFn;
+    this.boundResult = boundResult;
   }
 }
 
-export function compare(compareFn: ICompareFn): Comparison {
-  return new Comparison(compareFn);
+export function compare(
+  compareFn: ICompareFn,
+  boundResult?: string
+): Comparison {
+  return new Comparison(compareFn, boundResult);
 }
 
 function getValueOfComparisonTarget(v: any, bindings: IVariableBindings) {
@@ -79,17 +84,18 @@ export const equals = (v: any) =>
     (a: any, bindings: IVariableBindings): boolean =>
       a === getValueOfComparisonTarget(v, bindings)
   );
-export const notEquals = (v: any) =>
+export const notEquals = (v: any, boundResult?: string) =>
   compare(
     (a: any, bindings: IVariableBindings): boolean =>
-      a !== getValueOfComparisonTarget(v, bindings)
+      a !== getValueOfComparisonTarget(v, bindings),
+    boundResult
   );
 
-export function isVariable(v: any): boolean {
+export function isVariable(v: any): v is string {
   return isString(v) && v.startsWith(getVariablePrefix());
 }
 
-export function isComparison(v: any): boolean {
+export function isComparison(v: any): v is Comparison {
   return v instanceof Comparison;
 }
 
@@ -150,11 +156,16 @@ export class ParsedCondition {
     this.isNegated = isNegated;
 
     if (isComparison(identifier)) {
-      this.comparisonFields["0"] = identifier as Comparison;
+      this.comparisonFields["0"] = identifier;
       this.placeholderFields["0"] = true;
+
+      if (identifier.boundResult) {
+        this.variableNames[identifier.boundResult] = "0";
+        this.variableFields["0"] = identifier.boundResult;
+      }
     } else if (isVariable(identifier)) {
-      this.variableNames[identifier as string] = "0";
-      this.variableFields["0"] = identifier as string;
+      this.variableNames[identifier] = "0";
+      this.variableFields["0"] = identifier;
     } else if (isPlaceholder(identifier)) {
       this.placeholderFields["0"] = true;
     } else {
@@ -162,11 +173,16 @@ export class ParsedCondition {
     }
 
     if (isComparison(attribute)) {
-      this.comparisonFields["1"] = attribute as Comparison;
+      this.comparisonFields["1"] = attribute;
       this.placeholderFields["1"] = true;
+
+      if (attribute.boundResult) {
+        this.variableNames[attribute.boundResult] = "1";
+        this.variableFields["1"] = attribute.boundResult;
+      }
     } else if (isVariable(attribute)) {
-      this.variableNames[attribute as string] = "1";
-      this.variableFields["1"] = attribute as string;
+      this.variableNames[attribute] = "1";
+      this.variableFields["1"] = attribute;
     } else if (isPlaceholder(attribute)) {
       this.placeholderFields["1"] = true;
     } else {
@@ -174,11 +190,16 @@ export class ParsedCondition {
     }
 
     if (isComparison(value)) {
-      this.comparisonFields["2"] = value as Comparison;
+      this.comparisonFields["2"] = value;
       this.placeholderFields["2"] = true;
+
+      if (value.boundResult) {
+        this.variableNames[value.boundResult] = "2";
+        this.variableFields["2"] = value.boundResult;
+      }
     } else if (isVariable(value)) {
-      this.variableNames[value as string] = "2";
-      this.variableFields["2"] = value as string;
+      this.variableNames[value] = "2";
+      this.variableFields["2"] = value;
     } else if (isPlaceholder(value)) {
       this.placeholderFields["2"] = true;
     } else {

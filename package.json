@@ -21,22 +21,6 @@
     ]
   },
   "license": "Apache-2.0",
-  "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "transform": {
-      "^.+\\.(ts|tsx)$": "<rootDir>/preprocessor.js"
-    },
-    "testMatch": [
-      "**/*.spec.(ts|js)"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ]
-  },
   "devDependencies": {
     "@types/faker": "^4.1.2",
     "@types/jest": "^21.0.0",

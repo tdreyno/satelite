@@ -479,6 +479,7 @@ export class Rete {
 
         const isIndependent =
           dependentVars.length <= 0 && currentNode === this.root;
+
         const accRoot = AccumulatedRootNode.create(this, isIndependent);
         const accTail = this.buildOrShareNetworkForConditions(
           c.conditions,
