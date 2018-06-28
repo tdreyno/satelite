@@ -1,6 +1,6 @@
 import { memoize } from "interstelar";
 
-export type IPrimitive = string | number;
+export type IPrimitive = string | number | object;
 
 export class IIdentifier<T = IPrimitive> {
   attribute!: string;

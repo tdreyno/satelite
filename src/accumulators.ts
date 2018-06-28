@@ -78,13 +78,13 @@ export function min(bindingName: string, ...conditions: IConditions) {
     bindingName,
     {
       reducer: (sum: number | undefined, item: Token): number => {
-        const value = item.fact[2] as number;
+        const v = item.fact[2] as number;
 
         if (typeof sum === "undefined") {
-          return value;
+          return v;
         }
 
-        return value < sum ? value : sum;
+        return v < sum ? v : sum;
       },
       initialValue: undefined
     },
