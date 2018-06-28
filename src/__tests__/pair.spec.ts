@@ -10,10 +10,13 @@ import {
 } from "../index";
 
 function makeRecordPure(...parts: any[]) {
-  return chunk(parts, 2).reduce((sum, [key, value]) => {
-    sum[key] = value;
-    return sum;
-  }, {});
+  return chunk(parts, 2).reduce(
+    (sum, [key, value]) => {
+      sum[key] = value;
+      return sum;
+    },
+    {} as any
+  );
 }
 
 const makeRecord = memoize(makeRecordPure);
@@ -76,7 +79,7 @@ describe("Pairing tests", () => {
   it("regular query", () => {
     expect.assertions(12 * 2);
 
-    rule(["?id", "name", _], [notEquals("?id", "?otherId"), "name", _]).then(
+    rule(["?id", "name", _], [notEquals("?id").as("?otherId"), "name", _]).then(
       ({ id, otherId }) => {
         expect(id).toBeTruthy();
         expect(id).not.toEqual(otherId);
@@ -90,9 +93,9 @@ describe("Pairing tests", () => {
     rule(
       ["?host", "possiblePairing", "?guest"],
       [
-        notEquals("?host", "?secondHost"),
+        notEquals("?host").as("?secondHost"),
         "possiblePairing",
-        notEquals("?guest", "?secondGuest")
+        notEquals("?guest").as("?secondGuest")
       ]
     ).then(({ host, guest, secondHost, secondGuest }) => {
       if (host === secondGuest && guest === secondHost) {
@@ -128,7 +131,7 @@ describe("Pairing tests", () => {
     rule(
       ["?id", "name", _],
       collect("?otherIds", "?otherId", [
-        notEquals("?id", "?otherId"),
+        notEquals("?id").as("?otherId"),
         "name",
         _
       ])

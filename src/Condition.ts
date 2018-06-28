@@ -26,14 +26,14 @@ export class Comparison {
   compareTarget?: string;
   boundResult?: string;
 
-  constructor(
-    compareFn: ICompareFn,
-    compareTarget?: string,
-    boundResult?: string
-  ) {
+  constructor(compareFn: ICompareFn, compareTarget?: string) {
     this.compareFn = compareFn;
     this.compareTarget = compareTarget;
+  }
+
+  as(boundResult: string) {
     this.boundResult = boundResult;
+    return this;
   }
 }
 
@@ -69,36 +69,40 @@ export const isBetween = (a: any, c: any) =>
 export const lessThanOrEqualTo = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a <= getValueOfComparisonTarget(v, bindings)
+      a <= getValueOfComparisonTarget(v, bindings),
+    v
   );
 export const lessThan = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a < getValueOfComparisonTarget(v, bindings)
+      a < getValueOfComparisonTarget(v, bindings),
+    v
   );
 export const greaterThan = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a > getValueOfComparisonTarget(v, bindings)
+      a > getValueOfComparisonTarget(v, bindings),
+    v
   );
 export const greaterThanOrEqualTo = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
-      a >= getValueOfComparisonTarget(v, bindings)
+      a >= getValueOfComparisonTarget(v, bindings),
+    v
   );
 export const equals = (v: any) =>
   compare(
     (a: any, bindings: IVariableBindings): boolean =>
-      a === getValueOfComparisonTarget(v, bindings)
+      a === getValueOfComparisonTarget(v, bindings),
+    v
   );
-export const notEquals = (v: any, boundResult?: string) =>
+export const notEquals = (v: any) =>
   compare(
     (a: any, bindings: IVariableBindings): boolean => {
       const b = getValueOfComparisonTarget(v, bindings);
       return a !== b;
     },
-    v as string,
-    boundResult
+    v as string
   );
 
 export function isVariable(v: any): v is string {
