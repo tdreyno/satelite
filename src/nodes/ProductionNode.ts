@@ -6,7 +6,7 @@ import { extractBindingsFromCondition, ParsedCondition } from "../Condition";
 import { IFact, makeFact } from "../Fact";
 import { Production } from "../Production";
 import { IUpdateList, Rete } from "../Rete";
-import { compareTokens, Token } from "../Token";
+import { compareTokensAndBindings, Token } from "../Token";
 import { findInList, removeIndexFromList, replaceIndexFromList } from "../util";
 import { AccumulatorCondition } from "./AccumulatorNode";
 import { ReteNode } from "./ReteNode";
@@ -42,7 +42,7 @@ export class ProductionNode extends ReteNode {
   }
 
   leftActivate(t: Token): void {
-    if (findInList(this.items, t, compareTokens) !== -1) {
+    if (findInList(this.items, t, compareTokensAndBindings) !== -1) {
       return;
     }
 
@@ -63,7 +63,7 @@ export class ProductionNode extends ReteNode {
   }
 
   leftUpdate(prev: Token, t: Token) {
-    const foundIndex = findInList(this.items, prev, compareTokens);
+    const foundIndex = findInList(this.items, prev, compareTokensAndBindings);
 
     if (foundIndex === -1) {
       return;
@@ -123,7 +123,7 @@ export class ProductionNode extends ReteNode {
   }
 
   leftRetract(t: Token): void {
-    const foundIndex = findInList(this.items, t, compareTokens);
+    const foundIndex = findInList(this.items, t, compareTokensAndBindings);
 
     if (foundIndex === -1) {
       return;
@@ -149,7 +149,7 @@ export class ProductionNode extends ReteNode {
 
   private findResultingFactsIndex(t: Token): number {
     return findInList(this.resultingFacts, t, (resultingFact, token) => {
-      return compareTokens(resultingFact.token, token);
+      return compareTokensAndBindings(resultingFact.token, token);
     });
   }
 

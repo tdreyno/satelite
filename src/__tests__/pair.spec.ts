@@ -11,46 +11,28 @@ import {
 
 const { assert, query, rule } = new Rete /*console.log.bind(console)*/();
 
-const DATA_SET: IFact[] = [];
+assert([1, "name", "Thomas"]);
+// assert([1, "previousGuests", [2, 3, 4]]);
 
-const people = new Set(["Thomas", "Alex", "Brian", "Paul"]);
+assert([2, "name", "Alex"]);
+// assert([2, "previousGuests", [3, 4, 1]]);
 
-people.forEach(person => {
-  const others = new Set(people);
-  others.delete(person);
+assert([3, "name", "Brian"]);
+// assert([3, "previousGuests", [4, 1, 2]]);
 
-  others.forEach(p => {
-    DATA_SET.push([person, "canHost", p]);
-  });
-});
+assert([4, "name", "Paul"]);
+// assert([4, "previousGuests", [1, 2, 3]]);
 
 describe("someday", () => {
-  it("placeholder", () => {
-    expect.assertions(4);
+  it("regular query", () => {
+    expect.assertions(12 * 2);
 
-    assert([1, "name", "Thomas"]);
-    // assert([1, "previousGuests", [2, 3, 4]]);
-
-    assert([2, "name", "Alex"]);
-    // assert([2, "previousGuests", [3, 4, 1]]);
-
-    assert([3, "name", "Brian"]);
-    // assert([3, "previousGuests", [4, 1, 2]]);
-
-    assert([4, "name", "Paul"]);
-    // assert([4, "previousGuests", [1, 2, 3]]);
-
-    rule(
-      ["?id", "name", _],
-      collect("?otherIds", "?otherId", [
-        notEquals("?id", "?otherId"),
-        "name",
-        _
-      ])
-    ).then(({ id, otherIds }) => {
-      expect(id).toBeTruthy();
-      console.log(id, otherIds);
-    });
+    rule(["?id", "name", _], [notEquals("?id", "?otherId"), "name", _]).then(
+      ({ id, otherId }) => {
+        expect(id).toBeTruthy();
+        expect(id).not.toEqual(otherId);
+      }
+    );
 
     // const { facts, variableBindings } = query(
     //   ["?h", "canHost", "?g"],
@@ -62,5 +44,22 @@ describe("someday", () => {
     // console.log(util.inspect(variableBindings, false, null));
 
     // expect(1).toBe(2);
+  });
+
+  it("collected query", () => {
+    expect.assertions(4 * 3);
+
+    rule(
+      ["?id", "name", _],
+      collect("?otherIds", "?otherId", [
+        notEquals("?id", "?otherId"),
+        "name",
+        _
+      ])
+    ).then(({ id, otherIds }) => {
+      expect(id).toBeTruthy();
+      expect(otherIds).toHaveLength(3);
+      expect(otherIds.includes(id)).toBeFalsy();
+    });
   });
 });

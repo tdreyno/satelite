@@ -39,8 +39,19 @@ const getBindingIdByValues = memoize(
   (_keys: string[], _values: any[]) => nextBindingId++
 );
 
-function getBindingId(bindings: { [key: string]: any }, compareValues = false) {
+function getBindingId(
+  bindings: { [key: string]: any },
+  dependentVars: string[],
+  tokenPerBindingMatch: boolean
+) {
   const keys = Object.keys(bindings);
+
+  const dependentVarsInBinding = dependentVars.filter(v1 => {
+    return keys.indexOf(cleanVariableName(v1)) !== -1;
+  });
+
+  const compareValues =
+    dependentVarsInBinding.length > 0 && tokenPerBindingMatch;
 
   if (!compareValues) {
     return getBindingIdByKeys(keys);
@@ -321,8 +332,8 @@ export class AccumulatorNode extends ReteNode {
   private getBindingId(t: Token): number {
     return getBindingId(
       t.bindings,
-      this.dependentVars.length > 0 ||
-        this.accumulator.accumulator.tokenPerBindingMatch
+      this.dependentVars,
+      !!this.accumulator.accumulator.tokenPerBindingMatch
     );
   }
 

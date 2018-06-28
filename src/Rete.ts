@@ -360,7 +360,6 @@ export class Rete {
         production.productionNode.parent = currentNode;
 
         production.productionNode.updateNewNodeWithMatchesFromAbove();
-
         this.terminalNodes.push(production);
 
         return production;

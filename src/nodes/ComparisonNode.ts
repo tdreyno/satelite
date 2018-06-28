@@ -1,7 +1,7 @@
-import { Comparison } from "../Condition";
+import { cleanVariableName, Comparison } from "../Condition";
 import { IFactFields } from "../Fact";
 import { Rete } from "../Rete";
-import { compareTokensAndBindings, Token } from "../Token";
+import { compareTokensAndBindings, IVariableBindings, Token } from "../Token";
 import {
   findInList,
   removeIndexFromList,
@@ -91,8 +91,25 @@ export class ComparisonNode extends ReteNode {
 
     const result = this.comparison.compareFn(value, t.bindings);
 
-    if (result) {
-      action(this.children, t);
+    if (!result) {
+      return;
     }
+
+    const comparisonBindings: IVariableBindings = {};
+
+    if (this.comparison.boundResult) {
+      const cleanedVariableName = cleanVariableName(
+        this.comparison.boundResult
+      );
+
+      comparisonBindings[cleanedVariableName] = value;
+    }
+
+    const newToken = Token.create(this, t, t.fact, {
+      ...t.bindings,
+      ...comparisonBindings
+    });
+
+    action(this.children, newToken);
   }
 }

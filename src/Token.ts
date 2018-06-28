@@ -1,6 +1,7 @@
 import isEqual = require("lodash/isEqual");
 import { IFact } from "./Fact";
 import { AccumulatorNode } from "./nodes/AccumulatorNode";
+import { ComparisonNode } from "./nodes/ComparisonNode";
 import { JoinNode } from "./nodes/JoinNode";
 import { RootJoinNode } from "./nodes/RootJoinNode";
 
@@ -14,7 +15,7 @@ let nextTokenId = 0;
 
 export class Token {
   static create(
-    node: RootJoinNode | JoinNode | AccumulatorNode,
+    node: RootJoinNode | JoinNode | AccumulatorNode | ComparisonNode,
     parent: Token | null,
     fact: ITokenValue,
     bindings: IVariableBindings = {}
@@ -32,11 +33,11 @@ export class Token {
   readonly parent: Token | null;
   readonly fact: ITokenValue;
   readonly bindings: IVariableBindings;
-  readonly node: JoinNode | RootJoinNode | AccumulatorNode;
+  readonly node: JoinNode | RootJoinNode | AccumulatorNode | ComparisonNode;
   readonly children: Token[] = [];
 
   constructor(
-    node: RootJoinNode | JoinNode | AccumulatorNode,
+    node: RootJoinNode | JoinNode | AccumulatorNode | ComparisonNode,
     parent: Token | null,
     fact: ITokenValue,
     bindings: IVariableBindings = {}

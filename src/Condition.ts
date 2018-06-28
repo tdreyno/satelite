@@ -23,19 +23,26 @@ export type ICompareFn = (a: any, b: IVariableBindings) => boolean;
 
 export class Comparison {
   compareFn: ICompareFn;
+  compareTarget?: string;
   boundResult?: string;
 
-  constructor(compareFn: ICompareFn, boundResult?: string) {
+  constructor(
+    compareFn: ICompareFn,
+    compareTarget?: string,
+    boundResult?: string
+  ) {
     this.compareFn = compareFn;
+    this.compareTarget = compareTarget;
     this.boundResult = boundResult;
   }
 }
 
 export function compare(
   compareFn: ICompareFn,
+  compareTarget?: string,
   boundResult?: string
 ): Comparison {
-  return new Comparison(compareFn, boundResult);
+  return new Comparison(compareFn, compareTarget, boundResult);
 }
 
 function getValueOfComparisonTarget(v: any, bindings: IVariableBindings) {
@@ -86,8 +93,11 @@ export const equals = (v: any) =>
   );
 export const notEquals = (v: any, boundResult?: string) =>
   compare(
-    (a: any, bindings: IVariableBindings): boolean =>
-      a !== getValueOfComparisonTarget(v, bindings),
+    (a: any, bindings: IVariableBindings): boolean => {
+      const b = getValueOfComparisonTarget(v, bindings);
+      return a !== b;
+    },
+    v as string,
     boundResult
   );
 
@@ -159,9 +169,8 @@ export class ParsedCondition {
       this.comparisonFields["0"] = identifier;
       this.placeholderFields["0"] = true;
 
-      if (identifier.boundResult) {
-        this.variableNames[identifier.boundResult] = "0";
-        this.variableFields["0"] = identifier.boundResult;
+      if (identifier.compareTarget && isVariable(identifier.compareTarget)) {
+        this.variableNames[identifier.compareTarget] = "0";
       }
     } else if (isVariable(identifier)) {
       this.variableNames[identifier] = "0";
@@ -176,9 +185,8 @@ export class ParsedCondition {
       this.comparisonFields["1"] = attribute;
       this.placeholderFields["1"] = true;
 
-      if (attribute.boundResult) {
-        this.variableNames[attribute.boundResult] = "1";
-        this.variableFields["1"] = attribute.boundResult;
+      if (attribute.compareTarget && isVariable(attribute.compareTarget)) {
+        this.variableNames[attribute.compareTarget] = "1";
       }
     } else if (isVariable(attribute)) {
       this.variableNames[attribute] = "1";
@@ -193,9 +201,8 @@ export class ParsedCondition {
       this.comparisonFields["2"] = value;
       this.placeholderFields["2"] = true;
 
-      if (value.boundResult) {
-        this.variableNames[value.boundResult] = "2";
-        this.variableFields["2"] = value.boundResult;
+      if (value.compareTarget && isVariable(value.compareTarget)) {
+        this.variableNames[value.compareTarget] = "2";
       }
     } else if (isVariable(value)) {
       this.variableNames[value] = "2";
@@ -235,10 +242,19 @@ export function getJoinTestsFromCondition(
   const variableNames: IVariableNames =
     c instanceof AccumulatorCondition ? {} : c.variableNames;
 
+  const variableFields: { [P in IFactFields]?: string } =
+    c instanceof AccumulatorCondition ? {} : c.variableFields;
+
   const results: TestAtJoinNode[] = [];
 
   for (const variableName in variableNames) {
     if (variableNames.hasOwnProperty(variableName)) {
+      const fieldValue = variableFields[variableNames[variableName]];
+
+      if (fieldValue !== variableName) {
+        continue;
+      }
+
       const earlierCondition = findVariableInEarlierConditions(
         variableName,
         earlierConditions
@@ -299,7 +315,6 @@ export function extractBindingsFromCondition(
 
     if (typeof bindings[cleanedVariableName] === "undefined") {
       const variableField = c.variableNames[variableName];
-
       bindings[cleanedVariableName] = f[variableField];
     }
   }
