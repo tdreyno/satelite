@@ -23,10 +23,10 @@ export type ICompareFn = (a: any, b: IVariableBindings) => boolean;
 
 export class Comparison {
   compareFn: ICompareFn;
-  compareTarget?: string;
+  compareTarget?: string[];
   boundResult?: string;
 
-  constructor(compareFn: ICompareFn, compareTarget?: string) {
+  constructor(compareFn: ICompareFn, compareTarget?: string[]) {
     this.compareFn = compareFn;
     this.compareTarget = compareTarget;
   }
@@ -39,10 +39,9 @@ export class Comparison {
 
 export function compare(
   compareFn: ICompareFn,
-  compareTarget?: string,
-  boundResult?: string
+  compareTarget?: string[]
 ): Comparison {
-  return new Comparison(compareFn, compareTarget, boundResult);
+  return new Comparison(compareFn, compareTarget);
 }
 
 function getValueOfComparisonTarget(v: any, bindings: IVariableBindings) {
@@ -70,40 +69,54 @@ export const lessThanOrEqualTo = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
       a <= getValueOfComparisonTarget(v, bindings),
-    v
+    [v]
   );
 export const lessThan = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
       a < getValueOfComparisonTarget(v, bindings),
-    v
+    [v]
   );
 export const greaterThan = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
       a > getValueOfComparisonTarget(v, bindings),
-    v
+    [v]
   );
 export const greaterThanOrEqualTo = (v: any) =>
   compare(
     (a: number, bindings: IVariableBindings): boolean =>
       a >= getValueOfComparisonTarget(v, bindings),
-    v
+    [v]
   );
 export const equals = (v: any) =>
   compare(
     (a: any, bindings: IVariableBindings): boolean =>
       a === getValueOfComparisonTarget(v, bindings),
-    v
+    [v]
   );
+
+export const includes = (...vs: any[]) =>
+  compare((a: any, bindings: IVariableBindings): boolean => {
+    return (
+      vs.map(v => getValueOfComparisonTarget(v, bindings)).indexOf(a) !== -1
+    );
+  }, vs);
 export const notEquals = (v: any) =>
   compare(
     (a: any, bindings: IVariableBindings): boolean => {
       const b = getValueOfComparisonTarget(v, bindings);
       return a !== b;
     },
-    v as string
+    [v]
   );
+
+export const notIncludes = (...vs: any[]) =>
+  compare((a: any, bindings: IVariableBindings): boolean => {
+    return (
+      vs.map(v => getValueOfComparisonTarget(v, bindings)).indexOf(a) === -1
+    );
+  }, vs);
 
 export function isVariable(v: any): v is string {
   return isString(v) && v.startsWith(getVariablePrefix());
@@ -173,8 +186,17 @@ export class ParsedCondition {
       this.comparisonFields["0"] = identifier;
       this.placeholderFields["0"] = true;
 
-      if (identifier.compareTarget && isVariable(identifier.compareTarget)) {
-        this.variableNames[identifier.compareTarget] = "0";
+      if (identifier.compareTarget) {
+        identifier.compareTarget.forEach(ct => {
+          if (isVariable(ct)) {
+            this.variableNames[ct] = "0";
+          }
+        });
+      }
+
+      if (identifier.boundResult) {
+        this.variableNames[identifier.boundResult] = "0";
+        this.variableFields["0"] = identifier.boundResult;
       }
     } else if (isVariable(identifier)) {
       this.variableNames[identifier] = "0";
@@ -189,8 +211,17 @@ export class ParsedCondition {
       this.comparisonFields["1"] = attribute;
       this.placeholderFields["1"] = true;
 
-      if (attribute.compareTarget && isVariable(attribute.compareTarget)) {
-        this.variableNames[attribute.compareTarget] = "1";
+      if (attribute.compareTarget) {
+        attribute.compareTarget.forEach(ct => {
+          if (isVariable(ct)) {
+            this.variableNames[ct] = "1";
+          }
+        });
+      }
+
+      if (attribute.boundResult) {
+        this.variableNames[attribute.boundResult] = "1";
+        this.variableFields["1"] = attribute.boundResult;
       }
     } else if (isVariable(attribute)) {
       this.variableNames[attribute] = "1";
@@ -205,8 +236,17 @@ export class ParsedCondition {
       this.comparisonFields["2"] = value;
       this.placeholderFields["2"] = true;
 
-      if (value.compareTarget && isVariable(value.compareTarget)) {
-        this.variableNames[value.compareTarget] = "2";
+      if (value.compareTarget) {
+        value.compareTarget.forEach(ct => {
+          if (isVariable(ct)) {
+            this.variableNames[ct] = "2";
+          }
+        });
+      }
+
+      if (value.boundResult) {
+        this.variableNames[value.boundResult] = "2";
+        this.variableFields["2"] = value.boundResult;
       }
     } else if (isVariable(value)) {
       this.variableNames[value] = "2";
