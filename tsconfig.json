@@ -5,12 +5,7 @@
     "strict": true,
     "noUnusedParameters": true,
     "jsx": "react",
-    "allowSyntheticDefaultImports": true,
-    "plugins": [
-      {
-        "name": "tslint-language-service"
-      }
-    ]
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["node_modules", "demo", "dist"]
 }

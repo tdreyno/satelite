@@ -30,8 +30,8 @@ export type IConditionsOrPropConditions<OwnProps> =
 
 export function subscribe<ReteProps, OwnProps>(
   ...conditionsOrPropConditions: Array<IConditionsOrPropConditions<OwnProps>>
-): (<TFunction extends React.ComponentClass<ReteProps | OwnProps>>(
-  ComposedComponent: TFunction
+): ((
+  ComposedComponent: React.ComponentClass<ReteProps | OwnProps>
 ) => React.ComponentClass<OwnProps>) {
   return ComposedComponent => {
     class Injected extends React.Component<OwnProps, ReteProps> {
