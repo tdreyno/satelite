@@ -89,6 +89,7 @@ describe("Pairing tests", () => {
       ["?pairId", "possiblePairingHost", "?host1"],
       ["?pairId", "possiblePairingGuest", "?guest1"],
 
+      // TODO: Bug here probably with combo variable and condition fields
       [
         notEquals("?pairId").as("?secondPairId"),
         "possiblePairingHost",

@@ -6,8 +6,6 @@
     "noUnusedParameters": true,
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "inlineSourceMap": true,
     "plugins": [
       {
         "name": "tslint-language-service"
