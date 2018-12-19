@@ -1,18 +1,9 @@
 {
   "sourceMaps": true,
-  "presets": [
-    [
-      "env",
-      {
-        "targets": {
-          "safari": 10,
-          "ios": 10,
-          "chrome": 56,
-          "firefox": 51,
-          "edge": 13
-        }
-      }
-    ]
-  ],
+  "env": {
+    "production": {
+      "presets": ["minify"]
+    }
+  },
   "plugins": []
 }

@@ -1,5 +1,4 @@
 import { memoize } from "interstelar";
-import { chunk, uniq } from "lodash";
 import {
   collect,
   count,
@@ -23,7 +22,7 @@ const makePair = memoize((_a: any, _b: any) => {
   return --lastPair;
 });
 
-const { assert, query, rule } = new Rete({
+const { assert, /*query,*/ rule } = new Rete({
   // Asserting: console.log.bind(console)
 });
 
@@ -103,7 +102,7 @@ describe("Pairing tests", () => {
     ).then(({ pairId, secondPairId, host1, guest1, host2, guest2 }) => {
       const allPairs = [[host1, guest1], [host2, guest2]];
 
-      console.log(allPairs);
+      // console.log(allPairs);
       const hasReflections = allPairs
         .map(pair => [...pair].reverse())
         .some(([h1, g1]) => {
@@ -113,7 +112,7 @@ describe("Pairing tests", () => {
         });
 
       if (hasReflections) {
-        return;
+        return undefined;
       }
 
       const guid = makeGuid();
@@ -166,7 +165,7 @@ describe("Pairing tests", () => {
           });
 
         if (hasReflections) {
-          return;
+          return undefined;
         }
 
         const guid = makeGuid();
@@ -233,7 +232,7 @@ describe("Pairing tests", () => {
           });
 
         if (hasReflections) {
-          return;
+          return undefined;
         }
 
         const guid = makeGuid();

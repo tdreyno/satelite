@@ -5,7 +5,7 @@ import {
   retract,
   retractEntity,
   subscribe,
-  update,
+  update
 } from "../../data";
 import { ITodoItemProps, TodoItem as TodoItemPure } from "./TodoItem";
 
@@ -17,7 +17,9 @@ export type ITodoItemHandlerProps = Pick<
 >;
 
 export const TodoItem = compose<ITodoItemOwnProps, ITodoItemOwnProps>(
-  subscribe(({ todoId }) => entity("?todo", todoId, { stripPrefix: true })),
+  subscribe<any, ITodoItemProps>(({ todoId }) =>
+    entity("?todo", todoId, { stripPrefix: true })
+  ),
   withHandlers<ITodoItemHandlerProps, ITodoItemOwnProps & ITodoItemReteProps>({
     setIsBeingEdited: ({ todoId }) => (v: boolean) => {
       const action = v ? assert : retract;
@@ -32,6 +34,6 @@ export const TodoItem = compose<ITodoItemOwnProps, ITodoItemOwnProps>(
     toggleTodo: ({ todo, todoId }) => () => {
       const action = todo && todo.completed ? retract : assert;
       action([todoId, "todo/completed", true]);
-    },
-  }),
+    }
+  })
 )(TodoItemPure);

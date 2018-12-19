@@ -82,6 +82,7 @@ export class ReteNode {
   logF(eventName: string, ...data: any[]) {
     const old = this.rete.loggers;
 
+    // tslint:disable-next-line
     this.rete.loggers = console.log.bind(this);
 
     this.log(eventName, ...data);

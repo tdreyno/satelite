@@ -7,32 +7,32 @@
     "build": "NODE_ENV=production webpack"
   },
   "devDependencies": {
-    "@types/react": "^16.0.5",
-    "@types/react-dom": "^15.5.1",
-    "awesome-typescript-loader": "^3.2.1",
-    "babel-core": "^6.25.0",
-    "babel-loader": "^7.1.1",
-    "babel-minify-webpack-plugin": "^0.2.0",
-    "babel-preset-env": "^1.6.0",
-    "copy-webpack-plugin": "^4.0.1",
-    "css-loader": "^0.28.7",
-    "file-loader": "^0.11.2",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.0",
+    "@types/react": "^16.7.17",
+    "@types/react-dom": "^16.0.11",
+    "@types/recompose": "^0.30.2",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.4",
+    "copy-webpack-plugin": "^4.6.0",
+    "css-loader": "^2.0.1",
+    "file-loader": "^2.0.0",
     "source-map-loader": "^0.2.1",
-    "style-loader": "^0.18.2",
-    "ts-loader": "^2.3.6",
-    "typescript": "^2.5.2",
-    "webpack": "^3.5.6",
-    "webpack-dev-middleware": "^1.11.0",
-    "webpack-dev-server": "^2.5.0"
+    "style-loader": "^0.23.1",
+    "ts-loader": "^5.3.1",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.0",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-middleware": "^3.4.0",
+    "webpack-dev-server": "^3.1.10"
   },
   "dependencies": {
-    "@types/recompose": "^0.24.0",
     "classnames": "^2.2.5",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "recompose": "^0.25.0",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "recompose": "^0.30.0",
     "todomvc-app-css": "^2.1.0",
     "todomvc-common": "^1.0.4",
-    "url-loader": "^0.5.9"
+    "url-loader": "^1.1.2"
   }
 }
