@@ -263,7 +263,6 @@ describe("Pairing tests", () => {
       const allPoints = [pair1Point, pair2Point, pair3Point, pair4Point];
       const totalScore = allPoints.reduce((sum, p) => sum + p, 0);
 
-      console.log("okay", totalScore);
       return [[fourPairId, "fourPairScore", totalScore]] as IFact[];
     });
 

@@ -168,7 +168,7 @@ export function sortBy(
   bindingName: string,
   dataKey: string,
   sortKeys: string[],
-  orderKeys?: string[]
+  orderKeys?: Array<boolean | "asc" | "desc">
 ): AccumulatorCondition {
   const cleanKey = cleanVariableName(dataKey);
 
